@@ -27,7 +27,7 @@ Installation
 The two examples included in the repo can be used to build new projects over them.
 For including the addon in new projects:
 - OSX - Xcode:
-  * Install Essentia dependencies: http://essentia.upf.edu/documentation/installing.html
+  * Install Essentia library: http://essentia.upf.edu/documentation/installing.html
   * Project Generator -> New project (openframeworks_osx_64)
   * Build Settings->Architectures->64-bit Intel 
   * Add ofxAudioAnalyzer directories to the project src/ and libs/
