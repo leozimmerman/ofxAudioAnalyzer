@@ -18,9 +18,8 @@ Demo video: https://vimeo.com/129795472
 Compatibility
 ---------
 Only OSX and Linux
- - OSX (!): needs the OF 64 bits version of Nick Hardeman : 
-https://github.com/NickHardeman/openframeworks_osx_64
- - Linux 64 bits. Tested with Ubuntu 12.04
+ - OSX (!): needs the OF 64 bits version of Nick Hardeman - https://github.com/NickHardeman/openframeworks_osx_64.  (Tested in OS X 10.9.5) 
+ - Linux 64 bits. (Tested with Ubuntu 12.04)
  
 Installation
 ---------
