@@ -33,7 +33,7 @@ For including the addon in new projects:
   * Add ofxAudioAnalyzer directories to the project src/ and libs/
   * Build Seetings -> Library Search Paths -> “/usr/local/lib”
   * Build Settings -> User Header Search Paths -> “../../../addons/ofxAudioAnalyzer/libs/essentia/include” (non-recursive)
-  * Dragging the following library files from “/usr/local/lib” to the root of the Xcode project in the left side file hierarchy window: libavcodec.a - libavformat.a - libavutil.a - libessentia.a - libfftw3f.a  - libsamplerate.a - libswresample.a  - libtag.dylib -libyaml.a
+  * Dragg the following library files from “/usr/local/lib” to the root of the Xcode project in the left side file hierarchy window: libavcodec.a - libavformat.a - libavutil.a - libessentia.a - libfftw3f.a  - libsamplerate.a - libswresample.a  - libtag.dylib -libyaml.a
 	
 
 - Linux:
