@@ -27,10 +27,14 @@ Installation
 The two examples included in the repo can be used to build new projects over them.
 For including the addon in new projects:
 - OSX - Xcode:
+  * Install Essentia dependencies: http://essentia.upf.edu/documentation/installing.html
   * Project Generator -> New project (openframeworks_osx_64)
   * Build Settings->Architectures->64-bit Intel 
   * Add ofxAudioAnalyzer directories to the project src/ and libs/
-  * Build Settings -> User Header Search Paths -> ../../../addons/ofxAudioAnalyzer/libs/essentia/include (non-recursive)
+  * Build Seetings -> Library Search Paths -> “/usr/local/lib”
+  * Build Settings -> User Header Search Paths -> “../../../addons/ofxAudioAnalyzer/libs/essentia/include” (non-recursive)
+  * Dragging the following library files from “/usr/local/lib” to the root of the Xcode project in the left side file hierarchy window: libavcodec.a - libavformat.a - libavutil.a - libessentia.a - libfftw3f.a  - libsamplerate.a - libswresample.a  - libtag.dylib -libyaml.a
+	
 
 - Linux:
   * Install Essentia library: http://essentia.upf.edu/documentation/installing.html

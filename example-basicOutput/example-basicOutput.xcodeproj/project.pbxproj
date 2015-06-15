@@ -8,34 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		B31736ED1B03E069000CF6CC /* ofxAudioAnalyzer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B31736D71B03E069000CF6CC /* ofxAudioAnalyzer.cpp */; };
-		B31E0F3C1B052EC8002CADC6 /* libavcodec.55.39.101.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F201B052EC8002CADC6 /* libavcodec.55.39.101.dylib */; };
-		B31E0F3D1B052EC8002CADC6 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F211B052EC8002CADC6 /* libavcodec.a */; };
-		B31E0F3E1B052EC8002CADC6 /* libavdevice.55.5.100 12.06.38.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F221B052EC8002CADC6 /* libavdevice.55.5.100 12.06.38.dylib */; };
-		B31E0F3F1B052EC8002CADC6 /* libavdevice.a 12.06.38 in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F231B052EC8002CADC6 /* libavdevice.a 12.06.38 */; };
-		B31E0F401B052EC8002CADC6 /* libavformat.55.19.104.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F241B052EC8002CADC6 /* libavformat.55.19.104.dylib */; };
-		B31E0F411B052EC8002CADC6 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F251B052EC8002CADC6 /* libavformat.a */; };
-		B31E0F421B052EC8002CADC6 /* libavresample.1.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F261B052EC8002CADC6 /* libavresample.1.1.0.dylib */; };
-		B31E0F431B052EC8002CADC6 /* libavresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F271B052EC8002CADC6 /* libavresample.a */; };
-		B31E0F441B052EC8002CADC6 /* libavutil.52.48.101.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F281B052EC8002CADC6 /* libavutil.52.48.101.dylib */; };
-		B31E0F451B052EC8002CADC6 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F291B052EC8002CADC6 /* libavutil.a */; };
-		B31E0F461B052EC8002CADC6 /* libessentia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F2A1B052EC8002CADC6 /* libessentia.a */; };
-		B31E0F471B052EC8002CADC6 /* libfaac.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F2B1B052EC8002CADC6 /* libfaac.0.0.0.dylib */; };
-		B31E0F481B052EC8002CADC6 /* libfaac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F2C1B052EC8002CADC6 /* libfaac.a */; };
-		B31E0F491B052EC8002CADC6 /* libfftw3f.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F2D1B052EC8002CADC6 /* libfftw3f.3.dylib */; };
-		B31E0F4A1B052EC8002CADC6 /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F2E1B052EC8002CADC6 /* libfftw3f.a */; };
-		B31E0F4B1B052EC8002CADC6 /* libmp3lame.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F2F1B052EC8002CADC6 /* libmp3lame.0.dylib */; };
-		B31E0F4C1B052EC8002CADC6 /* libmp3lame.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F301B052EC8002CADC6 /* libmp3lame.a */; };
-		B31E0F4D1B052EC8002CADC6 /* libsamplerate.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F311B052EC8002CADC6 /* libsamplerate.0.dylib */; };
-		B31E0F4E1B052EC8002CADC6 /* libsamplerate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F321B052EC8002CADC6 /* libsamplerate.a */; };
-		B31E0F4F1B052EC8002CADC6 /* libswresample.0.17.104.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F331B052EC8002CADC6 /* libswresample.0.17.104.dylib */; };
-		B31E0F501B052EC8002CADC6 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F341B052EC8002CADC6 /* libswresample.a */; };
-		B31E0F511B052EC8002CADC6 /* libtag.1.14.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F351B052EC8002CADC6 /* libtag.1.14.0.dylib */; };
-		B31E0F521B052EC8002CADC6 /* libtag_c.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F361B052EC8002CADC6 /* libtag_c.0.0.0.dylib */; };
-		B31E0F531B052EC9002CADC6 /* libx264.125.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F371B052EC8002CADC6 /* libx264.125.dylib */; };
-		B31E0F541B052EC9002CADC6 /* libxvidcore.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F381B052EC8002CADC6 /* libxvidcore.4.dylib */; };
-		B31E0F551B052EC9002CADC6 /* libxvidcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F391B052EC8002CADC6 /* libxvidcore.a */; };
-		B31E0F561B052EC9002CADC6 /* libyaml-0.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F3A1B052EC8002CADC6 /* libyaml-0.2.dylib */; };
-		B31E0F571B052EC9002CADC6 /* libyaml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31E0F3B1B052EC8002CADC6 /* libyaml.a */; };
+		B3D6D5F11B2F3EDD0038A372 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D6D5EB1B2F3EDD0038A372 /* libavcodec.a */; };
+		B3D6D5F21B2F3EDD0038A372 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D6D5EC1B2F3EDD0038A372 /* libavformat.a */; };
+		B3D6D5F31B2F3EDD0038A372 /* libessentia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D6D5ED1B2F3EDD0038A372 /* libessentia.a */; };
+		B3D6D5F41B2F3EDD0038A372 /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D6D5EE1B2F3EDD0038A372 /* libfftw3f.a */; };
+		B3D6D5F51B2F3EDD0038A372 /* libsamplerate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D6D5EF1B2F3EDD0038A372 /* libsamplerate.a */; };
+		B3D6D5F61B2F3EDD0038A372 /* libyaml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D6D5F01B2F3EDD0038A372 /* libyaml.a */; };
+		B3D6D5F81B2F3EEA0038A372 /* libtag.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D6D5F71B2F3EEA0038A372 /* libtag.dylib */; };
+		B3D6D5FA1B2F3F0F0038A372 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D6D5F91B2F3F0F0038A372 /* libswresample.a */; };
+		B3D6D5FC1B2F3F720038A372 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3D6D5FB1B2F3F720038A372 /* libavutil.a */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
@@ -98,34 +79,15 @@
 /* Begin PBXFileReference section */
 		B31736D71B03E069000CF6CC /* ofxAudioAnalyzer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAudioAnalyzer.cpp; sourceTree = "<group>"; };
 		B31736D81B03E069000CF6CC /* ofxAudioAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxAudioAnalyzer.h; sourceTree = "<group>"; };
-		B31E0F201B052EC8002CADC6 /* libavcodec.55.39.101.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libavcodec.55.39.101.dylib; sourceTree = "<group>"; };
-		B31E0F211B052EC8002CADC6 /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavcodec.a; sourceTree = "<group>"; };
-		B31E0F221B052EC8002CADC6 /* libavdevice.55.5.100 12.06.38.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libavdevice.55.5.100 12.06.38.dylib"; sourceTree = "<group>"; };
-		B31E0F231B052EC8002CADC6 /* libavdevice.a 12.06.38 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libavdevice.a 12.06.38"; sourceTree = "<group>"; };
-		B31E0F241B052EC8002CADC6 /* libavformat.55.19.104.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libavformat.55.19.104.dylib; sourceTree = "<group>"; };
-		B31E0F251B052EC8002CADC6 /* libavformat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavformat.a; sourceTree = "<group>"; };
-		B31E0F261B052EC8002CADC6 /* libavresample.1.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libavresample.1.1.0.dylib; sourceTree = "<group>"; };
-		B31E0F271B052EC8002CADC6 /* libavresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavresample.a; sourceTree = "<group>"; };
-		B31E0F281B052EC8002CADC6 /* libavutil.52.48.101.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libavutil.52.48.101.dylib; sourceTree = "<group>"; };
-		B31E0F291B052EC8002CADC6 /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavutil.a; sourceTree = "<group>"; };
-		B31E0F2A1B052EC8002CADC6 /* libessentia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libessentia.a; sourceTree = "<group>"; };
-		B31E0F2B1B052EC8002CADC6 /* libfaac.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libfaac.0.0.0.dylib; sourceTree = "<group>"; };
-		B31E0F2C1B052EC8002CADC6 /* libfaac.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfaac.a; sourceTree = "<group>"; };
-		B31E0F2D1B052EC8002CADC6 /* libfftw3f.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libfftw3f.3.dylib; sourceTree = "<group>"; };
-		B31E0F2E1B052EC8002CADC6 /* libfftw3f.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfftw3f.a; sourceTree = "<group>"; };
-		B31E0F2F1B052EC8002CADC6 /* libmp3lame.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmp3lame.0.dylib; sourceTree = "<group>"; };
-		B31E0F301B052EC8002CADC6 /* libmp3lame.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmp3lame.a; sourceTree = "<group>"; };
-		B31E0F311B052EC8002CADC6 /* libsamplerate.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libsamplerate.0.dylib; sourceTree = "<group>"; };
-		B31E0F321B052EC8002CADC6 /* libsamplerate.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libsamplerate.a; sourceTree = "<group>"; };
-		B31E0F331B052EC8002CADC6 /* libswresample.0.17.104.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libswresample.0.17.104.dylib; sourceTree = "<group>"; };
-		B31E0F341B052EC8002CADC6 /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswresample.a; sourceTree = "<group>"; };
-		B31E0F351B052EC8002CADC6 /* libtag.1.14.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libtag.1.14.0.dylib; sourceTree = "<group>"; };
-		B31E0F361B052EC8002CADC6 /* libtag_c.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libtag_c.0.0.0.dylib; sourceTree = "<group>"; };
-		B31E0F371B052EC8002CADC6 /* libx264.125.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libx264.125.dylib; sourceTree = "<group>"; };
-		B31E0F381B052EC8002CADC6 /* libxvidcore.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libxvidcore.4.dylib; sourceTree = "<group>"; };
-		B31E0F391B052EC8002CADC6 /* libxvidcore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libxvidcore.a; sourceTree = "<group>"; };
-		B31E0F3A1B052EC8002CADC6 /* libyaml-0.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libyaml-0.2.dylib"; sourceTree = "<group>"; };
-		B31E0F3B1B052EC8002CADC6 /* libyaml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libyaml.a; sourceTree = "<group>"; };
+		B3D6D5EB1B2F3EDD0038A372 /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = ../../../../../../../usr/local/lib/libavcodec.a; sourceTree = "<group>"; };
+		B3D6D5EC1B2F3EDD0038A372 /* libavformat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavformat.a; path = ../../../../../../../usr/local/lib/libavformat.a; sourceTree = "<group>"; };
+		B3D6D5ED1B2F3EDD0038A372 /* libessentia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libessentia.a; path = ../../../../../../../usr/local/lib/libessentia.a; sourceTree = "<group>"; };
+		B3D6D5EE1B2F3EDD0038A372 /* libfftw3f.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfftw3f.a; path = ../../../../../../../usr/local/lib/libfftw3f.a; sourceTree = "<group>"; };
+		B3D6D5EF1B2F3EDD0038A372 /* libsamplerate.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsamplerate.a; path = ../../../../../../../usr/local/lib/libsamplerate.a; sourceTree = "<group>"; };
+		B3D6D5F01B2F3EDD0038A372 /* libyaml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libyaml.a; path = ../../../../../../../usr/local/lib/libyaml.a; sourceTree = "<group>"; };
+		B3D6D5F71B2F3EEA0038A372 /* libtag.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtag.dylib; path = ../../../../../../../usr/local/lib/libtag.dylib; sourceTree = "<group>"; };
+		B3D6D5F91B2F3F0F0038A372 /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswresample.a; path = ../../../../../../../usr/local/lib/libswresample.a; sourceTree = "<group>"; };
+		B3D6D5FB1B2F3F720038A372 /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavutil.a; path = ../../../../../../../usr/local/lib/libavutil.a; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
@@ -157,51 +119,32 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B31E0F541B052EC9002CADC6 /* libxvidcore.4.dylib in Frameworks */,
-				B31E0F451B052EC8002CADC6 /* libavutil.a in Frameworks */,
-				B31E0F4A1B052EC8002CADC6 /* libfftw3f.a in Frameworks */,
-				B31E0F3C1B052EC8002CADC6 /* libavcodec.55.39.101.dylib in Frameworks */,
-				B31E0F4C1B052EC8002CADC6 /* libmp3lame.a in Frameworks */,
-				B31E0F471B052EC8002CADC6 /* libfaac.0.0.0.dylib in Frameworks */,
-				B31E0F3E1B052EC8002CADC6 /* libavdevice.55.5.100 12.06.38.dylib in Frameworks */,
 				E7F985F815E0DEA3003869B5 /* Accelerate.framework in Frameworks */,
-				B31E0F4B1B052EC8002CADC6 /* libmp3lame.0.dylib in Frameworks */,
-				B31E0F501B052EC8002CADC6 /* libswresample.a in Frameworks */,
-				B31E0F401B052EC8002CADC6 /* libavformat.55.19.104.dylib in Frameworks */,
+				B3D6D5F51B2F3EDD0038A372 /* libsamplerate.a in Frameworks */,
 				E7E077E815D3B6510020DFD4 /* QTKit.framework in Frameworks */,
-				B31E0F491B052EC8002CADC6 /* libfftw3f.3.dylib in Frameworks */,
 				E4EB6799138ADC1D00A09F29 /* GLUT.framework in Frameworks */,
-				B31E0F561B052EC9002CADC6 /* libyaml-0.2.dylib in Frameworks */,
-				B31E0F461B052EC8002CADC6 /* libessentia.a in Frameworks */,
-				B31E0F421B052EC8002CADC6 /* libavresample.1.1.0.dylib in Frameworks */,
-				B31E0F4F1B052EC8002CADC6 /* libswresample.0.17.104.dylib in Frameworks */,
+				B3D6D5F31B2F3EDD0038A372 /* libessentia.a in Frameworks */,
+				B3D6D5F21B2F3EDD0038A372 /* libavformat.a in Frameworks */,
 				E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */,
 				E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */,
-				B31E0F571B052EC9002CADC6 /* libyaml.a in Frameworks */,
 				E45BE97C0E8CC7DD009D7055 /* ApplicationServices.framework in Frameworks */,
+				B3D6D5F81B2F3EEA0038A372 /* libtag.dylib in Frameworks */,
+				B3D6D5FC1B2F3F720038A372 /* libavutil.a in Frameworks */,
 				E45BE97D0E8CC7DD009D7055 /* AudioToolbox.framework in Frameworks */,
-				B31E0F481B052EC8002CADC6 /* libfaac.a in Frameworks */,
-				B31E0F4E1B052EC8002CADC6 /* libsamplerate.a in Frameworks */,
+				B3D6D5FA1B2F3F0F0038A372 /* libswresample.a in Frameworks */,
 				E45BE97E0E8CC7DD009D7055 /* Carbon.framework in Frameworks */,
 				E45BE97F0E8CC7DD009D7055 /* CoreAudio.framework in Frameworks */,
+				B3D6D5F41B2F3EDD0038A372 /* libfftw3f.a in Frameworks */,
 				E45BE9800E8CC7DD009D7055 /* CoreFoundation.framework in Frameworks */,
-				B31E0F411B052EC8002CADC6 /* libavformat.a in Frameworks */,
-				B31E0F4D1B052EC8002CADC6 /* libsamplerate.0.dylib in Frameworks */,
 				E45BE9810E8CC7DD009D7055 /* CoreServices.framework in Frameworks */,
-				B31E0F3F1B052EC8002CADC6 /* libavdevice.a 12.06.38 in Frameworks */,
-				B31E0F521B052EC8002CADC6 /* libtag_c.0.0.0.dylib in Frameworks */,
+				B3D6D5F61B2F3EDD0038A372 /* libyaml.a in Frameworks */,
 				E45BE9830E8CC7DD009D7055 /* OpenGL.framework in Frameworks */,
 				E45BE9840E8CC7DD009D7055 /* QuickTime.framework in Frameworks */,
-				B31E0F431B052EC8002CADC6 /* libavresample.a in Frameworks */,
-				B31E0F441B052EC8002CADC6 /* libavutil.52.48.101.dylib in Frameworks */,
-				B31E0F551B052EC9002CADC6 /* libxvidcore.a in Frameworks */,
-				B31E0F3D1B052EC8002CADC6 /* libavcodec.a in Frameworks */,
 				E4C2424710CC5A17004149E2 /* AppKit.framework in Frameworks */,
-				B31E0F511B052EC8002CADC6 /* libtag.1.14.0.dylib in Frameworks */,
 				E4C2424810CC5A17004149E2 /* Cocoa.framework in Frameworks */,
 				E4C2424910CC5A17004149E2 /* IOKit.framework in Frameworks */,
-				B31E0F531B052EC9002CADC6 /* libx264.125.dylib in Frameworks */,
 				E7E077E515D3B63C0020DFD4 /* CoreVideo.framework in Frameworks */,
+				B3D6D5F11B2F3EDD0038A372 /* libavcodec.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,36 +198,24 @@
 		B31E0F1F1B052EC8002CADC6 /* osx */ = {
 			isa = PBXGroup;
 			children = (
-				B31E0F201B052EC8002CADC6 /* libavcodec.55.39.101.dylib */,
-				B31E0F211B052EC8002CADC6 /* libavcodec.a */,
-				B31E0F221B052EC8002CADC6 /* libavdevice.55.5.100 12.06.38.dylib */,
-				B31E0F231B052EC8002CADC6 /* libavdevice.a 12.06.38 */,
-				B31E0F241B052EC8002CADC6 /* libavformat.55.19.104.dylib */,
-				B31E0F251B052EC8002CADC6 /* libavformat.a */,
-				B31E0F261B052EC8002CADC6 /* libavresample.1.1.0.dylib */,
-				B31E0F271B052EC8002CADC6 /* libavresample.a */,
-				B31E0F281B052EC8002CADC6 /* libavutil.52.48.101.dylib */,
-				B31E0F291B052EC8002CADC6 /* libavutil.a */,
-				B31E0F2A1B052EC8002CADC6 /* libessentia.a */,
-				B31E0F2B1B052EC8002CADC6 /* libfaac.0.0.0.dylib */,
-				B31E0F2C1B052EC8002CADC6 /* libfaac.a */,
-				B31E0F2D1B052EC8002CADC6 /* libfftw3f.3.dylib */,
-				B31E0F2E1B052EC8002CADC6 /* libfftw3f.a */,
-				B31E0F2F1B052EC8002CADC6 /* libmp3lame.0.dylib */,
-				B31E0F301B052EC8002CADC6 /* libmp3lame.a */,
-				B31E0F311B052EC8002CADC6 /* libsamplerate.0.dylib */,
-				B31E0F321B052EC8002CADC6 /* libsamplerate.a */,
-				B31E0F331B052EC8002CADC6 /* libswresample.0.17.104.dylib */,
-				B31E0F341B052EC8002CADC6 /* libswresample.a */,
-				B31E0F351B052EC8002CADC6 /* libtag.1.14.0.dylib */,
-				B31E0F361B052EC8002CADC6 /* libtag_c.0.0.0.dylib */,
-				B31E0F371B052EC8002CADC6 /* libx264.125.dylib */,
-				B31E0F381B052EC8002CADC6 /* libxvidcore.4.dylib */,
-				B31E0F391B052EC8002CADC6 /* libxvidcore.a */,
-				B31E0F3A1B052EC8002CADC6 /* libyaml-0.2.dylib */,
-				B31E0F3B1B052EC8002CADC6 /* libyaml.a */,
 			);
 			path = osx;
+			sourceTree = "<group>";
+		};
+		B3D6D5EA1B2F3E790038A372 /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				B3D6D5FB1B2F3F720038A372 /* libavutil.a */,
+				B3D6D5F91B2F3F0F0038A372 /* libswresample.a */,
+				B3D6D5F71B2F3EEA0038A372 /* libtag.dylib */,
+				B3D6D5EB1B2F3EDD0038A372 /* libavcodec.a */,
+				B3D6D5EC1B2F3EDD0038A372 /* libavformat.a */,
+				B3D6D5ED1B2F3EDD0038A372 /* libessentia.a */,
+				B3D6D5EE1B2F3EDD0038A372 /* libfftw3f.a */,
+				B3D6D5EF1B2F3EDD0038A372 /* libsamplerate.a */,
+				B3D6D5F01B2F3EDD0038A372 /* libyaml.a */,
+			);
+			name = Dependencies;
 			sourceTree = "<group>";
 		};
 		BB4B014C10F69532006C3DED /* addons */ = {
@@ -351,6 +282,7 @@
 				E4B69E1C0A3A1BDC003C02F2 /* src */,
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
 				BB4B014C10F69532006C3DED /* addons */,
+				B3D6D5EA1B2F3E790038A372 /* Dependencies */,
 				E45BE5980E8CC70C009D7055 /* frameworks */,
 				E4B69B5B0A3A1756003C02F2 /* example-basicOutputDebug.app */,
 			);
@@ -512,6 +444,7 @@
 					"-lpthread",
 					"-mtune=native",
 				);
+				OTHER_LDFLAGS = "$(OF_CORE_LIBS)";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -543,6 +476,7 @@
 					"-lpthread",
 					"-mtune=native",
 				);
+				OTHER_LDFLAGS = "$(OF_CORE_LIBS)";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -566,7 +500,8 @@
 				ICON_FILE = "$(ICON_FILE_PATH)$(ICON)";
 				INFOPLIST_FILE = "openFrameworks-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = /Users/leo/Development/openframeworks_osx_64/addons/ofxAudioAnalyzer/libs/essentia/lib/osx;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_LDFLAGS = "$(OF_CORE_LIBS)";
 				PRODUCT_NAME = "example-basicOutputDebug";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = ../libs/essentia/include;
@@ -592,7 +527,8 @@
 				ICON_FILE = "$(ICON_FILE_PATH)$(ICON)";
 				INFOPLIST_FILE = "openFrameworks-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = /Users/leo/Development/openframeworks_osx_64/addons/ofxAudioAnalyzer/libs/essentia/lib/osx;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_LDFLAGS = "$(OF_CORE_LIBS)";
 				PRODUCT_NAME = "example-basicOutput";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = ../libs/essentia/include;
