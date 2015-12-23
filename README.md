@@ -1,7 +1,7 @@
 # ofxAudioAnalyzer
 
-Introduction
--------
+##Description
+
 [openFrameworks](http://openframeworks.cc/) wrapper for [Essentia](http://essentia.upf.edu/). It provides audio analysis algorithms modified to process signals in real-time:
 - RMS, Instant power, Energy.
 - Pitch frequency, Pitch Confidence, Pitch Salience.
@@ -15,35 +15,37 @@ Algorithm reference: http://essentia.upf.edu/documentation/algorithms_reference.
 Demo video: https://vimeo.com/129795472
 
 
-Compatibility
----------
-Only OSX and Linux
- - OSX (!): needs the OF 64 bits version of Nick Hardeman - https://github.com/NickHardeman/openframeworks_osx_64.  (Tested in OS X 10.9.5) 
- - Linux 64 bits. (Tested with Ubuntu 12.04)
+##Compatibility
+
+OSX & Linux - OF 0.9.0 - 64 bits compilation. 
+
  
-Installation
----------
-The two examples included in the repo can be used to build new projects over them.
-For including the addon in new projects:
-- OSX - Xcode:
-  * Install Essentia library: http://essentia.upf.edu/documentation/installing.html
-  * Project Generator -> New project (openframeworks_osx_64)
-  * Build Settings->Architectures->64-bit Intel 
-  * Add ofxAudioAnalyzer directories to the project src/ and libs/
-  * Build Seetings -> Library Search Paths -> “/usr/local/lib”
-  * Build Settings -> User Header Search Paths -> “../../../addons/ofxAudioAnalyzer/libs/essentia/include” (non-recursive)
-  * Dragg the following library files from “/usr/local/lib” to the root of the Xcode project in the left side file hierarchy window: libavcodec.a - libavformat.a - libavutil.a - libessentia.a - libfftw3f.a  - libsamplerate.a - libswresample.a  - libtag.dylib -libyaml.a
+##Essentia Installation
+
+Install Essential library: http://essentia.upf.edu/documentation/installing.html
+(Last commit of ofxAudioAnalyzer was tested with https://github.com/MTG/essentia/tree/master downloaded the 23/12/2015)
+
+
+##Adding ofxAudioAnalyzer to a New Project
+
+* The examples included in the repository can be used to build new projects over them. They can be compiled with Xcode or by Terminal using the Makefiles.
+
+* For including the addon in new projects:
+
+  1- Install Essentia library.
+  2- Project Generator: Create a new project with the ofxAudioAnalyzer addon.  
+  * Makefiles by Terminal (OSX & Linux): 
+	3- config.make -> PROJECT_LDFLAGS= -lessentia -lfftw3 -lyaml -lavcodec -lavformat -lavutil -lsamplerate -ltag -lfftw3f -lavresample  
 	
 
-- Linux:
-  * Install Essentia library: http://essentia.upf.edu/documentation/installing.html
-  * Creat New Project
-  * addons.make -> ofxAudioAnalyzer
-  * config.make -> PROJECT_LDFLAGS= -lessentia -lfftw3f -ltag -lavcodec -lyaml -lsamplerate -lavformat  
+  * Xcode (OSX):
+  	3- Build Settings -> Library Search Paths -> “/usr/local/lib”
+  	4- Drag the following library files from “/usr/local/lib” to the root of the Xcode project in the left side file hierarchy window: libavcodec.a - libavformat.a - libavresample - libavutil.a - libessentia.a - libfftw3f.a  - libsamplerate.a - libswresample.a  - libtag.dylib - libyaml.a.
+  
 
 
-License
-------------
+##License
+
 Essentia library and this addon are distributed under  Affero GPLv3 license. 
 
 
