@@ -23,8 +23,8 @@ OSX & Linux - OF 0.9.0 - 64 bits compilation.
 ##Essentia Installation
 
 Install Essential library: http://essentia.upf.edu/documentation/installing.html
-(Last commit of ofxAudioAnalyzer was tested with https://github.com/MTG/essentia/tree/master downloaded the 23/12/2015)
-
+	* Last commit of ofxAudioAnalyzer was tested with https://github.com/MTG/essentia/tree/master downloaded the 23/12/2015.
+	* There is no need to include the gaia flag in the Essential configuration (./waf configure —with-gaia).
 
 ##Adding ofxAudioAnalyzer to a New Project
 
@@ -35,11 +35,10 @@ Install Essential library: http://essentia.upf.edu/documentation/installing.html
   1- Install Essentia library.
   2- Project Generator: Create a new project with the ofxAudioAnalyzer addon.  
   * Makefiles by Terminal (OSX & Linux): 
-	3- config.make -> PROJECT_LDFLAGS= -lessentia -lfftw3 -lyaml -lavcodec -lavformat -lavutil -lsamplerate -ltag -lfftw3f -lavresample  
-	
+	3- config.make -> PROJECT_LDFLAGS= -lessentia -lfftw3 -lyaml -lavcodec -lavformat -lavutil -lsamplerate -ltag -lfftw3f -lavresample.  
 
   * Xcode (OSX):
-  	3- Build Settings -> Library Search Paths -> “/usr/local/lib”
+  	3- Build Settings -> Library Search Paths -> “/usr/local/lib”.
   	4- Drag the following library files from “/usr/local/lib” to the root of the Xcode project in the left side file hierarchy window: libavcodec.a - libavformat.a - libavresample - libavutil.a - libessentia.a - libfftw3f.a  - libsamplerate.a - libswresample.a  - libtag.dylib - libyaml.a.
   
 
