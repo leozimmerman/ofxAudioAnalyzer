@@ -32,14 +32,14 @@ Install Essential library: http://essentia.upf.edu/documentation/installing.html
 
 * For including the addon in new projects:
 
-  1- Install Essentia library.
-  2- Project Generator: Create a new project with the ofxAudioAnalyzer addon.  
-  * Makefiles by Terminal (OSX & Linux): 
-	3- config.make -> PROJECT_LDFLAGS= -lessentia -lfftw3 -lyaml -lavcodec -lavformat -lavutil -lsamplerate -ltag -lfftw3f -lavresample.  
+  * 1- Install Essentia library.
+  * 2- Project Generator: Create a new project with the ofxAudioAnalyzer addon.  
+  - Makefiles by Terminal (OSX & Linux): 
+	* 3- config.make -> PROJECT_LDFLAGS= -lessentia -lfftw3 -lyaml -lavcodec -lavformat -lavutil -lsamplerate -ltag -lfftw3f -lavresample.  
 
-  * Xcode (OSX):
-  	3- Build Settings -> Library Search Paths -> “/usr/local/lib”.
-  	4- Drag the following library files from “/usr/local/lib” to the root of the Xcode project in the left side file hierarchy window: libavcodec.a - libavformat.a - libavresample - libavutil.a - libessentia.a - libfftw3f.a  - libsamplerate.a - libswresample.a  - libtag.dylib - libyaml.a.
+  - Xcode (OSX):
+  	* 3- Build Settings -> Library Search Paths -> “/usr/local/lib”.
+  	* 4- Drag the following library files from “/usr/local/lib” to the root of the Xcode project in the left side file hierarchy window: libavcodec.a - libavformat.a - libavresample - libavutil.a - libessentia.a - libfftw3f.a  - libsamplerate.a - libswresample.a  - libtag.dylib - libyaml.a.
   
 
 
