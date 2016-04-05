@@ -23,7 +23,7 @@ OSX & Linux - OF 0.9.0 - 64 bits compilation.
 ##Essentia Installation
 
 Install Essential library: http://essentia.upf.edu/documentation/installing.html
-	* Last commit of ofxAudioAnalyzer was tested with https://github.com/MTG/essentia/tree/master downloaded the 23/12/2015.
+	* Last commit of ofxAudioAnalyzer was tested with [ https://github.com/MTG/essentia/tree/master — commit a440f018a04631c57df95ce54e99736a73f3117c].
 	* There is no need to include the gaia flag in the Essential configuration (./waf configure —with-gaia).
 
 ##Adding ofxAudioAnalyzer to a New Project
