@@ -1,11 +1,5 @@
 
-#xcode files
-*.mode*
-*.perspectivev3
-*.pbxuser
-*.xcworkspace
-xcuserdata/
-
+##OF builds
 #builds
 build/
 obj/
@@ -13,86 +7,31 @@ obj/
 *.app
 */x64/
 
-#codeblocks files
-apps/*/*/*.layout
-apps/*/*/*.depend
-apps/*/*/bin/clickToLaunch*
-apps/*/*/bin/libs
-apps/*/*/obj
-example-*/*build_log.html
-example-*/example-*.layout
-example-*/example-*.depend
+### Xcode ###
+# Xcode
+#
+# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
-#VCPP files
+## Build generated
+build/
+DerivedData/
 
-*.dll
-*.lib
-*.exe
-*.sdf
-*.opensdf
-*.exp
-*.suo
-*.ilk
-*.pdb
-*.suo
-
-ipch/
-
-#mac files
-.DS_Store
-
-#linux files
-*modex.so
-*modexp64.so
-*/*/*.tags
-
-
-
-=======
-
-
-#xcode files
-*.mode*
-*.perspectivev3
+## Various settings
 *.pbxuser
-*.xcworkspace
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
 xcuserdata/
 
-#builds
-build/
-obj/
-*.o
-*.app
+## Other
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
 
-#codeblocks files
-apps/*/*/*.layout
-apps/*/*/*.depend
-apps/*/*/bin/clickToLaunch*
-apps/*/*/bin/libs
-apps/*/*/obj
-
-#VCPP files
-
-*.dll
-*.lib
-*.exe
-*.sdf
-*.opensdf
-*.exp
-*.suo
-*.ilk
-*.pdb
-*.suo
-
-ipch/
-
-#mac files
+## OSX
 .DS_Store
-
-#linux files
-*modex.so
-*modexp64.so
-*/*/*.tags
-
-
 
