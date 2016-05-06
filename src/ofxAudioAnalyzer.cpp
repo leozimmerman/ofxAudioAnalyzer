@@ -31,7 +31,7 @@ void ofxAudioAnalyzer::setup(int bufferSize, int sampleRate){
     
         pitchDetect.setActive(TRUE);
         pitchSalience.setActive(TRUE);
-        tuningFreq.setActive(TRUE);
+        tuning.setActive(TRUE);
         inharmonicity.setActive(TRUE);
         hfc.setActive(TRUE);
         centroid.setActive(TRUE);
@@ -93,7 +93,7 @@ void ofxAudioAnalyzer::setup(int bufferSize, int sampleRate){
                                   "sampleRate", sr);
         dct.algorithm = factory.create("DCT", "inputSize", MELBANDS_BANDS_NUM, "outputSize", DCT_COEFF_NUM);
 
-        tuningFreq.algorithm = factory.create("TuningFrequency");
+        tuning.algorithm = factory.create("TuningFrequency");
 
         inharmonicity.algorithm = factory.create("Inharmonicity");
 
@@ -185,10 +185,10 @@ void ofxAudioAnalyzer::setup(int bufferSize, int sampleRate){
         pitchDetect.algorithm->output("pitch").set(pitchDetect.pitchRealVal);
         pitchDetect.algorithm->output("pitchConfidence").set(pitchDetect.confidenceRealVal);
         //Tuning frequency
-        tuningFreq.algorithm->input("frequencies").set(peaks.frequencies);
-        tuningFreq.algorithm->input("magnitudes").set(peaks.magnitudes);
-        tuningFreq.algorithm->output("tuningFrequency").set(tuningFreq.freqRealVal);
-        tuningFreq.algorithm->output("tuningCents").set(tuningFreq.centsRealVal);
+        tuning.algorithm->input("frequencies").set(peaks.frequencies);
+        tuning.algorithm->input("magnitudes").set(peaks.magnitudes);
+        tuning.algorithm->output("tuningFrequency").set(tuning.freqRealVal);
+        tuning.algorithm->output("tuningCents").set(tuning.centsRealVal);
         //HarmonicPeaks
         harmonicPeaks.algorithm->input("frequencies").set(peaks.frequencies);
         harmonicPeaks.algorithm->input("magnitudes").set(peaks.magnitudes);
@@ -202,16 +202,15 @@ void ofxAudioAnalyzer::setup(int bufferSize, int sampleRate){
 
 }
 //--------------------------------------------------------------
-void ofxAudioAnalyzer::analyze(float * iBuffer, int bufferSize){
+void ofxAudioAnalyzer::analyze(const vector<float> & inBuffer){
+    
+    if(inBuffer.size() != framesize){
+        ofLogWarning()<<"ofxAudioAnalyzer: buffer requested to analyze size(" <<inBuffer.size()<<")doesnt match the buffer size already set: "<<framesize;
+    }
     
     //Cast of incoming audio buffer to Real ------------
-    
-    vector <float> fBuffer;
-    fBuffer.resize(bufferSize);
-    
-    memcpy(&fBuffer[0], iBuffer, sizeof(float) * bufferSize);
-    for (int i=0; i<bufferSize;i++){
-        audioBuffer[i] = (Real) fBuffer[i];
+    for (int i=0; i<inBuffer.size();i++){
+        audioBuffer[i] = (Real) inBuffer[i];
     }
     
     // Compute Algorithms--------------------------
@@ -231,7 +230,8 @@ void ofxAudioAnalyzer::analyze(float * iBuffer, int bufferSize){
         onsetFlux.compute();
     }
     
-    spectrum.compute();
+    //spectrum must always be computed as it is neede for other algorithms
+    spectrum.algorithm->compute();
     
     hfc.compute();
     pitchSalience.compute();
@@ -251,7 +251,7 @@ void ofxAudioAnalyzer::analyze(float * iBuffer, int bufferSize){
     }
     peaks.compute();
     hpcp.compute();
-    tuningFreq.compute();
+    tuning.compute();
     
     if (inharmonicity.getIsActive()){
         harmonicPeaks.compute();
@@ -271,7 +271,7 @@ void ofxAudioAnalyzer::analyze(float * iBuffer, int bufferSize){
     pitchDetect.castValuesToFloat();
     pitchSalience.castValueToFloat();
     
-    tuningFreq.castValuesToFloat();
+    tuning.castValuesToFloat();
     
     if(doOnsets){
         
@@ -319,7 +319,7 @@ void ofxAudioAnalyzer::exit(){
     pitchDetect.deleteAlgorithm();
     pitchSalience.deleteAlgorithm();
     
-    tuningFreq.deleteAlgorithm();
+    tuning.deleteAlgorithm();
     
     melBands.deleteAlgorithm();
     dct.deleteAlgorithm();
@@ -423,6 +423,59 @@ void ofxAudioAnalyzer::setOnsetAlpha(float val){
     alpha=val;
 }
 //----------------------------------------------
+void ofxAudioAnalyzer::setActiveRms(bool state){
+    rms.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveEnergy(bool state){
+    energy.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActivePower(bool state){
+    power.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActivePitch(bool state){
+    pitchDetect.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveMelodySalience(bool state){
+    pitchSalience.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveTuning(bool state){
+    tuning.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveInharmonicity(bool state){
+    inharmonicity.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveHfc(bool state){
+    hfc.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveSpectralComplex(bool state){
+    spectralComplex.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveCentroid(bool state){
+    centroid.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveMelbandsAndMfcc(bool state){
+    melBands.setActive(state);
+    dct.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveHpcp(bool state){
+    hpcp.setActive(state);
+}
+//----------------------------------------------
+void ofxAudioAnalyzer::setActiveOnsets(bool state){
+    doOnsets = state;
+}
+//----------------------------------------------
 #pragma mark - Getters
 //----------------------------------------------
 float ofxAudioAnalyzer::getRms(float smooth){
@@ -467,11 +520,11 @@ float ofxAudioAnalyzer::getMelodySalience(float smooth){
 }
 //----------------------------------------------
 float ofxAudioAnalyzer::getTuningFreq(){
-    return tuningFreq.getFreqValue();
+    return tuning.getFreqValue();
 }
 //----------------------------------------------
 float ofxAudioAnalyzer::getTuningCents(){
-    return tuningFreq.getCentsValue();
+    return tuning.getCentsValue();
 }
 //----------------------------------------------
 float ofxAudioAnalyzer::getInharmonicity(float smooth){

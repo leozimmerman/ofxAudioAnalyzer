@@ -40,16 +40,19 @@ using namespace standard;
 class ofxAudioAnalyzer
 {
     public:
-
+    
+        ofxAudioAnalyzer(int sampleRate, int bufferSize){
+            setup(bufferSize, sampleRate);
+        }
+    
         void setup(int bufferSize, int sampleRate);
         void exit();
-        void analyze(float * iBuffer, int bufferSize);
+    
+        void analyze(const vector<float> &  inBuffer);
     
         void resetOnsets();
     
         ///---------------------------
-    
-    ///--------
     
         float getRms(float smooth=0.0);
         float getEnergy(float smooth=0.0);
@@ -91,10 +94,22 @@ class ofxAudioAnalyzer
         void setOnsetTreshold(float val);
         void setOnsetAlpha(float val);
     
-
-
+        void setActiveRms(bool state);
+        void setActiveEnergy(bool state);
+        void setActivePower(bool state);
+        void setActivePitch(bool state);
+        void setActiveMelodySalience(bool state);
+        
+        void setActiveTuning(bool state);
+        
+        void setActiveInharmonicity(bool state);
+        void setActiveHfc(bool state);
+        void setActiveSpectralComplex(bool state);
+        void setActiveCentroid(bool state);
+        void setActiveMelbandsAndMfcc(bool state);
+        void setActiveHpcp(bool state);
     
-        //For storing results casted to Floats ---------------------
+        void setActiveOnsets(bool state);
     
     
 
@@ -102,12 +117,13 @@ class ofxAudioAnalyzer
     
         vector<Real> audioBuffer;
     
+        //algorithms with return value func
         ofxAABaseAlgorithm rms;
         ofxAABaseAlgorithm energy;
         ofxAABaseAlgorithm power;
         ofxAAPitchDetectAlgorithm pitchDetect;
         ofxAABaseAlgorithm pitchSalience;
-        ofxAATuningFrequencyAlgorithm tuningFreq;
+        ofxAATuningFrequencyAlgorithm tuning;
         ofxAABaseAlgorithm inharmonicity;
         ofxAABaseAlgorithm hfc;
         ofxAABaseAlgorithm centroid;
@@ -116,6 +132,8 @@ class ofxAudioAnalyzer
         ofxAAOneVectorOutputAlgorithm melBands;
         ofxAAOneVectorOutputAlgorithm dct;//MFCC
         ofxAAOneVectorOutputAlgorithm hpcp;
+    
+        //algorithms for internal functionality:
         ofxAAOneVectorOutputAlgorithm dcremoval;
         ofxAAOneVectorOutputAlgorithm window;
         ofxAAFftAlgorithm fft;
