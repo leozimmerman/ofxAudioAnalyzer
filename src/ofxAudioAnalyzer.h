@@ -42,10 +42,14 @@ class ofxAudioAnalyzer
     public:
     
         ofxAudioAnalyzer(int sampleRate, int bufferSize){
-            setup(bufferSize, sampleRate);
+            setup(sampleRate, bufferSize);
+            cout<<"ofxAudioAnalyzer CREATED!"<<endl;
         }
-    
-        void setup(int bufferSize, int sampleRate);
+        ~ofxAudioAnalyzer(){
+            cout<<"ofxAudioAnalyzer destroyed!"<<endl;
+            exit();
+        }
+        void setup(int sampleRate, int bufferSize);
         void exit();
     
         void analyze(const vector<float> &  inBuffer);

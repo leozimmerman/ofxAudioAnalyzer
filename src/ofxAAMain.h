@@ -6,7 +6,9 @@
 class ofxAAMain{
 public:
     //void setup(ofSoundBuffer & soundBuffer);
-    void setup(int sr, int bs, int ch);
+    void setup(int sampleRate, int bufferSize, int channels);
+    void reset(int sampleRate, int bufferSize, int channels);
+    
     void analyze(const ofSoundBuffer & inBuffer);
     
     void exit();
@@ -23,7 +25,8 @@ private:
     int _channels;
     
     vector<ofxAudioAnalyzer*> channelAnalyzers;
-    vector<ofSoundBuffer> channelBuffers;
+    
+    //vector<ofSoundBuffer> channelBuffers;
     
     
 };

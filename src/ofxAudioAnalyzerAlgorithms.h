@@ -11,6 +11,8 @@ using namespace std;
 using namespace essentia;
 using namespace standard;
 
+
+
 class ofxAABaseAlgorithm{
     
 public:

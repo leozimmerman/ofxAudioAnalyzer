@@ -2,7 +2,7 @@
 
 #pragma mark - Main funcs
 //--------------------------------------------------------------
-void ofxAudioAnalyzer::setup(int bufferSize, int sampleRate){
+void ofxAudioAnalyzer::setup(int sampleRate, int bufferSize){
 
         framesize = bufferSize;
         hopsize = framesize/2;
@@ -336,6 +336,8 @@ void ofxAudioAnalyzer::exit(){
     onsetFlux.deleteAlgorithm();;
 
     essentia::shutdown();
+    
+    ofLogVerbose()<<"AudioAnalyzer exit";
 
 }
 #pragma mark - Onset Funcs
