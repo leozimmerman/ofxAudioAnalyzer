@@ -26,11 +26,12 @@ using namespace standard;
 #define PEAKS_MIN_FREQ 40.0//hz
 #define PEAKS_MAX_FREQ 5000.0//hz
 
-
 #define ENERGY_MAX_ESTIMATED_VALUE 100
 #define HFC_MAX_ESTIMATED_VALUE 1000.0
 #define SPEC_COMP_MAX_ESTIMATED_VALUE 30.0
 #define CENTROID_MAX_ESTIMATED_VALUE 7000.0
+
+#define MFCC_MAX_ESTIMATED_VALUE 300.0
 
 #define DB_MIN -6
 #define DB_MAX 0
@@ -43,10 +44,8 @@ class ofxAudioAnalyzer
     
         ofxAudioAnalyzer(int sampleRate, int bufferSize){
             setup(sampleRate, bufferSize);
-            cout<<"ofxAudioAnalyzer CREATED!"<<endl;
         }
         ~ofxAudioAnalyzer(){
-            cout<<"ofxAudioAnalyzer destroyed!"<<endl;
             exit();
         }
         void setup(int sampleRate, int bufferSize);
