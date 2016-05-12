@@ -67,7 +67,7 @@ void ofxAAMain::analyze(const ofSoundBuffer & inBuffer){
 //    cout<<"SB channels: "<<inBuffer.getNumChannels()<<endl;
     
     if(inBuffer.getNumChannels() != _channels){
-        ofLogError()<<"ofxAudioAnalyzer: inBuffer channels number not match the one set.";
+        ofLogError()<<"ofxAudioAnalyzer: inBuffer channels number incorrect.";
         return;
     }
     

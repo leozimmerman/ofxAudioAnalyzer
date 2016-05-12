@@ -86,10 +86,10 @@ class ofxAudioAnalyzer
         int getMfccBinsNum();
         int getHpcpBinsNum();
         
-        vector<float>& getSpectrumRef();
-        vector<float>& getMelBandsRef();
-        vector<float>& getDctRef();
-        vector<float>& getHpcpRef();
+        vector<float>& getSpectrumRef(float smooth=0.0);
+        vector<float>& getMelBandsRef(float smooth=0.0);
+        vector<float>& getDctRef(float smooth=0.0);
+        vector<float>& getHpcpRef(float smooth=0.0);
     
     
         //--------------------------------------------

@@ -587,20 +587,20 @@ int ofxAudioAnalyzer::getHpcpBinsNum(){
     return hpcp.getBinsNum();
 }
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzer::getSpectrumRef(){
-    return spectrum.floatValues;
+vector<float>& ofxAudioAnalyzer::getSpectrumRef(float smooth){
+    return smooth ? spectrum.getSmoothedValues(smooth) : spectrum.getValues();
 }
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzer::getMelBandsRef(){
-    return melBands.floatValues;
+vector<float>& ofxAudioAnalyzer::getMelBandsRef(float smooth){
+    return smooth ? melBands.getSmoothedValues(smooth) : melBands.getValues();
 }
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzer::getDctRef(){
-    return dct.floatValues;
+vector<float>& ofxAudioAnalyzer::getDctRef(float smooth){
+    return smooth ? dct.getSmoothedValues(smooth) : dct.getValues();
 }
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzer::getHpcpRef(){
-    return hpcp.floatValues;
+vector<float>& ofxAudioAnalyzer::getHpcpRef(float smooth){
+    return smooth ? hpcp.getSmoothedValues(smooth) : hpcp.getValues();
 }
 //----------------------------------------------
 #pragma mark - Utils

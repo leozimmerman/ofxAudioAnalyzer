@@ -74,7 +74,6 @@ public:
     
     
     Algorithm* algorithm;
-    
     Real realValue;
     
     
@@ -93,6 +92,7 @@ public:
     
     void assignFloatValuesSize(int size, int val){
         floatValues.assign(size, val);
+        smoothedFloatValues.assign(size, val);
     }
     
     void castValuesToFloat(bool logarithmic){
@@ -120,12 +120,31 @@ public:
     
     }
     
-    int getBinsNum(){return floatValues.size();}
+    int getBinsNum(){
+        return floatValues.size();
+    }
+    
+    vector<float>& getValues(){
+        return floatValues;
+    }
+    
+    vector<float>& getSmoothedValues(float smthAmnt){
+        
+        for(int i=0; i<floatValues.size(); i++){
+            smoothedFloatValues[i] = smoothedFloatValues[i] * smthAmnt + (1-smthAmnt) * floatValues[i];
+        }
+        return smoothedFloatValues;
+    }
     
     
-    vector<float> floatValues;
     vector<Real> realValues;
     vector<Real> logRealValues;
+    
+
+private:
+    
+    vector<float> floatValues;
+    vector<float> smoothedFloatValues;
     
 };
 
