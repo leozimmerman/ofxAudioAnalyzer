@@ -1,8 +1,5 @@
 #pragma once
 
-//TODO: Comment addon funcs
-//TODO: Add ofxAudioAnalyzer constants configuration (setters & getters)
-
 #include "ofMain.h"
 #include "ofxAudioAnalyzerUnit.h"
 
