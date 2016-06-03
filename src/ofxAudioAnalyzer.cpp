@@ -1,6 +1,8 @@
 
 #include "ofxAudioAnalyzer.h"
 
+//TODO: Document all this funcs and classes. Add description
+
 //---------------------------------------
 void ofxAudioAnalyzer::setup(int sampleRate, int bufferSize, int channels){
     
@@ -13,15 +15,10 @@ void ofxAudioAnalyzer::setup(int sampleRate, int bufferSize, int channels){
         _channels = 1;
     }
     
-    //for(channels)
-    
-    
     for(int i=0; i<_channels; i++){
         ofxAudioAnalyzerUnit * aaUnit = new ofxAudioAnalyzerUnit(_samplerate, _buffersize);
-        channelAnalyzers.push_back(aaUnit);
+        channelAnalyzerUnits.push_back(aaUnit);
     }
-    
-    
     
 }
 //---------------------------------------
@@ -36,14 +33,14 @@ void ofxAudioAnalyzer::reset(int sampleRate, int bufferSize, int channels){
         _channels = 1;
     }
     
-    for (int i=0; i<channelAnalyzers.size(); i++){
-        channelAnalyzers[i]->exit();
+    for (int i=0; i<channelAnalyzerUnits.size(); i++){
+        channelAnalyzerUnits[i]->exit();
     }
-    channelAnalyzers.clear();
+    channelAnalyzerUnits.clear();
     
     for(int i=0; i<_channels; i++){
         ofxAudioAnalyzerUnit * aaUnit = new ofxAudioAnalyzerUnit(_samplerate, _buffersize);
-        channelAnalyzers.push_back(aaUnit);
+        channelAnalyzerUnits.push_back(aaUnit);
     }
     
     
@@ -57,7 +54,7 @@ void ofxAudioAnalyzer::analyze(const ofSoundBuffer & inBuffer){
         return;
     }
     
-    if(channelAnalyzers.size()!= _channels){
+    if(channelAnalyzerUnits.size()!= _channels){
         ofLogError()<<"ofxAudioAnalyzer: wrong number of audioAnalyzers";
         return;
     }
@@ -65,9 +62,9 @@ void ofxAudioAnalyzer::analyze(const ofSoundBuffer & inBuffer){
     for (int i=0; i<_channels; i++){
         ofSoundBuffer chBuff;
         inBuffer.getChannel(chBuff, i);//copy channel from inBuffer
-        if(channelAnalyzers[i]!=nullptr){
-            channelAnalyzers[i]->analyze(chBuff.getBuffer());
-            //cout<<"analyzer-"<<i<<"rms"<<channelAnalyzers[i]->getRms()<<endl;
+        if(channelAnalyzerUnits[i]!=nullptr){
+            channelAnalyzerUnits[i]->analyze(chBuff.getBuffer());
+            //cout<<"analyzer-"<<i<<"rms"<<channelAnalyzerUnits[i]->getRms()<<endl;
         }else{
             ofLogError()<<"ofxAudioAnalyzer: channelAnalyzer NULL pointer";
         }
@@ -80,8 +77,8 @@ void ofxAudioAnalyzer::analyze(const ofSoundBuffer & inBuffer){
 //---------------------------------------
 void ofxAudioAnalyzer::exit(){
     
-    for(int i=0; i<channelAnalyzers.size();i++){
-        channelAnalyzers[i]->exit();
+    for(int i=0; i<channelAnalyzerUnits.size();i++){
+        channelAnalyzerUnits[i]->exit();
     }
     
     

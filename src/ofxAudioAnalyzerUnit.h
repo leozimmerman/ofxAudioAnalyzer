@@ -94,8 +94,9 @@ class ofxAudioAnalyzerUnit
     
         //--------------------------------------------
     
-        void setOnsetTreshold(float val);
+        void setOnsetSilenceTreshold(float val);
         void setOnsetAlpha(float val);
+        void setOnsetTimeTreshold(float val);
     
         void setActiveRms(bool state);
         void setActiveEnergy(bool state);
@@ -149,10 +150,13 @@ class ofxAudioAnalyzerUnit
     
         //Onset detection------------
         bool onsetEvaluation (Real iDetectHfc, Real iDetectComplex, Real iDetectFlux);
+        bool onsetTimeTresholdEvaluation();
         bool isOnset;
         Real silenceTreshold, alpha;
         bool addHfc, addComplex, addFlux;
         bool doOnsets;
+        float timeTreshold;
+        float lastOnsetTime;
     
         int framesize;
         int hopsize;

@@ -11,78 +11,49 @@ using namespace std;
 using namespace essentia;
 using namespace standard;
 
-
+//??? set clamp fixed and madatory??
 
 class ofxAABaseAlgorithm{
     
 public:
     
-    float getValue(){
-        return floatValue;
-    }
     
-    float getValueDb(){
-        //returns floatValue in a logaritmic scale
-        //0.000001 to 1 -->  -6 to 0
-        return log10(floatValue);
-    }
+    void init();
     
-    float getValueNormalized(float min, float max, bool doClamp=false){
-        return ofMap(floatValue, min, max, 0.0, 1.0, doClamp);
-    }
+    float getValue();
+    float getValueDb();
     
-    float getValueDbNormalized(float min, float max, bool doClamp=false){
-        return ofMap(getValueDb(), min, max, 0.0, 1.0, doClamp);
-    }
+    float getValueNormalized(float min, float max, bool doClamp=TRUE);
+    float getValueDbNormalized(float min, float max, bool doClamp=TRUE);
+    float getSmoothedValue(float smthAmnt);
     
-    float getSmoothedValue(float smthAmnt){
-        smoothedFloatValue =  smoothedFloatValue * smthAmnt + (1-smthAmnt) * floatValue;
-        return smoothedFloatValue;
-    }
     
-    float getSmoothedValueNormalized(float smthAmnt, float min, float max, bool doClamp=false){
-        float normVal = ofMap(floatValue, min, max, 0.0, 1.0, doClamp);
-        smoothedNormFloatValue =  smoothedNormFloatValue * smthAmnt + (1-smthAmnt) * normVal;
-        return smoothedNormFloatValue;
-    }
+    float getSmoothedValueNormalized(float smthAmnt, float min, float max, bool doClamp=TRUE);
+    float getSmoothedValueDbNormalized(float smthAmnt, float min, float max, bool doClamp=TRUE);
     
-    float getSmoothedValueDbNormalized(float smthAmnt, float min, float max, bool doClamp=false){
-        float normVal = ofMap(getValueDb(), min, max, 0.0, 1.0, doClamp);
-        smoothedNormFloatValueDb =  smoothedNormFloatValueDb * smthAmnt + (1-smthAmnt) * normVal;
-        return smoothedNormFloatValueDb;
-    }
+    bool getIsActive();
     
-    bool getIsActive(){return isActivated;}
+    void setActive(bool state);
+    void setValueZero();
     
-    void setActive(bool state){isActivated = state;}
-    void setValueZero(){floatValue = 0.0;}
+    void compute();
     
-    void compute(){
-        if(isActivated){
-            algorithm->compute();
-        }
-    }
+    void castValueToFloat();
     
-    void castValueToFloat(){
-        if(isActivated)
-            floatValue = (float) realValue;
-        else
-            floatValue = 0.0;
-    }
-    
-    void deleteAlgorithm(){delete algorithm;}
+    void deleteAlgorithm();
     
     
     Algorithm* algorithm;
     Real realValue;
     
     
-private:
-    bool isActivated = TRUE;
-    float floatValue = 0.0;
-    float smoothedFloatValue = 0.0;
-    float smoothedNormFloatValue = 0.0;
-    float smoothedNormFloatValueDb = 0.0;
+protected:
+    
+    bool isActivated;
+    float floatValue;
+    float smoothedFloatValue;
+    float smoothedNormFloatValue;
+    float smoothedNormFloatValueDb;
     
 };
 //---------------------------------------------------------------------
@@ -90,57 +61,23 @@ class ofxAAOneVectorOutputAlgorithm : public ofxAABaseAlgorithm{
 
 public:
     
-    void assignFloatValuesSize(int size, int val){
-        floatValues.assign(size, val);
-        smoothedFloatValues.assign(size, val);
-    }
+    void init();
     
-    void castValuesToFloat(bool logarithmic){
-        
-        for (int i=0; i<realValues.size(); i++){
-            if(getIsActive()){
-                if(logarithmic)
-                    floatValues[i] = log10((float) realValues[i]);
-                else
-                    floatValues[i] = (float) realValues[i];
-            }else{
-                if(logarithmic)
-                    floatValues[i] = log10(0.001);
-                else
-                    floatValues[i] = 0.0;
-            }
-        }
+    void initAndAssignSize(int size, int initValues);
     
-    }
+    void assignFloatValuesSize(int size, int val);
     
-    void updateLogRealValues(){
-        logRealValues.resize(realValues.size());
-        for (int i=0; i<realValues.size(); ++i)
-            logRealValues[i] = amp2db(realValues[i]);
+    void castValuesToFloat(bool logarithmic);
     
-    }
+    void updateLogRealValues();
     
-    int getBinsNum(){
-        return floatValues.size();
-    }
-    
-    vector<float>& getValues(){
-        return floatValues;
-    }
-    
-    vector<float>& getSmoothedValues(float smthAmnt){
-        
-        for(int i=0; i<floatValues.size(); i++){
-            smoothedFloatValues[i] = smoothedFloatValues[i] * smthAmnt + (1-smthAmnt) * floatValues[i];
-        }
-        return smoothedFloatValues;
-    }
-    
+    int getBinsNum();
+    vector<float>& getValues();
+    vector<float>& getSmoothedValues(float smthAmnt);
     
     vector<Real> realValues;
     vector<Real> logRealValues;
     
-
 private:
     
     vector<float> floatValues;
@@ -174,29 +111,12 @@ class ofxAAPitchDetectAlgorithm : public ofxAABaseAlgorithm{
 
 public:
     
-    void castValuesToFloat(){
-        if(getIsActive()){
-            pitchFloatVal = (float) pitchRealVal;
-            confidenceFloatVal = (float) confidenceRealVal;
-        }
-        else{
-            pitchFloatVal = confidenceFloatVal = 0.0;
-        }
-        
-    }
+    void castValuesToFloat();
     
-    float getPitchValue(){return pitchFloatVal;}
-    float getConfidenceValue(){return confidenceFloatVal;}
-    
-    float getSmoothedPitchValue(float smthAmnt){
-        smoothedPitchFloatValue =  smoothedPitchFloatValue * smthAmnt + (1-smthAmnt) * pitchFloatVal;
-        return smoothedPitchFloatValue;
-    }
-    
-    float getSmoothedConfidenceValue(float smthAmnt){
-        smoothedConfidenceFloatValue =  smoothedConfidenceFloatValue * smthAmnt + (1-smthAmnt) * confidenceFloatVal;
-        return smoothedConfidenceFloatValue;
-    }
+    float getPitchValue();
+    float getConfidenceValue();
+    float getSmoothedPitchValue(float smthAmnt);
+    float getSmoothedConfidenceValue(float smthAmnt);
  
     Real pitchRealVal, confidenceRealVal;
 
@@ -211,19 +131,10 @@ class ofxAATuningFrequencyAlgorithm : public ofxAABaseAlgorithm{
     
 public:
     
-    void castValuesToFloat(){
-        if(getIsActive()){
-            freqFloatVal = (float) freqRealVal;
-            centsFloatVal = (float) centsRealVal;
-        }
-        else{
-            freqFloatVal = centsFloatVal = 0.0;
-        }
-        
-    }
+    void castValuesToFloat();
     
-    float getFreqValue(){return freqFloatVal;}
-    float getCentsValue(){return centsFloatVal;}
+    float getFreqValue();
+    float getCentsValue();
     
     Real freqRealVal,   centsRealVal;
     

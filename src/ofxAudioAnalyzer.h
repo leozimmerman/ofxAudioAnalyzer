@@ -4,31 +4,29 @@
 #include "ofxAudioAnalyzerUnit.h"
 
 class ofxAudioAnalyzer{
-public:
-    
-    
+ 
+ public:
     
     void setup(int sampleRate, int bufferSize, int channels);
+    
     void reset(int sampleRate, int bufferSize, int channels);
     
     void analyze(const ofSoundBuffer & inBuffer);
     
     void exit();
     
-    vector<ofxAudioAnalyzerUnit*>& getChannelAnalyzersPtrs(){return channelAnalyzers;}
+    vector<ofxAudioAnalyzerUnit*>& getChannelAnalyzersPtrs(){return channelAnalyzerUnits;}
     
     ofSoundBuffer soundBuffer;
     
-    
-private:
+
+ private:
     
     int _samplerate;
     int _buffersize;
     int _channels;
     
-    vector<ofxAudioAnalyzerUnit*> channelAnalyzers;
-    
-    //vector<ofSoundBuffer> channelBuffers;
+    vector<ofxAudioAnalyzerUnit*> channelAnalyzerUnits;
     
     
 };
