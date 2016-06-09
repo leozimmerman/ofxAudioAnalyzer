@@ -39,17 +39,23 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     onsetFlux.init();
     
 
-
-
-
-    ///onsets...
+    ///onsets:
     detecBufferSize = bufferSize; //TODO: revisar
     detection_sum.assign(detecBufferSize,0);
     detections.assign(3, vector<Real> (detecBufferSize));
     silenceTreshold = 0.02;
     alpha = 0.1;
-    addHfc = addComplex = addFlux = true;
+    timeTreshold = 100.0;
     float lastOnsetTime = 0.0;
+    addHfc = addComplex = addFlux = true;
+    useTimeTreshold = false; //TODO: add frameNum timeTreshold option, for offline rendering
+    
+    ///Max estimated values------
+    
+    maxEnergyEstimatedValue = 100.0;
+    maxHfcEstimatedValue = 500.0; //antes 1000
+    maxSpecCompEstimatedValue = 15.0; //antes 30
+    maxCentroidEstimatedValue = 5000.0;//antes 7000
 
     ///activations---------
     rms.setActive(TRUE);
@@ -78,7 +84,6 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     /// instanciate factory and create algorithms---------------------------------------------------
 
     AlgorithmFactory& factory = AlgorithmFactory::instance();
-    
     
     
     rms.algorithm = factory.create("RMS");
@@ -228,7 +233,6 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     inharmonicity.algorithm->input("magnitudes").set(harmonicPeaks.magnitudes);
     inharmonicity.algorithm->output("inharmonicity").set(inharmonicity.realValue);
 
-    
     //!!! testing this line...
     factory.shutdown();
 }
@@ -312,12 +316,15 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     
         //onsetEvaluation
         bool isThisBufferOnset = onsetEvaluation(onsetHfc.getValue(), onsetComplex.getValue(), onsetFlux.getValue());
-        
-        if(isThisBufferOnset){
+
+        if(useTimeTreshold && isThisBufferOnset){
             isOnset = onsetTimeTresholdEvaluation();
-        }else{
-            isOnset = false;
         }
+        else{
+            isOnset = isThisBufferOnset;
+        }
+        
+        
         
     }else{
         onsetHfc.setValueZero();
@@ -543,8 +550,8 @@ float ofxAudioAnalyzerUnit::getRms(float smooth){
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getEnergy(float smooth){
     float r =   smooth ?
-                    energy.getSmoothedValueNormalized(smooth, 0.0, ENERGY_MAX_ESTIMATED_VALUE) :
-                    energy.getValueNormalized(0.0, ENERGY_MAX_ESTIMATED_VALUE);
+                    energy.getSmoothedValueNormalized(smooth, 0.0, maxEnergyEstimatedValue) :
+                    energy.getValueNormalized(0.0, maxEnergyEstimatedValue);
     return r;
 }
 //----------------------------------------------
@@ -593,8 +600,8 @@ float ofxAudioAnalyzerUnit::getHfc(float smooth){
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getHfcNormalized(float smooth){
     float r =   smooth ?
-                hfc.getSmoothedValueNormalized(smooth, 0.0, HFC_MAX_ESTIMATED_VALUE) :
-                hfc.getValueNormalized(0.0, HFC_MAX_ESTIMATED_VALUE);
+                hfc.getSmoothedValueNormalized(smooth, 0.0, maxHfcEstimatedValue) :
+                hfc.getValueNormalized(0.0, maxHfcEstimatedValue);
     return r;
     
 }
@@ -605,8 +612,8 @@ float ofxAudioAnalyzerUnit::getSpectralComplex(float smooth){
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getSpectralComplexNormalized(float smooth){
     float r =   smooth ?
-                spectralComplex.getSmoothedValueNormalized(smooth, 0.0, SPEC_COMP_MAX_ESTIMATED_VALUE) :
-                spectralComplex.getValueNormalized(0.0, SPEC_COMP_MAX_ESTIMATED_VALUE);
+                spectralComplex.getSmoothedValueNormalized(smooth, 0.0, maxSpecCompEstimatedValue) :
+                spectralComplex.getValueNormalized(0.0, maxSpecCompEstimatedValue);
     return r;
 }
 //----------------------------------------------
@@ -616,8 +623,8 @@ float ofxAudioAnalyzerUnit::getCentroid(float smooth){
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getCentroidNormalized(float smooth){
     float r =   smooth ?
-                centroid.getSmoothedValueNormalized(smooth, 0.0, CENTROID_MAX_ESTIMATED_VALUE) :
-                centroid.getValueNormalized(0.0, CENTROID_MAX_ESTIMATED_VALUE);
+                centroid.getSmoothedValueNormalized(smooth, 0.0, maxCentroidEstimatedValue) :
+                centroid.getValueNormalized(0.0, maxCentroidEstimatedValue);
     return r;
 }
 //----------------------------------------------

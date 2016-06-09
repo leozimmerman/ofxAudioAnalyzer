@@ -14,6 +14,7 @@ using namespace standard;
 #include "ofxAudioAnalyzerAlgorithms.h"
 
 //----------------------------
+//vars use in setup function
 
 #define MELBANDS_BANDS_NUM 24
 #define DCT_COEFF_NUM 10
@@ -26,12 +27,8 @@ using namespace standard;
 #define PEAKS_MIN_FREQ 40.0//hz
 #define PEAKS_MAX_FREQ 5000.0//hz
 
-#define ENERGY_MAX_ESTIMATED_VALUE 100
-#define HFC_MAX_ESTIMATED_VALUE 1000.0
-#define SPEC_COMP_MAX_ESTIMATED_VALUE 30.0
-#define CENTROID_MAX_ESTIMATED_VALUE 7000.0
-
-#define MFCC_MAX_ESTIMATED_VALUE 300.0
+//-----------------------------
+#define MFCC_MAX_ESTIMATED_VALUE 300.0 //??? donde se usa
 
 #define DB_MIN -6
 #define DB_MAX 0
@@ -40,138 +37,152 @@ using namespace standard;
 
 class ofxAudioAnalyzerUnit
 {
-    public:
-    
-        ofxAudioAnalyzerUnit(int sampleRate, int bufferSize){
-            setup(sampleRate, bufferSize);
-        }
-        ~ofxAudioAnalyzerUnit(){
-            exit();
-        }
-        void setup(int sampleRate, int bufferSize);
-        void exit();
-    
-        void analyze(const vector<float> &  inBuffer);
-    
-        void resetOnsets();
-    
-        ///---------------------------
-    
-        float getRms(float smooth=0.0);
-        float getEnergy(float smooth=0.0);
-        float getPower(float smooth=0.0);
-    
-        float getPitchFreq(float smooth=0.0);
-        int   getPitchFreqAsMidiNote(float smooth=0.0);
-        string getPitchFreqAsNoteName(float smooth=0.0);
-        float getPitchConfidence(float smooth=0.0);
-        float getMelodySalience(float smooth=0.0);
-    
-        float getTuningFreq();
-        float getTuningCents();
-        
-        float getInharmonicity(float smooth=0.0);
-        float getHfc(float smooth=0.0);
-        float getSpectralComplex(float smooth=0.0);
-        float getCentroid(float smooth=0.0);
-    
-        float getHfcNormalized(float smooth=0.0);
-        float getSpectralComplexNormalized(float smooth=0.0);
-        float getCentroidNormalized(float smooth=0.0);
-        
-        bool getIsOnset();
-    
-        int getSpectrumBinsNum();
-        int getMelBandsBinsNum();
-        int getMfccBinsNum();
-        int getHpcpBinsNum();
-        
-        vector<float>& getSpectrumRef(float smooth=0.0);
-        vector<float>& getMelBandsRef(float smooth=0.0);
-        vector<float>& getDctRef(float smooth=0.0);
-        vector<float>& getHpcpRef(float smooth=0.0);
-    
-    
-        //--------------------------------------------
-    
-        void setOnsetSilenceTreshold(float val);
-        void setOnsetAlpha(float val);
-        void setOnsetTimeTreshold(float val);
-    
-        void setActiveRms(bool state);
-        void setActiveEnergy(bool state);
-        void setActivePower(bool state);
-        void setActivePitch(bool state);
-        void setActiveMelodySalience(bool state);
-        
-        void setActiveTuning(bool state);
-        
-        void setActiveInharmonicity(bool state);
-        void setActiveHfc(bool state);
-        void setActiveSpectralComplex(bool state);
-        void setActiveCentroid(bool state);
-        void setActiveMelbandsAndMfcc(bool state);
-        void setActiveHpcp(bool state);
-    
-        void setActiveOnsets(bool state);
-    
-    
 
-     private:
+public:
     
-        vector<Real> audioBuffer;
+    ofxAudioAnalyzerUnit(int sampleRate, int bufferSize){
+        setup(sampleRate, bufferSize);
+    }
+    ~ofxAudioAnalyzerUnit(){
+        exit();
+    }
+    void setup(int sampleRate, int bufferSize);
+    void exit();
+
+    void analyze(const vector<float> &  inBuffer);
+
+    void resetOnsets();
+
+    ///---------------------------
+
+    float getRms(float smooth=0.0);
+    float getEnergy(float smooth=0.0);
+    float getPower(float smooth=0.0);
+
+    float getPitchFreq(float smooth=0.0);
+    int   getPitchFreqAsMidiNote(float smooth=0.0);
+    string getPitchFreqAsNoteName(float smooth=0.0);
+    float getPitchConfidence(float smooth=0.0);
+    float getMelodySalience(float smooth=0.0);
+
+    float getTuningFreq();
+    float getTuningCents();
     
-        //algorithms with return value func
-        ofxAABaseAlgorithm rms;
-        ofxAABaseAlgorithm energy;
-        ofxAABaseAlgorithm power;
-        ofxAAPitchDetectAlgorithm pitchDetect;
-        ofxAABaseAlgorithm pitchSalience;
-        ofxAATuningFrequencyAlgorithm tuning;
-        ofxAABaseAlgorithm inharmonicity;
-        ofxAABaseAlgorithm hfc;
-        ofxAABaseAlgorithm centroid;
-        ofxAABaseAlgorithm spectralComplex;
-        ofxAAOneVectorOutputAlgorithm spectrum;
-        ofxAAOneVectorOutputAlgorithm melBands;
-        ofxAAOneVectorOutputAlgorithm dct;//MFCC
-        ofxAAOneVectorOutputAlgorithm hpcp;
+    float getInharmonicity(float smooth=0.0);
+    float getHfc(float smooth=0.0);
+    float getSpectralComplex(float smooth=0.0);
+    float getCentroid(float smooth=0.0);
+
+    float getHfcNormalized(float smooth=0.0);
+    float getSpectralComplexNormalized(float smooth=0.0);
+    float getCentroidNormalized(float smooth=0.0);
     
-        //algorithms for internal functionality:
-        ofxAAOneVectorOutputAlgorithm dcremoval;
-        ofxAAOneVectorOutputAlgorithm window;
-        ofxAAFftAlgorithm fft;
-        ofxAACartToPolAlgorithm cartesian2polar;
-        ofxAAPeaksAlgorithm peaks;
-        ofxAAPeaksAlgorithm harmonicPeaks;
-        ofxAABaseAlgorithm onsetHfc;
-        ofxAABaseAlgorithm onsetComplex;
-        ofxAABaseAlgorithm onsetFlux;
+    bool getIsOnset();
+
+    int getSpectrumBinsNum();
+    int getMelBandsBinsNum();
+    int getMfccBinsNum();
+    int getHpcpBinsNum();
     
-        //Onset detection------------
-        bool onsetEvaluation (Real iDetectHfc, Real iDetectComplex, Real iDetectFlux);
-        bool onsetTimeTresholdEvaluation();
-        bool isOnset;
-        Real silenceTreshold, alpha;
-        bool addHfc, addComplex, addFlux;
-        bool doOnsets;
-        float timeTreshold;
-        float lastOnsetTime;
+    vector<float>& getSpectrumRef(float smooth=0.0);
+    vector<float>& getMelBandsRef(float smooth=0.0);
+    vector<float>& getDctRef(float smooth=0.0);
+    vector<float>& getHpcpRef(float smooth=0.0);
+
+    float getOnsetSilenceTreshold(){return silenceTreshold;}
+    float getOnsetTimeTreshold(){return timeTreshold;}
+    float getOnsetAlpha(){return alpha;}
+
+    //--------------------------------------------
+
+    void setOnsetSilenceTreshold(float val);
+    void setOnsetAlpha(float val);
+    void setOnsetTimeTreshold(float val);
+    void setUseTimeTreshold(bool doUse){useTimeTreshold = doUse;}
+
+    void setActiveRms(bool state);
+    void setActiveEnergy(bool state);
+    void setActivePower(bool state);
+    void setActivePitch(bool state);
+    void setActiveMelodySalience(bool state);
     
-        int framesize;
-        int hopsize;
-        int sr;
-        int zeropadding;
-        Real framerate;
+    void setActiveTuning(bool state);
     
-        int detecBufferSize;
-        vector<vector<Real> > detections;
-        vector<Real> detection_sum;
-        Real hfc_max, complex_max, flux_max;
+    void setActiveInharmonicity(bool state);
+    void setActiveHfc(bool state);
+    void setActiveSpectralComplex(bool state);
+    void setActiveCentroid(bool state);
+    void setActiveMelbandsAndMfcc(bool state);
+    void setActiveHpcp(bool state);
+
+    void setActiveOnsets(bool state);
     
-        //Utils
-        int pitchToMidi(float pitch);
-        string midiToNoteName(int midiNote);
+    void setMaxEnergyEstimatedValue(float val){maxEnergyEstimatedValue = val;}
+    void setMaxHfcEstimatedValue(float val){maxHfcEstimatedValue = val;}
+    void setMaxSpecCompEstimatedValue(float val){maxSpecCompEstimatedValue = val;}
+    void setMaxCentroidEstimatedValue(float val){maxCentroidEstimatedValue = val;}
+
+private:
+    
+    vector<Real> audioBuffer;
+
+    //algorithms with return value func
+    ofxAABaseAlgorithm rms;
+    ofxAABaseAlgorithm energy;
+    ofxAABaseAlgorithm power;
+    ofxAAPitchDetectAlgorithm pitchDetect;
+    ofxAABaseAlgorithm pitchSalience;
+    ofxAATuningFrequencyAlgorithm tuning;
+    ofxAABaseAlgorithm inharmonicity;
+    ofxAABaseAlgorithm hfc;
+    ofxAABaseAlgorithm centroid;
+    ofxAABaseAlgorithm spectralComplex;
+    ofxAAOneVectorOutputAlgorithm spectrum;
+    ofxAAOneVectorOutputAlgorithm melBands;
+    ofxAAOneVectorOutputAlgorithm dct;//MFCC
+    ofxAAOneVectorOutputAlgorithm hpcp;
+
+    //algorithms for internal functionality:
+    ofxAAOneVectorOutputAlgorithm dcremoval;
+    ofxAAOneVectorOutputAlgorithm window;
+    ofxAAFftAlgorithm fft;
+    ofxAACartToPolAlgorithm cartesian2polar;
+    ofxAAPeaksAlgorithm peaks;
+    ofxAAPeaksAlgorithm harmonicPeaks;
+    ofxAABaseAlgorithm onsetHfc;
+    ofxAABaseAlgorithm onsetComplex;
+    ofxAABaseAlgorithm onsetFlux;
+
+    //Onset detection------------
+    bool onsetEvaluation (Real iDetectHfc, Real iDetectComplex, Real iDetectFlux);
+    bool onsetTimeTresholdEvaluation();
+    bool isOnset;
+    Real silenceTreshold, alpha;
+    bool addHfc, addComplex, addFlux;
+    bool doOnsets;
+    bool useTimeTreshold;
+    float timeTreshold;
+    float lastOnsetTime;
+
+    int framesize;
+    int hopsize;
+    int sr;
+    int zeropadding;
+    Real framerate;
+
+    int detecBufferSize;
+    vector<vector<Real> > detections;
+    vector<Real> detection_sum;
+    Real hfc_max, complex_max, flux_max;
+
+    //Utils
+    int pitchToMidi(float pitch);
+    string midiToNoteName(int midiNote);
+
+    float maxEnergyEstimatedValue;
+    float maxHfcEstimatedValue;
+    float maxSpecCompEstimatedValue;
+    float maxCentroidEstimatedValue;
 };
 
 

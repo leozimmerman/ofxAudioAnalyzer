@@ -14,6 +14,7 @@ class ofxAudioAnalyzer{
     void analyze(const ofSoundBuffer & inBuffer);
     
     void exit();
+
     
     vector<ofxAudioAnalyzerUnit*>& getChannelAnalyzersPtrs(){return channelAnalyzerUnits;}
     
