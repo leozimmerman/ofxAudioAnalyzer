@@ -53,8 +53,9 @@ public:
 
     void resetOnsets();
 
-    ///---------------------------
-
+    
+    //Value getters -------------------
+    
     float getRms(float smooth=0.0);
     float getEnergy(float smooth=0.0);
     float getPower(float smooth=0.0);
@@ -93,13 +94,8 @@ public:
     float getOnsetTimeTreshold(){return timeTreshold;}
     float getOnsetAlpha(){return alpha;}
 
-    //--------------------------------------------
-
-    void setOnsetSilenceTreshold(float val);
-    void setOnsetAlpha(float val);
-    void setOnsetTimeTreshold(float val);
-    void setUseTimeTreshold(bool doUse){useTimeTreshold = doUse;}
-
+    
+    //Algorithms activation -------------------
     void setActiveRms(bool state);
     void setActiveEnergy(bool state);
     void setActivePower(bool state);
@@ -117,6 +113,13 @@ public:
 
     void setActiveOnsets(bool state);
     
+    //Onsets configuration -------------------
+    void setOnsetSilenceTreshold(float val);
+    void setOnsetAlpha(float val);
+    void setOnsetTimeTreshold(float val);
+    void setUseTimeTreshold(bool doUse){useTimeTreshold = doUse;}
+    
+    //Max estimated values -------------------
     void setMaxEnergyEstimatedValue(float val){maxEnergyEstimatedValue = val;}
     void setMaxHfcEstimatedValue(float val){maxHfcEstimatedValue = val;}
     void setMaxSpecCompEstimatedValue(float val){maxSpecCompEstimatedValue = val;}

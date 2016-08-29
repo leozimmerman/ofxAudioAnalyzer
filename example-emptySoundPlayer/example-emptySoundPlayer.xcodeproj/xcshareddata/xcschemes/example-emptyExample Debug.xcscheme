@@ -15,64 +15,69 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
-               BuildableName = "example-emptyExample.app"
-               BlueprintName = "example-emptyExample"
-               ReferencedContainer = "container:example-emptyExample.xcodeproj">
+               BuildableName = "example-emptySoundPlayer.app"
+               BlueprintName = "example-emptySoundPlayer"
+               ReferencedContainer = "container:example-emptySoundPlayer.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Debug">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
-            BuildableName = "example-emptyExample.app"
-            BlueprintName = "example-emptyExample"
-            ReferencedContainer = "container:example-emptyExample.xcodeproj">
+            BuildableName = "example-emptySoundPlayer.app"
+            BlueprintName = "example-emptySoundPlayer"
+            ReferencedContainer = "container:example-emptySoundPlayer.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </TestAction>
    <LaunchAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
-            BuildableName = "example-emptyExample.app"
-            BlueprintName = "example-emptyExample"
-            ReferencedContainer = "container:example-emptyExample.xcodeproj">
+            BuildableName = "example-emptySoundPlayer.app"
+            BlueprintName = "example-emptySoundPlayer"
+            ReferencedContainer = "container:example-emptySoundPlayer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
+      buildConfiguration = "Debug"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
-            BuildableName = "example-emptyExample.app"
-            BlueprintName = "example-emptyExample"
-            ReferencedContainer = "container:example-emptyExample.xcodeproj">
+            BuildableName = "example-emptySoundPlayer.app"
+            BlueprintName = "example-emptySoundPlayer"
+            ReferencedContainer = "container:example-emptySoundPlayer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

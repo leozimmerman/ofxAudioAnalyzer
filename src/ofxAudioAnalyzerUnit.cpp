@@ -1,5 +1,7 @@
 #include "ofxAudioAnalyzerUnit.h"
 
+//TODO: Check centroid, specComp, hfc max estimated values for normalizing
+
 #pragma mark - Main funcs
 //--------------------------------------------------------------
 void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
@@ -10,7 +12,7 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     zeropadding = 0;
     framerate = (Real) sr / hopsize;
 
-    ///init algorithms------------------
+    //-Init algorithms:
     rms.init();
     energy.init();
     power.init();
@@ -39,7 +41,7 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     onsetFlux.init();
     
 
-    ///onsets:
+    //-Onsets:
     detecBufferSize = bufferSize; //TODO: revisar
     detection_sum.assign(detecBufferSize,0);
     detections.assign(3, vector<Real> (detecBufferSize));
@@ -50,8 +52,7 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     addHfc = addComplex = addFlux = true;
     useTimeTreshold = false; //TODO: add frameNum timeTreshold option, for offline rendering
     
-    ///Max estimated values------
-    
+    //-Max estimated values:
     maxEnergyEstimatedValue = 100.0;
     maxHfcEstimatedValue = 500.0; //antes 1000
     maxSpecCompEstimatedValue = 15.0; //antes 30

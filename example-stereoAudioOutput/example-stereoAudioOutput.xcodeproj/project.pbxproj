@@ -160,7 +160,7 @@
 		B3B3E8FD1CC920AE007A2FA6 /* libsamplerate.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsamplerate.a; path = ../../../../../../../usr/local/lib/libsamplerate.a; sourceTree = "<group>"; };
 		B3B3E8FE1CC920AE007A2FA6 /* libyaml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libyaml.a; path = ../../../../../../../usr/local/lib/libyaml.a; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../../of_v0.9.3_osx_release/libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
-		E4B69B5B0A3A1756003C02F2 /* example-simpleAudioOutputDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "example-simpleAudioOutputDebug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E4B69B5B0A3A1756003C02F2 /* example-stereoAudioOutputDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "example-stereoAudioOutputDebug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4B69E1D0A3A1BDC003C02F2 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = SOURCE_ROOT; };
 		E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofApp.cpp; path = src/ofApp.cpp; sourceTree = SOURCE_ROOT; };
 		E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ofApp.h; path = src/ofApp.h; sourceTree = SOURCE_ROOT; };
@@ -424,7 +424,7 @@
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
 				BB4B014C10F69532006C3DED /* addons */,
 				6948EE371B920CB800B5AC1A /* local_addons */,
-				E4B69B5B0A3A1756003C02F2 /* example-simpleAudioOutputDebug.app */,
+				E4B69B5B0A3A1756003C02F2 /* example-stereoAudioOutputDebug.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -450,9 +450,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E4B69B5A0A3A1756003C02F2 /* example-simpleAudioOutput */ = {
+		E4B69B5A0A3A1756003C02F2 /* example-stereoAudioOutput */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E4B69B5F0A3A1757003C02F2 /* Build configuration list for PBXNativeTarget "example-simpleAudioOutput" */;
+			buildConfigurationList = E4B69B5F0A3A1757003C02F2 /* Build configuration list for PBXNativeTarget "example-stereoAudioOutput" */;
 			buildPhases = (
 				E4B69B580A3A1756003C02F2 /* Sources */,
 				E4B69B590A3A1756003C02F2 /* Frameworks */,
@@ -464,9 +464,9 @@
 			dependencies = (
 				E4EEB9AC138B136A00A80321 /* PBXTargetDependency */,
 			);
-			name = "example-simpleAudioOutput";
+			name = "example-stereoAudioOutput";
 			productName = myOFApp;
-			productReference = E4B69B5B0A3A1756003C02F2 /* example-simpleAudioOutputDebug.app */;
+			productReference = E4B69B5B0A3A1756003C02F2 /* example-stereoAudioOutputDebug.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -477,7 +477,7 @@
 			attributes = {
 				LastUpgradeCheck = 0600;
 			};
-			buildConfigurationList = E4B69B4D0A3A1720003C02F2 /* Build configuration list for PBXProject "example-simpleAudioOutput" */;
+			buildConfigurationList = E4B69B4D0A3A1720003C02F2 /* Build configuration list for PBXProject "example-stereoAudioOutput" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -498,7 +498,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				E4B69B5A0A3A1756003C02F2 /* example-simpleAudioOutput */,
+				E4B69B5A0A3A1756003C02F2 /* example-stereoAudioOutput */,
 			);
 		};
 /* End PBXProject section */
@@ -633,7 +633,7 @@
 					"$(inherited)",
 					/usr/local/lib,
 				);
-				PRODUCT_NAME = "example-simpleAudioOutputDebug";
+				PRODUCT_NAME = "example-stereoAudioOutputDebug";
 				USER_HEADER_SEARCH_PATHS = ../libs/essentia/include/;
 				WRAPPER_EXTENSION = app;
 			};
@@ -660,7 +660,7 @@
 					"$(inherited)",
 					/usr/local/lib,
 				);
-				PRODUCT_NAME = "example-simpleAudioOutputDebug";
+				PRODUCT_NAME = "example-stereoAudioOutputDebug";
 				USER_HEADER_SEARCH_PATHS = ../libs/essentia/include/;
 				WRAPPER_EXTENSION = app;
 				baseConfigurationReference = E4EB6923138AFD0F00A09F29;
@@ -670,7 +670,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E4B69B4D0A3A1720003C02F2 /* Build configuration list for PBXProject "example-simpleAudioOutput" */ = {
+		E4B69B4D0A3A1720003C02F2 /* Build configuration list for PBXProject "example-stereoAudioOutput" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E4B69B4E0A3A1720003C02F2 /* Debug */,
@@ -679,7 +679,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E4B69B5F0A3A1757003C02F2 /* Build configuration list for PBXNativeTarget "example-simpleAudioOutput" */ = {
+		E4B69B5F0A3A1757003C02F2 /* Build configuration list for PBXNativeTarget "example-stereoAudioOutput" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E4B69B600A3A1757003C02F2 /* Debug */,

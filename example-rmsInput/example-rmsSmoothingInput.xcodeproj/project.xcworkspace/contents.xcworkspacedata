@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:">
+      location = "self:/Users/leo/Development/openFrameworks/addons/ofxAudioAnalyzer/example-rmsInput/example-rmsSmoothingInput.xcodeproj">
    </FileRef>
 </Workspace>
