@@ -36,13 +36,15 @@ enum ofxAASingleAlgorithm{
     HFC,
     CENTROID,
     SPECTRAL_COMPLEXITY,
+    DISSONANCE
 };
 
 enum ofxAAVectorAlgorithm{
     SPECTRUM,
     MEL_BANDS,
     MFCC,
-    HPCP
+    HPCP,
+    MULTI_PITCHES
 };
 
 
@@ -67,12 +69,18 @@ class ofxAudioAnalyzer{
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
     vector<float>& getVectorValues(ofxAAVectorAlgorithm algorithm, int channel, float smooth=0.0);
     
+    ///Gets the array of pitch salience function peaks: bin/cents & value
+    vector<SalienceFunctionPeak>& getSalienceFunctionPeaks(int channel);
+    
     ///Returns if there is an onset in the speciefied channel.
     bool getIsOnset(int channel);
 
     ///Pointers for the audio analyzing units.
     ///Use very carefully!
     vector<ofxAudioAnalyzerUnit*>& getChannelAnalyzersPtrs(){return channelAnalyzerUnits;}
+    
+    ///Resets onsetsr detections buffer
+    void resetOnsets(int channel);
     
     ///Sets onsets detection parameters
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)

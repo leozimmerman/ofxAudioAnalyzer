@@ -21,7 +21,7 @@ void ofApp::setup(){
     gui.add(alpha.setup("alpha", 0.1, 0.0, 1.0));
     gui.add(silenceTreshold.setup("silence treshold", 0.02, 0.0, 1.0));
     gui.add(timeTreshold.setup("time treshold (ms.)", 100.0, 0.0, 1000.0));
-    gui.add(useTimeTreshold.setup("use time treshold", true));
+    gui.add(useTimeTreshold.setup("use time treshold", false));
     
     
 }
@@ -49,13 +49,25 @@ void ofApp::draw(){
     gui.draw();
     
     ofSetColor(255);
-    ofDrawBitmapString("ofxAudioAnalyzer - ONSETS EXAMPLE \nPress any key to play audio file ", 350, 32);
+    ofDrawBitmapString("ofxAudioAnalyzer - ONSETS EXAMPLE \n\nPress spacebar to play audio file \n'r' : resets onsets ", 350, 32);
 
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    player.play();
+    
+    
+    switch (key) {
+        case ' ':
+            player.play();
+            break;
+        case 'r':
+            audioAnalyzer.resetOnsets(0);
+            break;
+            
+        default:
+            break;
+    }
 }
 
 //--------------------------------------------------------------

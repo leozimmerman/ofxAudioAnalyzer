@@ -2,6 +2,7 @@
 #include "ofxAudioAnalyzer.h"
 
 //TODO: Document all this funcs and classes. Add description
+//TODO: Add throw error & exceptions with channel num checks??
 
 
 //-------------------------------------------------------
@@ -139,6 +140,13 @@ float ofxAudioAnalyzer::getSingleValue(ofxAASingleAlgorithm algorithm, int chann
             returnValue = channelAnalyzerUnits[channel]->getCentroid(smooth);
             break;
             
+        case DISSONANCE:
+            ///test!
+            returnValue = channelAnalyzerUnits[channel]->getDissonance(smooth);
+
+            
+            break;
+            
         default:
             break;
     }
@@ -171,9 +179,23 @@ vector<float>& ofxAudioAnalyzer::getVectorValues(ofxAAVectorAlgorithm algorithm,
             return channelAnalyzerUnits[channel]->getHpcpRef(smooth);
             break;
             
+        case MULTI_PITCHES:
+            return channelAnalyzerUnits[channel]->getKlapuriMultiPitchesRef();
+            break;
+            
         default:
             break;
     }
+}
+//-------------------------------------------------------
+vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int channel){
+    if (channel >= _channels){
+        ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
+        return;
+    }
+    
+     return channelAnalyzerUnits[channel]->getPitchSaliencePeaksRef();
+
 }
 //-------------------------------------------------------
 bool ofxAudioAnalyzer::getIsOnset(int channel){
@@ -187,6 +209,17 @@ bool ofxAudioAnalyzer::getIsOnset(int channel){
     
     
 }
+//-------------------------------------------------------
+void ofxAudioAnalyzer::resetOnsets(int channel){
+    
+    if (channel >= _channels){
+        ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
+        return;
+    }
+    
+    channelAnalyzerUnits[channel]->resetOnsets();
+}
+
 //-------------------------------------------------------
 void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silenceTresh, float timeTresh, bool useTimeTresh){
     

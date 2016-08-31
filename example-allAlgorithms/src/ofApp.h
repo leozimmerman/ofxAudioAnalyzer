@@ -44,11 +44,17 @@ class ofApp : public ofBaseApp{
         float specCompNorm;
         float centroid;
         float centroidNorm;
+        float dissonance;
    
         vector<float> spectrum;
         vector<float> melBands;
         vector<float> mfcc;
         vector<float> hpcp;
+        vector<float> multiPitches;
+    
+        vector<SalienceFunctionPeak> saliencePeaks;
+    
+        bool isOnset;
     
     
         ofxPanel gui;
@@ -61,6 +67,9 @@ class ofApp : public ofBaseApp{
         ofxFloatSlider hfc_smth;
         ofxFloatSlider specComp_smth;
         ofxFloatSlider centroid_smth;
+    
+        ofxFloatSlider dissonance_smth;
+    
         ofxFloatSlider spectrum_smth;
         ofxFloatSlider melBands_smth;
         ofxFloatSlider mfcc_smth;

@@ -15,6 +15,7 @@ void ofApp::setup(){
     player.load("beatTrack.wav");
     
     gui.setup("Smoothing Values");
+    gui.setPosition(20, 150);
     gui.add(rms_smth.setup  ("RMS", 0.0, 0.0, 1.0));
     gui.add(power_smth.setup("Power", 0.0, 0.0, 1.0));
     gui.add(pitchFreq_smth.setup("Pitch Frequency", 0.0, 0.0, 1.0));
@@ -24,6 +25,9 @@ void ofApp::setup(){
     gui.add(hfc_smth.setup("HFC", 0.0, 0.0, 1.0));
     gui.add(specComp_smth.setup("Spectral Complexity", 0.0, 0.0, 1.0));
     gui.add(centroid_smth.setup("Centroid", 0.0, 0.0, 1.0));
+    
+    gui.add(dissonance_smth.setup("Dissonance", 0.0, 0.0, 1.0));
+    
     gui.add(spectrum_smth.setup("Spectrum", 0.0, 0.0, 1.0));
     gui.add(melBands_smth.setup("Mel Bands", 0.0, 0.0, 1.0));
     gui.add(mfcc_smth.setup("MFCC", 0.0, 0.0, 1.0));
@@ -55,10 +59,17 @@ void ofApp::update(){
     specCompNorm = audioAnalyzer.getSingleValue(SPECTRAL_COMPLEXITY, 0, specComp_smth, true);
     centroidNorm = audioAnalyzer.getSingleValue(SPECTRAL_COMPLEXITY, 0, centroid_smth, true);
     
+    dissonance = audioAnalyzer.getSingleValue(DISSONANCE, 0, dissonance_smth);
+    
     spectrum = audioAnalyzer.getVectorValues(SPECTRUM, 0, spectrum_smth);
     melBands = audioAnalyzer.getVectorValues(MEL_BANDS, 0, melBands_smth);
     mfcc = audioAnalyzer.getVectorValues(MFCC, 0, mfcc_smth);
     hpcp = audioAnalyzer.getVectorValues(HPCP, 0, hpcp_smth);
+    
+    multiPitches = audioAnalyzer.getVectorValues(MULTI_PITCHES, 0);
+    saliencePeaks = audioAnalyzer.getSalienceFunctionPeaks(0);
+    
+    isOnset = audioAnalyzer.getIsOnset(0);
 }
 
 //--------------------------------------------------------------
@@ -67,10 +78,10 @@ void ofApp::draw(){
     //-Single value Algorithms:
     
     ofPushMatrix();
-    ofTranslate(300, 0);
+    ofTranslate(350, 0);
     int mw = 250;
     int xpos = 0;
-    int ypos = 150;
+    int ypos = 30;
     
     float value, valueNorm;
     
@@ -148,6 +159,22 @@ void ofApp::draw(){
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, valueNorm * mw, 10);
     
+    ypos += 50;
+    ofSetColor(255);
+    value = dissonance;
+    strValue = "Dissonance: " + ofToString(value);
+    ofDrawBitmapString(strValue, xpos, ypos);
+    ofSetColor(ofColor::cyan);
+    ofDrawRectangle(xpos, ypos+5, value * mw, 10);
+    
+    ypos += 50;
+    ofSetColor(255);
+    value = isOnset;
+    strValue = "Onsets: " + ofToString(value);
+    ofDrawBitmapString(strValue, xpos, ypos);
+    ofSetColor(ofColor::cyan);
+    ofDrawRectangle(xpos, ypos+5, value * mw, 10);
+    
     ofPopMatrix();
     
     //-Vector Values Algorithms:
@@ -156,7 +183,8 @@ void ofApp::draw(){
     
     ofTranslate(700, 0);
     
-    ypos = 150;
+    int graphH = 75;
+    ypos = 30;
     
     ofSetColor(255);
     ofDrawBitmapString("Spectrum: ", 0, ypos);
@@ -166,12 +194,12 @@ void ofApp::draw(){
     float bin_w = (float) mw / spectrum.size();
     for (int i = 0; i < spectrum.size(); i++){
         float scaledValue = ofMap(spectrum[i], DB_MIN, DB_MAX, 0.0, 1.0, true);//clamped value
-        float bin_h = -1 * (scaledValue * 100);
-        ofDrawRectangle(i*bin_w, 100, bin_w, bin_h);
+        float bin_h = -1 * (scaledValue * graphH);
+        ofDrawRectangle(i*bin_w, graphH, bin_w, bin_h);
     }
     ofPopMatrix();
     
-    ypos += 150;
+    ypos += 100;
     ofSetColor(255);
     ofDrawBitmapString("Mel Bands: ", 0, ypos);
     ofPushMatrix();
@@ -180,12 +208,12 @@ void ofApp::draw(){
     bin_w = (float) mw / melBands.size();
     for (int i = 0; i < melBands.size(); i++){
         float scaledValue = ofMap(melBands[i], DB_MIN, DB_MAX, 0.0, 1.0, true);//clamped value
-        float bin_h = -1 * (scaledValue * 100);
-        ofDrawRectangle(i*bin_w, 100, bin_w, bin_h);
+        float bin_h = -1 * (scaledValue * graphH);
+        ofDrawRectangle(i*bin_w, graphH, bin_w, bin_h);
     }
     ofPopMatrix();
     
-    ypos += 150;
+    ypos += 100;
     ofSetColor(255);
     ofDrawBitmapString("MFCC: ", 0, ypos);
     ofPushMatrix();
@@ -194,12 +222,12 @@ void ofApp::draw(){
     bin_w = (float) mw / mfcc.size();
     for (int i = 0; i < mfcc.size(); i++){
         float scaledValue = ofMap(mfcc[i], 0, MFCC_MAX_ESTIMATED_VALUE, 0.0, 1.0, true);//clamped value
-        float bin_h = -1 * (scaledValue * 100);
-        ofDrawRectangle(i*bin_w, 100, bin_w, bin_h);
+        float bin_h = -1 * (scaledValue * graphH);
+        ofDrawRectangle(i*bin_w, graphH, bin_w, bin_h);
     }
     ofPopMatrix();
     
-    ypos += 150;
+    ypos += 100;
     ofSetColor(255);
     ofDrawBitmapString("HPCP: ", 0, ypos);
     ofPushMatrix();
@@ -209,21 +237,62 @@ void ofApp::draw(){
     for (int i = 0; i < hpcp.size(); i++){
         //float scaledValue = ofMap(hpcp[i], DB_MIN, DB_MAX, 0.0, 1.0, true);//clamped value
         float scaledValue = hpcp[i];
-        float bin_h = -1 * (scaledValue * 100);
-        ofDrawRectangle(i*bin_w, 100, bin_w, bin_h);
+        float bin_h = -1 * (scaledValue * graphH);
+        ofDrawRectangle(i*bin_w, graphH, bin_w, bin_h);
     }
     ofPopMatrix();
+    
+    ypos += 100;
+    ofSetColor(255);
+    ofDrawBitmapString("Pitch Salience Function Peaks: ", 0, ypos);
+    ofPushMatrix();
+    ofTranslate(0, ypos);
+    ofSetColor(ofColor::cyan);
+    bin_w = (float) mw / saliencePeaks.size();
+    for (int i = 0; i < saliencePeaks.size(); i++){
+        //float scaledValue = ofMap(saliencePeaks[i].value, DB_MIN, DB_MAX, 0.0, 1.0, true);//clamped value
+        float scaledValue = saliencePeaks[i].value;
+        float bin_h = -1 * (scaledValue * graphH);
+        
+        float maxCents = 600.0;
+        int xpos = (saliencePeaks[i].bin / maxCents) * mw;
+        
+        ofDrawRectangle(xpos, graphH, bin_w, bin_h);
+    }
+    ofPopMatrix();
+    
+    ypos += 100;
+    ofSetColor(255);
+    ofDrawBitmapString("Multi Pitches: ", 0, ypos);
+    ofPushMatrix();
+    ofTranslate(0, ypos);
+    ofSetColor(ofColor::cyan);
+    bin_w = 5;//cte.
+    for (int i = 0; i < multiPitches.size(); i++){
+        
+        
+        float bin_h = -0.75 * graphH;
+        
+        float maxPitch = 2000.0;
+        int xpos = (multiPitches[i] / maxPitch) * mw;
+        
+        ofDrawRectangle(xpos, graphH, bin_w, bin_h);
+    }
+    ofPopMatrix();
+    
+    
     
  
     ofPopMatrix();
     
-    //--
+  
+    ///---------------------------------------------
     
     gui.draw();
     ofSetColor(255);
-    ofDrawBitmapString("ofxAudioAnalyzer - ALL ALGORITHMS EXAMPLE", 300, 32);
+    ofDrawBitmapString("ofxAudioAnalyzer\n\nALL ALGORITHMS EXAMPLE", 10, 32);
     ofSetColor(ofColor::hotPink);
-    ofDrawBitmapString("Keys 1-4: Play audio tracks", 300, 100);
+    ofDrawBitmapString("Keys 1-4: Play audio tracks", 10, 100);
     
 }
 

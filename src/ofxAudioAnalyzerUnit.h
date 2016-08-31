@@ -34,6 +34,12 @@ using namespace standard;
 #define DB_MAX 0
 
 //----------------------------------
+enum OnsetsTimeTresholdMode{
+    TIME_BASED,
+    BUFFER_NUM_BASED
+};
+
+//----------------------------------
 
 class ofxAudioAnalyzerUnit
 {
@@ -78,6 +84,13 @@ public:
     float getSpectralComplexNormalized(float smooth=0.0);
     float getCentroidNormalized(float smooth=0.0);
     
+    ///test:
+    float getDissonance(float smooth=0.0);
+    vector<float>& getKlapuriMultiPitchesRef();
+    vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef();
+    
+    
+    
     bool getIsOnset();
 
     int getSpectrumBinsNum();
@@ -113,10 +126,16 @@ public:
 
     void setActiveOnsets(bool state);
     
+    ///test:
+    void setActiveDissonance(bool state);
+    void setActivePitchSalienceFunctionPeaks(bool state);
+    void setActiveKlapuriMultiPitch(bool state);
+    
     //Onsets configuration -------------------
     void setOnsetSilenceTreshold(float val);
     void setOnsetAlpha(float val);
-    void setOnsetTimeTreshold(float val);
+    void setOnsetTimeTreshold(float ms);
+    void setOnsetBufferNumTreshold(int buffersNum);
     void setUseTimeTreshold(bool doUse){useTimeTreshold = doUse;}
     
     //Max estimated values -------------------
@@ -140,17 +159,25 @@ private:
     ofxAABaseAlgorithm hfc;
     ofxAABaseAlgorithm centroid;
     ofxAABaseAlgorithm spectralComplex;
+    
     ofxAAOneVectorOutputAlgorithm spectrum;
     ofxAAOneVectorOutputAlgorithm melBands;
     ofxAAOneVectorOutputAlgorithm dct;//MFCC
     ofxAAOneVectorOutputAlgorithm hpcp;
+    
+    
+    ///test adding algorithms:
+    ofxAABaseAlgorithm dissonance;
+    ofxAAOneVectorOutputAlgorithm pitchSalienceFunction;
+    ofxAAPitchSalienceFunctionPeaksAlgorithm pitchSalienceFunctionPeaks;
+    ofxAAMultiPitchKlapuriAlgorithm multiPitchKlapuri;
 
     //algorithms for internal functionality:
     ofxAAOneVectorOutputAlgorithm dcremoval;
     ofxAAOneVectorOutputAlgorithm window;
     ofxAAFftAlgorithm fft;
     ofxAACartToPolAlgorithm cartesian2polar;
-    ofxAAPeaksAlgorithm peaks;
+    ofxAAPeaksAlgorithm spectralPeaks;
     ofxAAPeaksAlgorithm harmonicPeaks;
     ofxAABaseAlgorithm onsetHfc;
     ofxAABaseAlgorithm onsetComplex;
@@ -159,6 +186,7 @@ private:
     //Onset detection------------
     bool onsetEvaluation (Real iDetectHfc, Real iDetectComplex, Real iDetectFlux);
     bool onsetTimeTresholdEvaluation();
+    bool onsetBufferNumTresholdEvaluation();//framebased treshold eval.
     bool isOnset;
     Real silenceTreshold, alpha;
     bool addHfc, addComplex, addFlux;
@@ -166,6 +194,10 @@ private:
     bool useTimeTreshold;
     float timeTreshold;
     float lastOnsetTime;
+    int bufferNumTreshold;
+    int lastOnsetBufferNum;
+    
+    OnsetsTimeTresholdMode onsetsMode;
 
     int framesize;
     int hopsize;
@@ -186,6 +218,12 @@ private:
     float maxHfcEstimatedValue;
     float maxSpecCompEstimatedValue;
     float maxCentroidEstimatedValue;
+    
+    int bufferCounter;
+    
+    //klapuri test:
+   
+    
 };
 
 
