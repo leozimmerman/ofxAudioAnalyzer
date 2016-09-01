@@ -5,7 +5,7 @@
 void ofxAAOnsetsAlgorithm::setup(int bufferSize){
     
     //-Onsets:
-    detecBufferSize = bufferSize; //TODO: revisar
+    detecBufferSize = bufferSize; //FIXME: Check this value. Too big??? 
     detection_sum.assign(detecBufferSize, 0.0);
     detections.assign(3, vector<Real> (detecBufferSize));
     silenceTreshold = 0.02;
@@ -24,7 +24,6 @@ void ofxAAOnsetsAlgorithm::setup(int bufferSize){
     
     init();
     
-    //???necesario?
     onsetHfc.init();
     onsetComplex.init();
     onsetFlux.init();
@@ -54,6 +53,7 @@ void ofxAAOnsetsAlgorithm::castValuesToFloat(){
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::evaluate(){
     
+    //is current buffer an Onset?
     bool isCurrentBufferOnset = onsetBufferEvaluation(onsetHfc.getValue(), onsetComplex.getValue(), onsetFlux.getValue());
     
     //if current buffer is onset, check for timeTreshold evaluation
@@ -78,8 +78,8 @@ void ofxAAOnsetsAlgorithm::evaluate(){
         _value = isCurrentBufferOnset;
     }
     
-    //FIXME: Only in BUFFER_NUM mode??
-    bufferCounter++;
+    //update bufferCounter for frameBased timeTreshold evaluation:
+    if (onsetsMode == BUFFER_NUM_BASED) bufferCounter++;
 }
 
 //--------------------------------------------------------------
@@ -189,6 +189,13 @@ void ofxAAOnsetsAlgorithm::reset(){
         detection_sum[i] = 0.0;
     }
     
+    //necessary?
+    onsetHfc.algorithm->reset();
+    onsetComplex.algorithm->reset();
+    onsetFlux.algorithm->reset();
+    
+    
+    bufferCounter = 0;
 }
 
 

@@ -183,7 +183,7 @@ void ofApp::draw(){
     
     ofTranslate(700, 0);
     
-    int graphH = 75;
+    int graphH = 100;
     ypos = 30;
     
     ofSetColor(255);
@@ -199,7 +199,7 @@ void ofApp::draw(){
     }
     ofPopMatrix();
     
-    ypos += 100;
+    ypos += 150;
     ofSetColor(255);
     ofDrawBitmapString("Mel Bands: ", 0, ypos);
     ofPushMatrix();
@@ -213,7 +213,7 @@ void ofApp::draw(){
     }
     ofPopMatrix();
     
-    ypos += 100;
+    ypos += 150;
     ofSetColor(255);
     ofDrawBitmapString("MFCC: ", 0, ypos);
     ofPushMatrix();
@@ -227,7 +227,7 @@ void ofApp::draw(){
     }
     ofPopMatrix();
     
-    ypos += 100;
+    ypos += 150;
     ofSetColor(255);
     ofDrawBitmapString("HPCP: ", 0, ypos);
     ofPushMatrix();
@@ -242,42 +242,10 @@ void ofApp::draw(){
     }
     ofPopMatrix();
     
-    ypos += 100;
-    ofSetColor(255);
-    ofDrawBitmapString("Pitch Salience Function Peaks: ", 0, ypos);
-    ofPushMatrix();
-    ofTranslate(0, ypos);
-    ofSetColor(ofColor::cyan);
-    bin_w = (float) mw / saliencePeaks.size();
-    for (int i = 0; i < saliencePeaks.size(); i++){
-        //float scaledValue = ofMap(saliencePeaks[i].value, DB_MIN, DB_MAX, 0.0, 1.0, true);//clamped value
-        float scaledValue = saliencePeaks[i].value;
-        float bin_h = -1 * (scaledValue * graphH);
-        
-        float maxCents = 600.0;
-        int xpos = (saliencePeaks[i].bin / maxCents) * mw;
-        
-        ofDrawRectangle(xpos, graphH, bin_w, bin_h);
-    }
-    ofPopMatrix();
-    
-    ypos += 100;
-    ofSetColor(255);
-    ofDrawBitmapString("Multi Pitches: ", 0, ypos);
-    ofPushMatrix();
-    ofTranslate(0, ypos);
-    ofSetColor(ofColor::cyan);
-    bin_w = 5;//cte.
-    for (int i = 0; i < multiPitches.size(); i++){
-        float bin_h = -0.75 * graphH;
-        float maxPitch = 2000.0;
-        int xpos = (multiPitches[i] / maxPitch) * mw;
-        ofDrawRectangle(xpos, graphH, bin_w, bin_h);
-    }
-    ofPopMatrix();
     
     ofPopMatrix();
-    ///---------------------------------------------
+    
+    //-Gui & info:
     
     gui.draw();
     ofSetColor(255);
@@ -312,6 +280,7 @@ void ofApp::keyPressed(int key){
             player.load("cadence.wav");
             player.play();
             break;
+            
             
         default:
             break;

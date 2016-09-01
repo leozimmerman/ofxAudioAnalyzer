@@ -146,13 +146,9 @@ void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silen
         return;
     }
     channelAnalyzerUnits[channel]->setOnsetsParameters(alpha, silenceTresh, timeTresh, useTimeTresh);
-    
-//    channelAnalyzerUnits[channel]->setOnsetAlpha(alpha);
-//    channelAnalyzerUnits[channel]->setOnsetSilenceTreshold(silenceTresh);
-//    channelAnalyzerUnits[channel]->setOnsetTimeTreshold(timeTresh);
-//    channelAnalyzerUnits[channel]->setUseTimeTreshold(useTimeTresh);
-    
+
 }
+//-------------------------------------------------------
 
 
 

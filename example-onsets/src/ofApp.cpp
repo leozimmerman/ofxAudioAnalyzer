@@ -20,9 +20,9 @@ void ofApp::setup(){
     gui.setup();
     gui.add(alpha.setup("alpha", 0.1, 0.0, 1.0));
     gui.add(silenceTreshold.setup("silence treshold", 0.02, 0.0, 1.0));
-    gui.add(timeTreshold.setup("time treshold (ms.)", 100.0, 0.0, 1000.0));
     gui.add(useTimeTreshold.setup("use time treshold", false));
-    
+    gui.add(timeTreshold.setup("time treshold (ms.)", 100.0, 0.0, 1000.0));
+  
     
 }
 

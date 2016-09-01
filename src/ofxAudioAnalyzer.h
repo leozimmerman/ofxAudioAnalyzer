@@ -70,6 +70,8 @@ class ofxAudioAnalyzer{
     ///\param useTimeTreshold: use or note the time treshold.
     void setOnsetsParameters(int channel, float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
     
+   
+    
 
  private:
     

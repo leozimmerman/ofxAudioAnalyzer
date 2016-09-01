@@ -51,8 +51,9 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     spectralPeaks.init();
     harmonicPeaks.init();
     
-    pitchSalienceFunctionPeaks.init();
-    multiPitchKlapuri.init();
+    ///-Not working well yet...
+    //pitchSalienceFunctionPeaks.init();
+    //multiPitchKlapuri.init();
 
     essentia::init();
 

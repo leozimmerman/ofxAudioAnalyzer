@@ -30,6 +30,7 @@ public:
     void setOnsetTimeTreshold(float ms){timeTreshold = ms;}
     void setOnsetBufferNumTreshold(int buffersNum){bufferNumTreshold = buffersNum;}
     void setUseTimeTreshold(bool doUse){usingTimeTreshold = doUse;}
+    void setOnsetTimeTresholdsMode(OnsetsTimeTresholdMode mode){onsetsMode = mode;}
 
     ofxAABaseAlgorithm onsetHfc;
     ofxAABaseAlgorithm onsetComplex;
