@@ -45,31 +45,31 @@ void ofApp::update(){
     //ANALYZE SOUNDBUFFER:
     audioAnalyzer.analyze(soundBuffer);
     
-    rms     = audioAnalyzer.getSingleValue(RMS, 0, rms_smth);
-    power   = audioAnalyzer.getSingleValue(POWER, 0, power_smth);
-    pitchFreq = audioAnalyzer.getSingleValue(PITCH_FREQ, 0, pitchFreq_smth);
-    pitchConf = audioAnalyzer.getSingleValue(PITCH_CONFIDENCE, 0, pitchConf_smth);
-    melodySalience  = audioAnalyzer.getSingleValue(MELODY_SALIENCE, 0, melodySalience_smth);
-    inharmonicity   = audioAnalyzer.getSingleValue(INHARMONICITY, 0, inharmonicity_smth);
-    hfc = audioAnalyzer.getSingleValue(HFC, 0, hfc_smth);
-    specComp = audioAnalyzer.getSingleValue(SPECTRAL_COMPLEXITY, 0, specComp_smth);
-    centroid = audioAnalyzer.getSingleValue(SPECTRAL_COMPLEXITY, 0, centroid_smth);
+    rms     = audioAnalyzer.getValue(RMS, 0, rms_smth);
+    power   = audioAnalyzer.getValue(POWER, 0, power_smth);
+    pitchFreq = audioAnalyzer.getValue(PITCH_FREQ, 0, pitchFreq_smth);
+    pitchConf = audioAnalyzer.getValue(PITCH_CONFIDENCE, 0, pitchConf_smth);
+    pitchSalience  = audioAnalyzer.getValue(PITCH_SALIENCE, 0, melodySalience_smth);
+    inharmonicity   = audioAnalyzer.getValue(INHARMONICITY, 0, inharmonicity_smth);
+    hfc = audioAnalyzer.getValue(HFC, 0, hfc_smth);
+    specComp = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, specComp_smth);
+    centroid = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, centroid_smth);
     //Normalized values for graphic meters:
-    hfcNorm = audioAnalyzer.getSingleValue(HFC, 0, hfc_smth, true);
-    specCompNorm = audioAnalyzer.getSingleValue(SPECTRAL_COMPLEXITY, 0, specComp_smth, true);
-    centroidNorm = audioAnalyzer.getSingleValue(SPECTRAL_COMPLEXITY, 0, centroid_smth, true);
+    hfcNorm = audioAnalyzer.getValue(HFC, 0, hfc_smth, true);
+    specCompNorm = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, specComp_smth, true);
+    centroidNorm = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, centroid_smth, true);
     
-    dissonance = audioAnalyzer.getSingleValue(DISSONANCE, 0, dissonance_smth);
+    dissonance = audioAnalyzer.getValue(DISSONANCE, 0, dissonance_smth);
     
-    spectrum = audioAnalyzer.getVectorValues(SPECTRUM, 0, spectrum_smth);
-    melBands = audioAnalyzer.getVectorValues(MEL_BANDS, 0, melBands_smth);
-    mfcc = audioAnalyzer.getVectorValues(MFCC, 0, mfcc_smth);
-    hpcp = audioAnalyzer.getVectorValues(HPCP, 0, hpcp_smth);
+    spectrum = audioAnalyzer.getValues(SPECTRUM, 0, spectrum_smth);
+    melBands = audioAnalyzer.getValues(MEL_BANDS, 0, melBands_smth);
+    mfcc = audioAnalyzer.getValues(MFCC, 0, mfcc_smth);
+    hpcp = audioAnalyzer.getValues(HPCP, 0, hpcp_smth);
     
-    multiPitches = audioAnalyzer.getVectorValues(MULTI_PITCHES, 0);
+    multiPitches = audioAnalyzer.getValues(MULTI_PITCHES, 0);
     saliencePeaks = audioAnalyzer.getSalienceFunctionPeaks(0);
     
-    isOnset = audioAnalyzer.getIsOnset(0);
+    isOnset = audioAnalyzer.getOnsetValue(0);
 }
 
 //--------------------------------------------------------------
@@ -118,8 +118,8 @@ void ofApp::draw(){
     
     ypos += 50;
     ofSetColor(255);
-    value = melodySalience;
-    strValue = "Melody Salience: " + ofToString(value);
+    value = pitchSalience;
+    strValue = "Pitch Salience: " + ofToString(value);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, value * mw, 10);
@@ -269,23 +269,14 @@ void ofApp::draw(){
     ofSetColor(ofColor::cyan);
     bin_w = 5;//cte.
     for (int i = 0; i < multiPitches.size(); i++){
-        
-        
         float bin_h = -0.75 * graphH;
-        
         float maxPitch = 2000.0;
         int xpos = (multiPitches[i] / maxPitch) * mw;
-        
         ofDrawRectangle(xpos, graphH, bin_w, bin_h);
     }
     ofPopMatrix();
     
-    
-    
- 
     ofPopMatrix();
-    
-  
     ///---------------------------------------------
     
     gui.draw();

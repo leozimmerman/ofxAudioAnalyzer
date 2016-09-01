@@ -36,14 +36,14 @@ void ofApp::setup(){
 void ofApp::update(){
     
     //get the analysis values
-    rms_l = audioAnalyzer.getSingleValue(RMS, 0);
-    rms_r = audioAnalyzer.getSingleValue(RMS, 1);
+    rms_l = audioAnalyzer.getValue(RMS, 0);
+    rms_r = audioAnalyzer.getValue(RMS, 1);
     
-    pitchFreq_l = audioAnalyzer.getSingleValue(PITCH_FREQ, 0);
-    pitchFreq_r = audioAnalyzer.getSingleValue(PITCH_FREQ, 1);
+    pitchFreq_l = audioAnalyzer.getValue(PITCH_FREQ, 0);
+    pitchFreq_r = audioAnalyzer.getValue(PITCH_FREQ, 1);
     
-    spectrum_l = audioAnalyzer.getVectorValues(SPECTRUM, 0);
-    spectrum_r = audioAnalyzer.getVectorValues(SPECTRUM, 1);
+    spectrum_l = audioAnalyzer.getValues(SPECTRUM, 0);
+    spectrum_r = audioAnalyzer.getValues(SPECTRUM, 1);
     
     
 }

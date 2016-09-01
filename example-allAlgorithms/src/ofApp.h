@@ -36,7 +36,7 @@ class ofApp : public ofBaseApp{
         float power;
         float pitchFreq;
         float pitchConf;
-        float melodySalience;
+        float pitchSalience;
         float inharmonicity;
         float hfc;
         float hfcNorm;

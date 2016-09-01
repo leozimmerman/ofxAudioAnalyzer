@@ -25,8 +25,8 @@ void ofApp::update(){
     smooth = ofClamp(ofGetMouseX() / (float)ofGetWidth(), 0.0, 1.0);
     
     //get the analysis values
-    rms_l = audioAnalyzer.getSingleValue(RMS, 0, smooth);
-    rms_r = audioAnalyzer.getSingleValue(RMS, 1, smooth);
+    rms_l = audioAnalyzer.getValue(RMS, 0, smooth);
+    rms_r = audioAnalyzer.getValue(RMS, 1, smooth);
 
 }
 

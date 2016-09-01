@@ -25,27 +25,7 @@
 #include "ofMain.h"
 #include "ofxAudioAnalyzerUnit.h"
 
-enum ofxAASingleAlgorithm{
-    RMS,
-    ENERGY,
-    POWER,
-    PITCH_FREQ,
-    PITCH_CONFIDENCE,
-    MELODY_SALIENCE,
-    INHARMONICITY,
-    HFC,
-    CENTROID,
-    SPECTRAL_COMPLEXITY,
-    DISSONANCE
-};
 
-enum ofxAAVectorAlgorithm{
-    SPECTRUM,
-    MEL_BANDS,
-    MFCC,
-    HPCP,
-    MULTI_PITCHES
-};
 
 
 class ofxAudioAnalyzer{
@@ -57,23 +37,23 @@ class ofxAudioAnalyzer{
     void analyze(const ofSoundBuffer & inBuffer);
     void exit();
     
-    ///Gets single output value Algorithms.
+    ///Gets value of single output  Algorithms.
     ///\param algorithm
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
-    float getSingleValue(ofxAASingleAlgorithm algorithm, int channel, float smooth=0.0, bool normalized=false);
+    float getValue(ofxAAAlgorithm algorithm, int channel, float smooth=0.0, bool normalized=false);
     
-    ///Gets vector output values Algorithms.
+    ///Gets values of vector output Algorithms.
     ///\param algorithm
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
-    vector<float>& getVectorValues(ofxAAVectorAlgorithm algorithm, int channel, float smooth=0.0);
+    vector<float>& getValues(ofxAAAlgorithm algorithm, int channel, float smooth=0.0);
     
     ///Gets the array of pitch salience function peaks: bin/cents & value
     vector<SalienceFunctionPeak>& getSalienceFunctionPeaks(int channel);
     
     ///Returns if there is an onset in the speciefied channel.
-    bool getIsOnset(int channel);
+    bool getOnsetValue(int channel);
 
     ///Pointers for the audio analyzing units.
     ///Use very carefully!

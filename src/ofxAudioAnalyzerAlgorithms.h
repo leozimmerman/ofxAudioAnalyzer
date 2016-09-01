@@ -11,7 +11,29 @@ using namespace std;
 using namespace essentia;
 using namespace standard;
 
-//??? set clamp fixed and madatory??
+
+enum ofxAAAlgorithm{
+    RMS,
+    ENERGY,
+    POWER,
+    PITCH_FREQ,
+    PITCH_CONFIDENCE,
+    PITCH_SALIENCE,
+    INHARMONICITY,
+    HFC,
+    CENTROID,
+    SPECTRAL_COMPLEXITY,
+    DISSONANCE,
+    SPECTRUM,
+    MEL_BANDS,
+    MFCC,
+    HPCP,
+    MULTI_PITCHES,
+    PITCH_SALIENCE_FUNC_PEAKS,
+    ONSETS
+};
+
+
 
 class ofxAABaseAlgorithm{
     
@@ -41,7 +63,6 @@ public:
     void castValueToFloat();
     
     void deleteAlgorithm();
-    
     
     Algorithm* algorithm;
     Real realValue;
@@ -167,39 +188,3 @@ public:
     
 };
 //---------------------------------------------------------------------
-//taken from essentia/src/algorithms/tonal/multipitchklapuri.cpp
-
-class ofxAAMultiPitchKlapuriAlgorithm : public ofxAABaseAlgorithm{
-
-public:
-    
-    void setup(ofxAAPitchSalienceFunctionPeaksAlgorithm* saliencePeaksPtr,
-               ofxAAOneVectorOutputAlgorithm* spectrumPtr,
-               int sampleRate);
-    void compute();
-    
-    vector<float>& getPitches();
-    
-    int frequencyToCentBin(Real frequency);
-    Real getWeight(int centBin, int harmonicNumber);
-
-private:
-    
-    ofxAAPitchSalienceFunctionPeaksAlgorithm* _saliencePeaksAlgthm;
-    ofxAAOneVectorOutputAlgorithm* _spectrumAlgthm;
-    
-    Real _binResolution;
-    int _binsInSemitone;
-    std::vector<Real> _centSpectrum;
-    Real _sampleRate;
-    int _binsInOctave;
-    Real _referenceTerm;
-    Real _referenceFrequency;
-    int _numberBins;
-    Real _centToHertzBase;
-    int _numberHarmonicsMax;
-    vector<Real> nearestBinWeights;
-    
-    vector<float> pitches;
-    
-};

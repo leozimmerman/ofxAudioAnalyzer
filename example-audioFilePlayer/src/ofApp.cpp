@@ -24,8 +24,8 @@ void ofApp::update(){
     //ANALYZE SOUNDBUFFER:
     audioAnalyzer.analyze(soundBuffer);
     
-    spectrum_l = audioAnalyzer.getVectorValues(SPECTRUM, 0);
-    spectrum_r = audioAnalyzer.getVectorValues(SPECTRUM, 1);
+    spectrum_l = audioAnalyzer.getValues(SPECTRUM, 0);
+    spectrum_r = audioAnalyzer.getValues(SPECTRUM, 1);
     
     
     //Waveform update:

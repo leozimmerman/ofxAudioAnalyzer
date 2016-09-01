@@ -12,10 +12,10 @@ using namespace essentia;
 using namespace standard;
 
 #include "ofxAudioAnalyzerAlgorithms.h"
+#include "ofxAAMultiPitchKlapuriAlgorithm.h"
+#include "ofxAAOnsetsAlgorithm.h"
 
 //----------------------------
-//vars use in setup function
-
 #define MELBANDS_BANDS_NUM 24
 #define DCT_COEFF_NUM 10
 
@@ -33,11 +33,7 @@ using namespace standard;
 #define DB_MIN -6
 #define DB_MAX 0
 
-//----------------------------------
-enum OnsetsTimeTresholdMode{
-    TIME_BASED,
-    BUFFER_NUM_BASED
-};
+
 
 //----------------------------------
 
@@ -57,86 +53,21 @@ public:
 
     void analyze(const vector<float> &  inBuffer);
 
-    void resetOnsets();
-
+    void setActive(ofxAAAlgorithm algorithm, bool state);
     
-    //Value getters -------------------
-    
-    float getRms(float smooth=0.0);
-    float getEnergy(float smooth=0.0);
-    float getPower(float smooth=0.0);
+    float getValue(ofxAAAlgorithm algorithm, float smooth=0.0, bool normalized=false);
+    bool getOnsetValue();
+    vector<float>& getValues(ofxAAAlgorithm algorithm, float smooth=0.0);
+    vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef();
+    int getBinsNum(ofxAAAlgorithm algorithm);
 
-    float getPitchFreq(float smooth=0.0);
     int   getPitchFreqAsMidiNote(float smooth=0.0);
     string getPitchFreqAsNoteName(float smooth=0.0);
-    float getPitchConfidence(float smooth=0.0);
-    float getMelodySalience(float smooth=0.0);
 
-    float getTuningFreq();
-    float getTuningCents();
-    
-    float getInharmonicity(float smooth=0.0);
-    float getHfc(float smooth=0.0);
-    float getSpectralComplex(float smooth=0.0);
-    float getCentroid(float smooth=0.0);
+    //Onsets:
+    void resetOnsets();
+    void setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
 
-    float getHfcNormalized(float smooth=0.0);
-    float getSpectralComplexNormalized(float smooth=0.0);
-    float getCentroidNormalized(float smooth=0.0);
-    
-    ///test:
-    float getDissonance(float smooth=0.0);
-    vector<float>& getKlapuriMultiPitchesRef();
-    vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef();
-    
-    
-    
-    bool getIsOnset();
-
-    int getSpectrumBinsNum();
-    int getMelBandsBinsNum();
-    int getMfccBinsNum();
-    int getHpcpBinsNum();
-    
-    vector<float>& getSpectrumRef(float smooth=0.0);
-    vector<float>& getMelBandsRef(float smooth=0.0);
-    vector<float>& getDctRef(float smooth=0.0);
-    vector<float>& getHpcpRef(float smooth=0.0);
-
-    float getOnsetSilenceTreshold(){return silenceTreshold;}
-    float getOnsetTimeTreshold(){return timeTreshold;}
-    float getOnsetAlpha(){return alpha;}
-
-    
-    //Algorithms activation -------------------
-    void setActiveRms(bool state);
-    void setActiveEnergy(bool state);
-    void setActivePower(bool state);
-    void setActivePitch(bool state);
-    void setActiveMelodySalience(bool state);
-    
-    void setActiveTuning(bool state);
-    
-    void setActiveInharmonicity(bool state);
-    void setActiveHfc(bool state);
-    void setActiveSpectralComplex(bool state);
-    void setActiveCentroid(bool state);
-    void setActiveMelbandsAndMfcc(bool state);
-    void setActiveHpcp(bool state);
-
-    void setActiveOnsets(bool state);
-    
-    ///test:
-    void setActiveDissonance(bool state);
-    void setActivePitchSalienceFunctionPeaks(bool state);
-    void setActiveKlapuriMultiPitch(bool state);
-    
-    //Onsets configuration -------------------
-    void setOnsetSilenceTreshold(float val);
-    void setOnsetAlpha(float val);
-    void setOnsetTimeTreshold(float ms);
-    void setOnsetBufferNumTreshold(int buffersNum);
-    void setUseTimeTreshold(bool doUse){useTimeTreshold = doUse;}
     
     //Max estimated values -------------------
     void setMaxEnergyEstimatedValue(float val){maxEnergyEstimatedValue = val;}
@@ -145,7 +76,11 @@ public:
     void setMaxCentroidEstimatedValue(float val){maxCentroidEstimatedValue = val;}
 
 private:
+    //Utils:
+    int pitchToMidi(float pitch);
+    string midiToNoteName(int midiNote);
     
+    //Algorithms:
     vector<Real> audioBuffer;
 
     //algorithms with return value func
@@ -154,24 +89,20 @@ private:
     ofxAABaseAlgorithm power;
     ofxAAPitchDetectAlgorithm pitchDetect;
     ofxAABaseAlgorithm pitchSalience;
-    ofxAATuningFrequencyAlgorithm tuning;
+    //ofxAATuningFrequencyAlgorithm tuning;
     ofxAABaseAlgorithm inharmonicity;
     ofxAABaseAlgorithm hfc;
     ofxAABaseAlgorithm centroid;
     ofxAABaseAlgorithm spectralComplex;
+    ofxAABaseAlgorithm dissonance;
     
     ofxAAOneVectorOutputAlgorithm spectrum;
     ofxAAOneVectorOutputAlgorithm melBands;
     ofxAAOneVectorOutputAlgorithm dct;//MFCC
     ofxAAOneVectorOutputAlgorithm hpcp;
-    
-    
-    ///test adding algorithms:
-    ofxAABaseAlgorithm dissonance;
-    ofxAAOneVectorOutputAlgorithm pitchSalienceFunction;
     ofxAAPitchSalienceFunctionPeaksAlgorithm pitchSalienceFunctionPeaks;
     ofxAAMultiPitchKlapuriAlgorithm multiPitchKlapuri;
-
+    
     //algorithms for internal functionality:
     ofxAAOneVectorOutputAlgorithm dcremoval;
     ofxAAOneVectorOutputAlgorithm window;
@@ -179,50 +110,22 @@ private:
     ofxAACartToPolAlgorithm cartesian2polar;
     ofxAAPeaksAlgorithm spectralPeaks;
     ofxAAPeaksAlgorithm harmonicPeaks;
-    ofxAABaseAlgorithm onsetHfc;
-    ofxAABaseAlgorithm onsetComplex;
-    ofxAABaseAlgorithm onsetFlux;
-
-    //Onset detection------------
-    bool onsetEvaluation (Real iDetectHfc, Real iDetectComplex, Real iDetectFlux);
-    bool onsetTimeTresholdEvaluation();
-    bool onsetBufferNumTresholdEvaluation();//framebased treshold eval.
-    bool isOnset;
-    Real silenceTreshold, alpha;
-    bool addHfc, addComplex, addFlux;
-    bool doOnsets;
-    bool useTimeTreshold;
-    float timeTreshold;
-    float lastOnsetTime;
-    int bufferNumTreshold;
-    int lastOnsetBufferNum;
+    ofxAAOneVectorOutputAlgorithm pitchSalienceFunction;
+    //onsets
+    ofxAAOnsetsAlgorithm onsets;
     
-    OnsetsTimeTresholdMode onsetsMode;
-
+    //--------
     int framesize;
     int hopsize;
     int sr;
     int zeropadding;
     Real framerate;
 
-    int detecBufferSize;
-    vector<vector<Real> > detections;
-    vector<Real> detection_sum;
-    Real hfc_max, complex_max, flux_max;
-
-    //Utils
-    int pitchToMidi(float pitch);
-    string midiToNoteName(int midiNote);
-
     float maxEnergyEstimatedValue;
     float maxHfcEstimatedValue;
     float maxSpecCompEstimatedValue;
     float maxCentroidEstimatedValue;
-    
-    int bufferCounter;
-    
-    //klapuri test:
-   
+
     
 };
 

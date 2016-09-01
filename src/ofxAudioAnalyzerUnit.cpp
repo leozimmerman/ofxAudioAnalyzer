@@ -1,36 +1,48 @@
 #include "ofxAudioAnalyzerUnit.h"
 
 //TODO: Check centroid, specComp, hfc max estimated values for normalizing
-//TODO: Add multi pitch Klapuri and Melodia, devuelven vector<vector<Real>> !!
-//TODO: Clean up code!
 
 
 #pragma mark - Main funcs
 //--------------------------------------------------------------
 void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
-
+    
+    #pragma mark -Init variables:
+    
     framesize = bufferSize;
     hopsize = framesize/2;
     sr = sampleRate;
     zeropadding = 0;
     framerate = (Real) sr / hopsize;
-
-    //-Init algorithms:
+    
+    audioBuffer.resize(bufferSize);
+    
+    //-Max estimated values:
+    maxEnergyEstimatedValue = 100.0;
+    maxHfcEstimatedValue = 500.0; //antes 1000
+    maxSpecCompEstimatedValue = 15.0; //antes 30
+    maxCentroidEstimatedValue = 5000.0;//antes 7000
+    
+    #pragma mark -Init algorithms:
+    
+    onsets.setup(bufferSize);
+    
     rms.init();
     energy.init();
     power.init();
     pitchDetect.init();
     pitchSalience.init();
-    tuning.init();
     inharmonicity.init();
     hfc.init();
     centroid.init();
     spectralComplex.init();
+    dissonance.init();
     
     spectrum.initAndAssignSize((bufferSize/2)+1, 0.0);
     melBands.initAndAssignSize(MELBANDS_BANDS_NUM,0);
     dct.initAndAssignSize(DCT_COEFF_NUM, 0);
     hpcp.initAndAssignSize(HPCP_SIZE, 0);
+    pitchSalienceFunction.initAndAssignSize(10, 0.0);//TODO: make it a define and variable?
 
     dcremoval.init();
     window.init();
@@ -39,75 +51,13 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     spectralPeaks.init();
     harmonicPeaks.init();
     
-    onsetHfc.init();
-    onsetComplex.init();
-    onsetFlux.init();
-    
-    ///test add algorithms:
-    dissonance.init();
-    pitchSalienceFunction.initAndAssignSize(10, 0.0);//TODO: make it a define and variable?
-    
     pitchSalienceFunctionPeaks.init();
     multiPitchKlapuri.init();
 
-    //-Onsets:
-    detecBufferSize = bufferSize; //TODO: revisar
-    detection_sum.assign(detecBufferSize, 0.0);
-    detections.assign(3, vector<Real> (detecBufferSize));
-    silenceTreshold = 0.02;
-    alpha = 0.1;
-    timeTreshold = 100.0;
-    bufferNumTreshold = 7; //116 ms at 60 fps
-    lastOnsetTime = 0.0;
-    lastOnsetBufferNum = 0;
-    addHfc = addComplex = addFlux = true;
-    hfc_max = complex_max = flux_max = 0.0;
-    useTimeTreshold = false;
-    onsetsMode = TIME_BASED;
-    
-    //-Max estimated values:
-    maxEnergyEstimatedValue = 100.0;
-    maxHfcEstimatedValue = 500.0; //antes 1000
-    maxSpecCompEstimatedValue = 15.0; //antes 30
-    maxCentroidEstimatedValue = 5000.0;//antes 7000
-    
-    bufferCounter = 0;
-
-    ///activations---------
-    //FIXME: Hacen falta? no esta en los init???
-    rms.setActive(TRUE);
-    power.setActive(TRUE);
-    energy.setActive(TRUE);
-
-    pitchDetect.setActive(TRUE);
-    pitchSalience.setActive(TRUE);
-    tuning.setActive(TRUE);
-    inharmonicity.setActive(TRUE);
-    hfc.setActive(TRUE);
-    centroid.setActive(TRUE);
-    spectralComplex.setActive(TRUE);
-
-    spectrum.setActive(TRUE);
-    melBands.setActive(TRUE);
-    dct.setActive(TRUE);
-    hpcp.setActive(TRUE);
-    
-    ///test:
-    dissonance.setActive(TRUE);
-    pitchSalienceFunction.setActive(TRUE);
-    pitchSalienceFunctionPeaks.setActive(TRUE);
-
-
-    doOnsets = true;
-
-    audioBuffer.resize(bufferSize);
-
     essentia::init();
 
-    /// instanciate factory and create algorithms---------------------------------------------------
-
+    #pragma mark -Create algorithms
     AlgorithmFactory& factory = AlgorithmFactory::instance();
-    
     
     rms.algorithm = factory.create("RMS");
     energy.algorithm = factory.create("Energy");
@@ -122,9 +72,9 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     fft.algorithm = factory.create("FFT", "size", framesize);
     cartesian2polar.algorithm = factory.create("CartesianToPolar");
 
-    onsetHfc.algorithm     = factory.create("OnsetDetection", "method", "hfc", "sampleRate", sr);
-    onsetComplex.algorithm = factory.create("OnsetDetection", "method", "complex", "sampleRate", sr);
-    onsetFlux.algorithm    = factory.create("OnsetDetection", "method", "flux", "sampleRate", sr);
+    onsets.onsetHfc.algorithm     = factory.create("OnsetDetection", "method", "hfc", "sampleRate", sr);
+    onsets.onsetComplex.algorithm = factory.create("OnsetDetection", "method", "complex", "sampleRate", sr);
+    onsets.onsetFlux.algorithm    = factory.create("OnsetDetection", "method", "flux", "sampleRate", sr);
 
     spectrum.algorithm = factory.create("Spectrum",
                                    "size", framesize);
@@ -136,7 +86,9 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     centroid.algorithm = factory.create("Centroid", "range", sr/2);
 
     spectralComplex.algorithm = factory.create("SpectralComplexity", "sampleRate", sr);
-
+    
+    dissonance.algorithm = factory.create("Dissonance");
+    
     spectralPeaks.algorithm = factory.create("SpectralPeaks",
                                 "maxPeaks", PEAKS_MAXPEAKS_NUM,
                                 "magnitudeThreshold", 0.00001,
@@ -149,7 +101,6 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
                               "sampleRate", sr);
     dct.algorithm = factory.create("DCT", "inputSize", MELBANDS_BANDS_NUM, "outputSize", DCT_COEFF_NUM);
 
-    tuning.algorithm = factory.create("TuningFrequency");
 
     inharmonicity.algorithm = factory.create("Inharmonicity");
 
@@ -169,19 +120,12 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
                                    "nonLinear", false,
                                    "windowSize", 4.0/3.0);
 
-    ///test:
-    dissonance.algorithm = factory.create("Dissonance");
+    
     pitchSalienceFunction.algorithm = factory.create("PitchSalienceFunction");
     pitchSalienceFunctionPeaks.algorithm = factory.create("PitchSalienceFunctionPeaks");
     
+    #pragma mark -Connect algorithms
     
-
-    
-    
-   
-///Algorithm diagram--------------------------------------------------------
-
-
     //DCRemoval
     dcremoval.algorithm->input("signal").set(audioBuffer);
     dcremoval.algorithm->output("signal").set(dcremoval.realValues);
@@ -204,17 +148,17 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     cartesian2polar.algorithm->output("magnitude").set(cartesian2polar.magnitudes);
     cartesian2polar.algorithm->output("phase").set(cartesian2polar.phases);
     //-
-    onsetHfc.algorithm->input("spectrum").set(cartesian2polar.magnitudes);
-    onsetHfc.algorithm->input("phase").set(cartesian2polar.phases);
-    onsetHfc.algorithm->output("onsetDetection").set(onsetHfc.realValue);
+    onsets.onsetHfc.algorithm->input("spectrum").set(cartesian2polar.magnitudes);
+    onsets.onsetHfc.algorithm->input("phase").set(cartesian2polar.phases);
+    onsets.onsetHfc.algorithm->output("onsetDetection").set(onsets.onsetHfc.realValue);
     //-
-    onsetComplex.algorithm->input("spectrum").set(cartesian2polar.magnitudes);
-    onsetComplex.algorithm->input("phase").set(cartesian2polar.phases);
-    onsetComplex.algorithm->output("onsetDetection").set(onsetComplex.realValue);
+    onsets.onsetComplex.algorithm->input("spectrum").set(cartesian2polar.magnitudes);
+    onsets.onsetComplex.algorithm->input("phase").set(cartesian2polar.phases);
+    onsets.onsetComplex.algorithm->output("onsetDetection").set(onsets.onsetComplex.realValue);
     //-
-    onsetFlux.algorithm->input("spectrum").set(cartesian2polar.magnitudes);
-    onsetFlux.algorithm->input("phase").set(cartesian2polar.phases);
-    onsetFlux.algorithm->output("onsetDetection").set(onsetFlux.realValue);
+    onsets.onsetFlux.algorithm->input("spectrum").set(cartesian2polar.magnitudes);
+    onsets.onsetFlux.algorithm->input("phase").set(cartesian2polar.phases);
+    onsets.onsetFlux.algorithm->output("onsetDetection").set(onsets.onsetFlux.realValue);
     //Spectrum
     spectrum.algorithm->input("frame").set(window.realValues);
     spectrum.algorithm->output("spectrum").set(spectrum.realValues);
@@ -248,11 +192,6 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     pitchDetect.algorithm->input("spectrum").set(spectrum.realValues);
     pitchDetect.algorithm->output("pitch").set(pitchDetect.pitchRealVal);
     pitchDetect.algorithm->output("pitchConfidence").set(pitchDetect.confidenceRealVal);
-    //Tuning frequency
-    tuning.algorithm->input("frequencies").set(spectralPeaks.frequencies);
-    tuning.algorithm->input("magnitudes").set(spectralPeaks.magnitudes);
-    tuning.algorithm->output("tuningFrequency").set(tuning.freqRealVal);
-    tuning.algorithm->output("tuningCents").set(tuning.centsRealVal);
     //HarmonicPeaks
     harmonicPeaks.algorithm->input("frequencies").set(spectralPeaks.frequencies);
     harmonicPeaks.algorithm->input("magnitudes").set(spectralPeaks.magnitudes);
@@ -263,8 +202,6 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     inharmonicity.algorithm->input("frequencies").set(harmonicPeaks.frequencies);
     inharmonicity.algorithm->input("magnitudes").set(harmonicPeaks.magnitudes);
     inharmonicity.algorithm->output("inharmonicity").set(inharmonicity.realValue);
-    
-    ///test add algorithms:
     //Dissonance
     dissonance.algorithm->input("frequencies").set(spectralPeaks.frequencies);
     dissonance.algorithm->input("magnitudes").set(spectralPeaks.magnitudes);
@@ -278,12 +215,13 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     pitchSalienceFunctionPeaks.algorithm->output("salienceBins").set(pitchSalienceFunctionPeaks.realSalienceBins);
     pitchSalienceFunctionPeaks.algorithm->output("salienceValues").set(pitchSalienceFunctionPeaks.realSalienceValues);
     
-    
+    //MultiPitch Kalpuri:
     multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, sr);
 
-    
-    //!!! testing this line...
+    //-Shutdown factory:
     factory.shutdown();
+    
+    
 }
 
 
@@ -299,21 +237,18 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
         audioBuffer[i] = (Real) inBuffer[i];
     }
     
-    // Compute Algorithms--------------------------
+    #pragma mark -Compute Algorithms
     
     dcremoval.compute();
-    
     rms.compute();
     energy.compute();
     power.compute();
-    
     window.compute();
-    if(doOnsets){
+    
+    if(onsets.getIsActive()){
         fft.compute();
         cartesian2polar.compute();
-        onsetHfc.compute();
-        onsetComplex.compute();
-        onsetFlux.compute();
+        onsets.compute();
     }
     
     //spectrum must always be computed as it is neede for other algorithms
@@ -322,10 +257,8 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     hfc.compute();
     pitchSalience.compute();
     pitchDetect.compute();
-    
     centroid.compute();
     spectralComplex.compute();
-    
     if(melBands.getIsActive()){
         melBands.algorithm->compute();
         if(dct.getIsActive()){
@@ -337,87 +270,40 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     }
     spectralPeaks.compute();
     hpcp.compute();
-    tuning.compute();
     
     if (inharmonicity.getIsActive()){
         harmonicPeaks.compute();
         inharmonicity.algorithm->compute();
     }
-    
-    ///test:
+
     dissonance.compute();
     pitchSalienceFunction.compute();
     pitchSalienceFunctionPeaks.compute();
     
-    
     multiPitchKlapuri.compute();
   
-    
-    //Cast results to FLOATS--------------------------------------
+    #pragma mark -Cast results to float
     
     spectrum.castValuesToFloat(true);
     
     rms.castValueToFloat();
     energy.castValueToFloat();
     power.castValueToFloat();
-    
-    
     pitchDetect.castValuesToFloat();
     pitchSalience.castValueToFloat();
     
-    tuning.castValuesToFloat();
-    
-    
-    if(doOnsets){
-        onsetHfc.castValueToFloat();
-        onsetComplex.castValueToFloat();
-        onsetFlux.castValueToFloat();
-    
-        //onsetEvaluation
-        bool isThisBufferOnset = onsetEvaluation(onsetHfc.getValue(), onsetComplex.getValue(), onsetFlux.getValue());
-        
-        if(onsetsMode == TIME_BASED){
-            if(useTimeTreshold && isThisBufferOnset){
-                isOnset = onsetTimeTresholdEvaluation();
-            }
-            else{
-                isOnset = isThisBufferOnset;
-            }
-        }else if(onsetsMode == BUFFER_NUM_BASED){
-            if(useTimeTreshold && isThisBufferOnset){
-                //TODO: Testear esto!
-                isOnset = onsetBufferNumTresholdEvaluation();
-            }
-            else{
-                isOnset = isThisBufferOnset;
-            }
-        }
-        
-        
-    }else{
-        onsetHfc.setValueZero();
-        onsetFlux.setValueZero();
-        onsetComplex.setValueZero();
-        isOnset = false;
-    }
-    
-    //MelBands
     melBands.castValuesToFloat(true);
     dct.castValuesToFloat(false);
-    
     hpcp.castValuesToFloat(false);
     hfc.castValueToFloat();
     centroid.castValueToFloat();
     spectralComplex.castValueToFloat();
     inharmonicity.castValueToFloat();
-    
-    ///test:
     dissonance.castValueToFloat();
     pitchSalienceFunctionPeaks.castValuesToFloat();
     
-    //update counter:
-    bufferCounter++;
-    
+    onsets.castValuesToFloat();
+    onsets.evaluate();
 }
 
 //--------------------------------------------------------------
@@ -432,8 +318,7 @@ void ofxAudioAnalyzerUnit::exit(){
     spectralPeaks.deleteAlgorithm();;
     pitchDetect.deleteAlgorithm();
     pitchSalience.deleteAlgorithm();
-    
-    tuning.deleteAlgorithm();
+    dissonance.deleteAlgorithm();
     
     melBands.deleteAlgorithm();
     dct.deleteAlgorithm();
@@ -445,15 +330,11 @@ void ofxAudioAnalyzerUnit::exit(){
     spectralComplex.deleteAlgorithm();
     fft.deleteAlgorithm();;
     cartesian2polar.deleteAlgorithm();;
-    onsetComplex.deleteAlgorithm();;
-    onsetHfc.deleteAlgorithm();;
-    onsetFlux.deleteAlgorithm();;
-    
-    ///test:
-    dissonance.deleteAlgorithm();
+    onsets.onsetComplex.deleteAlgorithm();;
+    onsets.onsetHfc.deleteAlgorithm();;
+    onsets.onsetFlux.deleteAlgorithm();;
     pitchSalienceFunction.deleteAlgorithm();
     pitchSalienceFunctionPeaks.deleteAlgorithm();
-    
     
     essentia::shutdown();
     
@@ -462,347 +343,264 @@ void ofxAudioAnalyzerUnit::exit(){
 }
 
 //--------------------------------------------------------------
-#pragma mark - Onset Funcs
-//--------------------------------------------------------------
- bool ofxAudioAnalyzerUnit::onsetEvaluation (Real iDetectHfc, Real iDetectComplex, Real iDetectFlux){
-
-    Real prop_hfc, prop_complex, prop_flux;
-
-    if (iDetectHfc > hfc_max) {
-        prop_hfc = iDetectHfc/hfc_max;
-        hfc_max = iDetectHfc;
-        for (int i=0; i<detections[0].size(); i++)
-            detections[0][i] /= prop_hfc;
+#pragma mark - Activates
+//----------------------------------------------
+void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithm algorithm, bool state){
+    
+    switch (algorithm) {
+        case RMS:
+            rms.setActive(state);
+            break;
+        case ENERGY:
+            energy.setActive(state);
+            break;
+        case POWER:
+            power.setActive(state);
+            break;
+        case PITCH_FREQ:
+            pitchDetect.setActive(state);
+            break;
+        case PITCH_CONFIDENCE:
+            pitchDetect.setActive(state);
+            break;
+        case PITCH_SALIENCE:
+            pitchSalience.setActive(state);
+            break;
+        case INHARMONICITY:
+            inharmonicity.setActive(state);
+            break;
+        case HFC:
+             hfc.setActive(state);
+            break;
+        case CENTROID:
+            centroid.setActive(state);
+            break;
+        case SPECTRAL_COMPLEXITY:
+            spectralComplex.setActive(state);
+            break;
+        case DISSONANCE:
+            dissonance.setActive(state);
+            break;
+        case SPECTRUM:
+            ofLogWarning()<<"ofxAudioAnalyzerUnit: Spectrum Algorithm cant be turned off.";
+            break;
+        case MEL_BANDS:
+            melBands.setActive(state);
+            if(state==false)dct.setActive(state);//dct needs melBands to be active.
+            break;
+        case MFCC:
+            //dct needs melBands to be active.
+            melBands.setActive(state);
+            dct.setActive(state);
+            break;
+        case HPCP:
+            hpcp.setActive(state);
+            break;
+        case MULTI_PITCHES:
+            multiPitchKlapuri.setActive(state);
+            break;
+        case PITCH_SALIENCE_FUNC_PEAKS:
+            pitchSalienceFunction.setActive(state);//FIXME: Esto esta bien?
+            pitchSalienceFunctionPeaks.setActive(state);
+            break;
+        case ONSETS:
+            onsets.setActive(state);
+            break;
+            
+        default:
+            ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm to set active.";
+            break;
     }
-    if (iDetectComplex > complex_max){
-        prop_complex = iDetectComplex/complex_max;
-        complex_max = iDetectComplex;
-         for (int i=0; i<detections[1].size(); i++)
-            detections[1][i] /= prop_complex;
-    }
-    if (iDetectFlux > flux_max){
-        prop_flux = iDetectFlux/flux_max;
-        flux_max = iDetectFlux;
-         for (int i=0; i<detections[2].size(); i++)
-            detections[2][i] /= prop_flux;
-    }
+}
 
-    Real hfc_norm = iDetectHfc / hfc_max;
-    Real complex_norm = iDetectComplex / complex_max;
-    Real flux_norm = iDetectFlux / flux_max;
 
-    detections[0].push_back(hfc_norm);
-    detections[0].erase(detections[0].begin());
 
-    detections[1].push_back(complex_norm);
-    detections[1].erase(detections[1].begin());
-
-    detections[2].push_back(flux_norm);
-    detections[2].erase(detections[2].begin());
-
-    for (int i=0; i<detection_sum.size(); i++){
-        int n=0;
-        detection_sum[i]=0;
-        if(addHfc){
-            detection_sum[i] += detections[0][i];
-            n++;
-        }
-        if(addComplex){
-            detection_sum[i] += detections[1][i];
-            n++;
-        }
-        if(addFlux){
-            detection_sum[i] += detections[2][i];
-            n++;
-        }
-        if(n>0) detection_sum[i] /= n;
-        if(detection_sum[i] < silenceTreshold) detection_sum[i] = 0.0;
-    }
-
-    Real buffer_median = median (detection_sum);
-    Real buffer_mean = mean (detection_sum);
-    Real onset_threshold = buffer_median + alpha * buffer_mean;
-
-    bool onsetDetection = detection_sum[detection_sum.size()-1] > onset_threshold;
-
-    return onsetDetection;
-
- }
 //----------------------------------------------
-bool ofxAudioAnalyzerUnit::onsetTimeTresholdEvaluation(){
+#pragma mark - Get values
+//----------------------------------------------
+float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, bool normalized){
     
-    bool onsetTimeEvaluation = false;
-
-    float currentTime = ofGetElapsedTimeMillis();
+    float r = 0.0;
     
-    //elapsed time since last onset:
-    float elapsed = currentTime - lastOnsetTime;
-    
-    if (elapsed>timeTreshold){
-        onsetTimeEvaluation = true;
-        lastOnsetTime = currentTime;
-    }
-
-    
-    return onsetTimeEvaluation;
-}
-//----------------------------------------------
-bool ofxAudioAnalyzerUnit::onsetBufferNumTresholdEvaluation(){
-    
-    bool onsetBufferNumEvaluation = false;
-    
-    //elapsed frames/buffers since last onset:
-    int elapsedBuffers = bufferCounter - lastOnsetBufferNum;
-    
-    if (elapsedBuffers > bufferNumTreshold){
-        onsetBufferNumEvaluation = true;
-        lastOnsetBufferNum = bufferCounter;
-    }
-    
-    return onsetBufferNumEvaluation;
-
-
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::resetOnsets(){
-    
-    hfc_max = complex_max = flux_max = 0.0;
-    for (int i=0; i<detection_sum.size(); i++){
-        detection_sum[i] = 0.0;
-    }
-    
-}
-//----------------------------------------------
-#pragma mark - Setters
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setOnsetSilenceTreshold(float val){
-    silenceTreshold=val;
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setOnsetAlpha(float val){
-    alpha=val;
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setOnsetTimeTreshold(float ms){
-    timeTreshold = ms;
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setOnsetBufferNumTreshold(int buffersNum){
-    bufferNumTreshold = buffersNum;
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveRms(bool state){
-    rms.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveEnergy(bool state){
-    energy.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActivePower(bool state){
-    power.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActivePitch(bool state){
-    pitchDetect.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveMelodySalience(bool state){
-    pitchSalience.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveTuning(bool state){
-    tuning.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveInharmonicity(bool state){
-    inharmonicity.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveHfc(bool state){
-    hfc.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveSpectralComplex(bool state){
-    spectralComplex.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveCentroid(bool state){
-    centroid.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveMelbandsAndMfcc(bool state){
-    melBands.setActive(state);
-    dct.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveHpcp(bool state){
-    hpcp.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveOnsets(bool state){
-    doOnsets = state;
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveDissonance(bool state){
-    dissonance.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActivePitchSalienceFunctionPeaks(bool state){
-    pitchSalienceFunction.setActive(state);//FIXME: Esto esta bien?
-    pitchSalienceFunctionPeaks.setActive(state);
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActiveKlapuriMultiPitch(bool state){
-    multiPitchKlapuri.setActive(state);
-}
-
-
-//----------------------------------------------
-#pragma mark - Getters
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getRms(float smooth){
-    float r = smooth ?
-        rms.getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX) :
-        rms.getValueDbNormalized(DB_MIN, DB_MAX);
-    return r;
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getEnergy(float smooth){
-    float r =   smooth ?
-                    energy.getSmoothedValueNormalized(smooth, 0.0, maxEnergyEstimatedValue) :
-                    energy.getValueNormalized(0.0, maxEnergyEstimatedValue);
-    return r;
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getPower(float smooth){
-    float r = smooth ?
-                power.getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX) :
+    switch (algorithm) {
+        
+        case RMS:
+            r = smooth ?
+                rms.getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX):
+                rms.getValueDbNormalized(DB_MIN, DB_MAX);
+            break;
+            
+        case ENERGY:
+            r = smooth ?
+                energy.getSmoothedValueNormalized(smooth, 0.0, maxEnergyEstimatedValue):
+                energy.getValueNormalized(0.0, maxEnergyEstimatedValue);
+            break;
+            
+        case POWER:
+            r = smooth ?
+                power.getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX):
                 power.getValueDbNormalized(DB_MIN, DB_MAX);
-    return r;
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getPitchFreq(float smooth){
-    return smooth ? pitchDetect.getSmoothedPitchValue(smooth) : pitchDetect.getPitchValue();
-}
-//----------------------------------------------
-int ofxAudioAnalyzerUnit::getPitchFreqAsMidiNote(float smooth){
-    return pitchToMidi(getPitchFreq(smooth));
-}
-//----------------------------------------------
-string ofxAudioAnalyzerUnit::getPitchFreqAsNoteName(float smooth){
-    return midiToNoteName(pitchToMidi(getPitchFreq(smooth)));
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getPitchConfidence(float smooth){
-    return smooth ? pitchDetect.getSmoothedConfidenceValue(smooth) : pitchDetect.getConfidenceValue();
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getMelodySalience(float smooth){
-    return smooth ? pitchSalience.getSmoothedValue(smooth) : pitchSalience.getValue();
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getTuningFreq(){
-    return tuning.getFreqValue();
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getTuningCents(){
-    return tuning.getCentsValue();
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getInharmonicity(float smooth){
-    return smooth ? inharmonicity.getSmoothedValue(smooth) : inharmonicity.getValue();
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getHfc(float smooth){
-    return smooth ? hfc.getSmoothedValue(smooth) : hfc.getValue();
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getHfcNormalized(float smooth){
-    float r =   smooth ?
-                hfc.getSmoothedValueNormalized(smooth, 0.0, maxHfcEstimatedValue) :
+            break;
+            
+        case PITCH_FREQ:
+            r = smooth ?
+                pitchDetect.getSmoothedPitchValue(smooth):
+                pitchDetect.getPitchValue();
+            break;
+            
+        case PITCH_CONFIDENCE:
+            r = smooth ?
+                pitchDetect.getSmoothedConfidenceValue(smooth):
+                pitchDetect.getConfidenceValue();
+            break;
+            
+        case PITCH_SALIENCE:
+            r = smooth ?
+                pitchSalience.getSmoothedValue(smooth):
+                pitchSalience.getValue();
+            break;
+            
+        case INHARMONICITY:
+            r =  smooth ?
+                inharmonicity.getSmoothedValue(smooth):
+                inharmonicity.getValue();
+            break;
+            
+        case HFC:
+            if (normalized){
+                r = smooth ?
+                hfc.getSmoothedValueNormalized(smooth, 0.0, maxHfcEstimatedValue):
                 hfc.getValueNormalized(0.0, maxHfcEstimatedValue);
-    return r;
-    
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getSpectralComplex(float smooth){
-    return smooth ? spectralComplex.getSmoothedValue(smooth) : spectralComplex.getValue();
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getSpectralComplexNormalized(float smooth){
-    float r =   smooth ?
-                spectralComplex.getSmoothedValueNormalized(smooth, 0.0, maxSpecCompEstimatedValue) :
+            }else{
+                r = smooth ?
+                hfc.getSmoothedValue(smooth):
+                hfc.getValue();
+            }
+            break;
+            
+        case SPECTRAL_COMPLEXITY:
+            if (normalized){
+                r = smooth ?
+                spectralComplex.getSmoothedValueNormalized(smooth, 0.0, maxSpecCompEstimatedValue):
                 spectralComplex.getValueNormalized(0.0, maxSpecCompEstimatedValue);
-    return r;
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getCentroid(float smooth){
-    return smooth ? centroid.getSmoothedValue(smooth) : centroid.getValue();
-}
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getCentroidNormalized(float smooth){
-    float r =   smooth ?
-                centroid.getSmoothedValueNormalized(smooth, 0.0, maxCentroidEstimatedValue) :
+            }else{
+                r = smooth ?
+                spectralComplex.getSmoothedValue(smooth):
+                spectralComplex.getValue();
+            }
+            break;
+            
+        case CENTROID:
+            if (normalized){
+                r = smooth ?
+                centroid.getSmoothedValueNormalized(smooth, 0.0, maxCentroidEstimatedValue):
                 centroid.getValueNormalized(0.0, maxCentroidEstimatedValue);
+            }else{
+                r = smooth ?
+                centroid.getSmoothedValue(smooth):
+                centroid.getValue();
+            }
+            break;
+            
+        case DISSONANCE:
+            r = smooth ?
+                dissonance.getSmoothedValue(smooth):
+                dissonance.getValue();
+            break;
+            
+            
+        default:
+            ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting value.";
+            break;
+    }
+    
     return r;
 }
-
-
 //----------------------------------------------
-bool ofxAudioAnalyzerUnit::getIsOnset(){
-    return isOnset;
+bool ofxAudioAnalyzerUnit::getOnsetValue(){
+    return onsets.getValue();
 }
 //----------------------------------------------
-int ofxAudioAnalyzerUnit::getSpectrumBinsNum(){
-    return spectrum.getBinsNum();
-}
-//----------------------------------------------
-int ofxAudioAnalyzerUnit::getMelBandsBinsNum(){
-    return melBands.getBinsNum();
-}
-//----------------------------------------------
-int ofxAudioAnalyzerUnit::getMfccBinsNum(){
-    return dct.getBinsNum();
-}
-//----------------------------------------------
-int ofxAudioAnalyzerUnit::getHpcpBinsNum(){
-    return hpcp.getBinsNum();
-}
-//----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getSpectrumRef(float smooth){
-    return smooth ? spectrum.getSmoothedValues(smooth) : spectrum.getValues();
-}
-//----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getMelBandsRef(float smooth){
-    return smooth ? melBands.getSmoothedValues(smooth) : melBands.getValues();
-}
-//----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getDctRef(float smooth){
-    return smooth ? dct.getSmoothedValues(smooth) : dct.getValues();
-}
-//----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getHpcpRef(float smooth){
-    return smooth ? hpcp.getSmoothedValues(smooth) : hpcp.getValues();
-}
-
-///test:
-//----------------------------------------------
-float ofxAudioAnalyzerUnit::getDissonance(float smooth){
-    return smooth ? dissonance.getSmoothedValue(smooth) : dissonance.getValue();
+vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithm algorithm, float smooth){
+    
+    switch (algorithm) {
+        
+        case SPECTRUM:
+            return smooth ? spectrum.getSmoothedValues(smooth) : spectrum.getValues();
+            break;
+            
+        case MEL_BANDS:
+            return smooth ? melBands.getSmoothedValues(smooth) : melBands.getValues();
+            break;
+            
+        case MFCC:
+            return smooth ? dct.getSmoothedValues(smooth) : dct.getValues();
+            break;
+            
+        case HPCP:
+            return smooth ? hpcp.getSmoothedValues(smooth) : hpcp.getValues();
+            break;
+            
+        case MULTI_PITCHES:
+            return multiPitchKlapuri.getPitches();
+            break;
+            
+        default:
+            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting values.";
+            break;
+    }
 }
 //----------------------------------------------
 vector<SalienceFunctionPeak>& ofxAudioAnalyzerUnit::getPitchSaliencePeaksRef(){
     return pitchSalienceFunctionPeaks.getPeaks();
 }
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getKlapuriMultiPitchesRef(){
-    return multiPitchKlapuri.getPitches();
+int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithm algorithm){
+    
+    switch (algorithm) {
+        
+        case SPECTRUM:
+            return spectrum.getBinsNum();
+            break;
+        case MEL_BANDS:
+            return melBands.getBinsNum();
+            break;
+        case MFCC:
+            return dct.getBinsNum();
+            break;
+        case HPCP:
+            return hpcp.getBinsNum();
+            break;
+            
+        default:
+            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting bins number.";
+            break;
+    }
+    
 }
+//----------------------------------------------
+void ofxAudioAnalyzerUnit::resetOnsets(){
+    onsets.reset();
+}
+void ofxAudioAnalyzerUnit::setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh){
+    
+    onsets.setOnsetAlpha(alpha);
+    onsets.setOnsetSilenceTreshold(silenceTresh);
+    onsets.setOnsetTimeTreshold(timeTresh);
+    onsets.setUseTimeTreshold(useTimeTresh);
 
+}
 
 //----------------------------------------------
 #pragma mark - Utils
+//----------------------------------------------
+int ofxAudioAnalyzerUnit::getPitchFreqAsMidiNote(float smooth){
+    return pitchToMidi(getValue(PITCH_FREQ, smooth));
+}
+//----------------------------------------------
+string ofxAudioAnalyzerUnit::getPitchFreqAsNoteName(float smooth){
+    return midiToNoteName(getValue(PITCH_FREQ, smooth));
+}
 //----------------------------------------------
 int ofxAudioAnalyzerUnit::pitchToMidi(float pitch){
     return round (12*log2(pitch/440) + 69);

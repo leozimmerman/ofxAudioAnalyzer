@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B393321E1D7740CC00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B393321C1D7740CC00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */; };
 		B3AD99C81D5E3CB7006EFAE1 /* ofxAudioAnalyzer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3AD99C21D5E3CB7006EFAE1 /* ofxAudioAnalyzer.cpp */; };
 		B3AD99C91D5E3CB7006EFAE1 /* ofxAudioAnalyzerAlgorithms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3AD99C41D5E3CB7006EFAE1 /* ofxAudioAnalyzerAlgorithms.cpp */; };
 		B3AD99CA1D5E3CB7006EFAE1 /* ofxAudioAnalyzerUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3AD99C61D5E3CB7006EFAE1 /* ofxAudioAnalyzerUnit.cpp */; };
@@ -55,6 +56,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B393321C1D7740CC00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAAMultiPitchKlapuriAlgorithm.cpp; sourceTree = "<group>"; };
+		B393321D1D7740CC00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxAAMultiPitchKlapuriAlgorithm.h; sourceTree = "<group>"; };
 		B3AD99C21D5E3CB7006EFAE1 /* ofxAudioAnalyzer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAudioAnalyzer.cpp; sourceTree = "<group>"; };
 		B3AD99C31D5E3CB7006EFAE1 /* ofxAudioAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxAudioAnalyzer.h; sourceTree = "<group>"; };
 		B3AD99C41D5E3CB7006EFAE1 /* ofxAudioAnalyzerAlgorithms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAudioAnalyzerAlgorithms.cpp; sourceTree = "<group>"; };
@@ -210,6 +213,8 @@
 		B3B3E88E1CC92050007A2FA6 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				B393321C1D7740CC00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */,
+				B393321D1D7740CC00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.h */,
 				B3AD99C21D5E3CB7006EFAE1 /* ofxAudioAnalyzer.cpp */,
 				B3AD99C31D5E3CB7006EFAE1 /* ofxAudioAnalyzer.h */,
 				B3AD99C41D5E3CB7006EFAE1 /* ofxAudioAnalyzerAlgorithms.cpp */,
@@ -535,6 +540,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3AD99CA1D5E3CB7006EFAE1 /* ofxAudioAnalyzerUnit.cpp in Sources */,
+				B393321E1D7740CC00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp in Sources */,
 				B3AD99C81D5E3CB7006EFAE1 /* ofxAudioAnalyzer.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				B3AD99C91D5E3CB7006EFAE1 /* ofxAudioAnalyzerAlgorithms.cpp in Sources */,

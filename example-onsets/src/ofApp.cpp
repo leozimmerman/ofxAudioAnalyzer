@@ -34,7 +34,7 @@ void ofApp::update(){
     audioAnalyzer.setOnsetsParameters(0, alpha, silenceTreshold, timeTreshold, useTimeTreshold);
     audioAnalyzer.analyze(soundBuffer);
     
-    onset = audioAnalyzer.getIsOnset(0);
+    onset = audioAnalyzer.getOnsetValue(0);
 
 }
 

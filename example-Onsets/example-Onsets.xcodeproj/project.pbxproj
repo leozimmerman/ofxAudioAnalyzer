@@ -24,6 +24,8 @@
 		B30CE69A1D64F7A80014E4C7 /* ofxSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30CE68F1D64F7A80014E4C7 /* ofxSlider.cpp */; };
 		B30CE69B1D64F7A80014E4C7 /* ofxSliderGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30CE6911D64F7A80014E4C7 /* ofxSliderGroup.cpp */; };
 		B30CE69C1D64F7A80014E4C7 /* ofxToggle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30CE6931D64F7A80014E4C7 /* ofxToggle.cpp */; };
+		B39332191D77406300A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B39332171D77406300A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */; };
+		B3AC023D1D787B6A000CA1B1 /* ofxAAOnsetsAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3AC023B1D787B6A000CA1B1 /* ofxAAOnsetsAlgorithm.cpp */; };
 		B3B3E8FF1CC920AE007A2FA6 /* libavresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3B3E8F51CC920AE007A2FA6 /* libavresample.a */; };
 		B3B3E9001CC920AE007A2FA6 /* libessentia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3B3E8F61CC920AE007A2FA6 /* libessentia.a */; };
 		B3B3E9011CC920AE007A2FA6 /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3B3E8F71CC920AE007A2FA6 /* libfftw3f.a */; };
@@ -195,6 +197,10 @@
 		B30CE6921D64F7A80014E4C7 /* ofxSliderGroup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxSliderGroup.h; sourceTree = "<group>"; };
 		B30CE6931D64F7A80014E4C7 /* ofxToggle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ofxToggle.cpp; sourceTree = "<group>"; };
 		B30CE6941D64F7A80014E4C7 /* ofxToggle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxToggle.h; sourceTree = "<group>"; };
+		B39332171D77406300A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAAMultiPitchKlapuriAlgorithm.cpp; sourceTree = "<group>"; };
+		B39332181D77406300A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxAAMultiPitchKlapuriAlgorithm.h; sourceTree = "<group>"; };
+		B3AC023B1D787B6A000CA1B1 /* ofxAAOnsetsAlgorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAAOnsetsAlgorithm.cpp; sourceTree = "<group>"; };
+		B3AC023C1D787B6A000CA1B1 /* ofxAAOnsetsAlgorithm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxAAOnsetsAlgorithm.h; sourceTree = "<group>"; };
 		B3B3E8F51CC920AE007A2FA6 /* libavresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavresample.a; path = ../../../../../../../usr/local/lib/libavresample.a; sourceTree = "<group>"; };
 		B3B3E8F61CC920AE007A2FA6 /* libessentia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libessentia.a; path = ../../../../../../../usr/local/lib/libessentia.a; sourceTree = "<group>"; };
 		B3B3E8F71CC920AE007A2FA6 /* libfftw3f.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfftw3f.a; path = ../../../../../../../usr/local/lib/libfftw3f.a; sourceTree = "<group>"; };
@@ -258,6 +264,10 @@
 		B30CE5F21D64ECF70014E4C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				B3AC023B1D787B6A000CA1B1 /* ofxAAOnsetsAlgorithm.cpp */,
+				B3AC023C1D787B6A000CA1B1 /* ofxAAOnsetsAlgorithm.h */,
+				B39332171D77406300A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */,
+				B39332181D77406300A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.h */,
 				B30CE5F31D64ECF70014E4C7 /* ofSoundPlayerExtended.cpp */,
 				B30CE5F41D64ECF70014E4C7 /* ofSoundPlayerExtended.h */,
 				B30CE5F51D64ECF70014E4C7 /* ofxAudioAnalyzer.cpp */,
@@ -725,6 +735,7 @@
 				B30CE6791D64ED090014E4C7 /* audiodecoderbase.cpp in Sources */,
 				B30CE6981D64F7A80014E4C7 /* ofxLabel.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
+				B3AC023D1D787B6A000CA1B1 /* ofxAAOnsetsAlgorithm.cpp in Sources */,
 				B30CE6961D64F7A80014E4C7 /* ofxButton.cpp in Sources */,
 				B30CE6991D64F7A80014E4C7 /* ofxPanel.cpp in Sources */,
 				B30CE6951D64F7A80014E4C7 /* ofxBaseGui.cpp in Sources */,
@@ -734,6 +745,7 @@
 				B30CE6641D64ECF70014E4C7 /* ofxAudioAnalyzer.cpp in Sources */,
 				B30CE6971D64F7A80014E4C7 /* ofxGuiGroup.cpp in Sources */,
 				B30CE6651D64ECF70014E4C7 /* ofxAudioAnalyzerAlgorithms.cpp in Sources */,
+				B39332191D77406300A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp in Sources */,
 				B30CE69C1D64F7A80014E4C7 /* ofxToggle.cpp in Sources */,
 				B30CE6661D64ECF70014E4C7 /* ofxAudioAnalyzerUnit.cpp in Sources */,
 				B30CE6781D64ED090014E4C7 /* ofxAudioDecoder.cpp in Sources */,
