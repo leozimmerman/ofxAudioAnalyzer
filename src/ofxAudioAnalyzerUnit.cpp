@@ -19,9 +19,13 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     
     //-Max estimated values:
     maxEnergyEstimatedValue = 100.0;
-    maxHfcEstimatedValue = 500.0; //antes 1000
-    maxSpecCompEstimatedValue = 15.0; //antes 30
+    maxHfcEstimatedValue = 30.0; //antes 1000?q
+    maxSpecCompEstimatedValue = 8.0; //antes 30
     maxCentroidEstimatedValue = 5000.0;//antes 7000
+    
+    maxOddToEvenEstimatedValue = 5.0;
+    maxStrongPeakEstimatedValue = 7.0;
+    maxStrongDecayEstimatedValue = 100.0;
     
     #pragma mark -Init algorithms:
     
@@ -42,8 +46,8 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     melBands.initAndAssignSize(MELBANDS_BANDS_NUM,0);
     dct.initAndAssignSize(DCT_COEFF_NUM, 0);
     hpcp.initAndAssignSize(HPCP_SIZE, 0);
-    pitchSalienceFunction.initAndAssignSize(10, 0.0);//TODO: make it a define and variable?
-
+    pitchSalienceFunction.initAndAssignSize(PITCH_SALIENCE_FUNC_NUM, 0.0);
+    
     dcremoval.init();
     window.init();
     fft.init();
@@ -51,9 +55,17 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     spectralPeaks.init();
     harmonicPeaks.init();
     
+    //testing...
+    rollOff.init();
+    oddToEven.init();
+    strongPeak.init();
+    strongDecay.init();
+    tristimulus.initAndAssignSize(3, 0.0);
+    
+    
     ///-Not working well yet...
-    //pitchSalienceFunctionPeaks.init();
-    //multiPitchKlapuri.init();
+    pitchSalienceFunctionPeaks.init();
+    multiPitchKlapuri.init();
 
     essentia::init();
 
@@ -124,6 +136,16 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     
     pitchSalienceFunction.algorithm = factory.create("PitchSalienceFunction");
     pitchSalienceFunctionPeaks.algorithm = factory.create("PitchSalienceFunctionPeaks");
+    
+    ///testing
+    rollOff.algorithm = factory.create("RollOff",
+                                       "sampleRate", sr);
+    oddToEven.algorithm = factory.create("OddToEvenHarmonicEnergyRatio");
+    strongPeak.algorithm = factory.create("StrongPeak");
+    strongDecay.algorithm = factory.create("StrongDecay",
+                                           "sampleRate", sr);
+    tristimulus.algorithm = factory.create("Tristimulus");
+    
     
     #pragma mark -Connect algorithms
     
@@ -216,8 +238,32 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     pitchSalienceFunctionPeaks.algorithm->output("salienceBins").set(pitchSalienceFunctionPeaks.realSalienceBins);
     pitchSalienceFunctionPeaks.algorithm->output("salienceValues").set(pitchSalienceFunctionPeaks.realSalienceValues);
     
+    ////testing
+    //RollOff
+    rollOff.algorithm->input("spectrum").set(spectrum.realValues);
+    rollOff.algorithm->output("rollOff").set(rollOff.realValue);
+    //StrongPeak
+    strongPeak.algorithm->input("spectrum").set(spectrum.realValues);
+    strongPeak.algorithm->output("strongPeak").set(strongPeak.realValue);
+    //StrongDecay
+    strongDecay.algorithm->input("signal").set(dcremoval.realValues);
+    strongDecay.algorithm->output("strongDecay").set(strongDecay.realValue);
+    //OddToEven
+    oddToEven.algorithm->input("frequencies").set(harmonicPeaks.frequencies);
+    oddToEven.algorithm->input("magnitudes").set(harmonicPeaks.magnitudes);
+    oddToEven.algorithm->output("oddToEvenHarmonicEnergyRatio").set(oddToEven.realValue);
+    //Tristimulus
+    tristimulus.algorithm->input("frequencies").set(harmonicPeaks.frequencies);
+    tristimulus.algorithm->input("magnitudes").set(harmonicPeaks.magnitudes);
+    tristimulus.algorithm->output("tristimulus").set(tristimulus.realValues);
+    
+    
     //MultiPitch Kalpuri:
     multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, sr);
+    
+    
+    
+    
 
     //-Shutdown factory:
     factory.shutdown();
@@ -282,7 +328,19 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     pitchSalienceFunctionPeaks.compute();
     
     multiPitchKlapuri.compute();
-  
+    
+    ///testing...
+    rollOff.compute();
+    oddToEven.compute();
+    strongPeak.compute();
+    
+    tristimulus.compute();
+    if(dcremoval.realValues[0] != 0.0){
+        //the strong decay is not defined for a zero signal
+        strongDecay.compute();
+    }
+    
+    
     #pragma mark -Cast results to float
     
     spectrum.castValuesToFloat(true);
@@ -305,11 +363,24 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     
     onsets.castValuesToFloat();
     onsets.evaluate();
+    
+    ///testing...
+    rollOff.castValueToFloat();
+    oddToEven.castValueToFloat();
+    strongPeak.castValueToFloat();
+    strongDecay.castValueToFloat();
+    tristimulus.castValuesToFloat(false);
 }
 
 //--------------------------------------------------------------
 void ofxAudioAnalyzerUnit::exit(){
 
+    rollOff.deleteAlgorithm();
+    oddToEven.deleteAlgorithm();
+    strongPeak.deleteAlgorithm();
+    strongDecay.deleteAlgorithm();
+    tristimulus.deleteAlgorithm();
+    
     dcremoval.deleteAlgorithm();
     rms.deleteAlgorithm();
     energy.deleteAlgorithm();
@@ -401,11 +472,27 @@ void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithm algorithm, bool state){
             multiPitchKlapuri.setActive(state);
             break;
         case PITCH_SALIENCE_FUNC_PEAKS:
-            pitchSalienceFunction.setActive(state);//FIXME: Esto esta bien?
+            pitchSalienceFunction.setActive(state);
             pitchSalienceFunctionPeaks.setActive(state);
             break;
         case ONSETS:
             onsets.setActive(state);
+            break;
+        ///testing:
+        case ROLL_OFF:
+            rollOff.setActive(state);
+            break;
+        case ODD_TO_EVEN:
+            oddToEven.setActive(state);
+            break;
+        case STRONG_PEAK:
+            strongPeak.setActive(state);
+            break;
+        case STRONG_DECAY:
+            strongDecay.setActive(state);
+            break;
+        case TRISTIMULUS:
+            tristimulus.setActive(state);
             break;
             
         default:
@@ -509,6 +596,46 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
                 dissonance.getValue();
             break;
             
+        ///testing
+        case ROLL_OFF:
+            r = smooth ?
+            rollOff.getSmoothedValue(smooth):
+            rollOff.getValue();
+            break;
+        case ODD_TO_EVEN:
+            if (normalized){
+                r = smooth ?
+                oddToEven.getSmoothedValueNormalized(smooth, 0.0, maxOddToEvenEstimatedValue):
+                oddToEven.getValueNormalized(0.0, maxOddToEvenEstimatedValue);
+            }else{
+                r = smooth ?
+                oddToEven.getSmoothedValue(smooth):
+                oddToEven.getValue();
+            }
+            break;
+        case STRONG_PEAK:
+            if (normalized){
+                r = smooth ?
+                strongPeak.getSmoothedValueNormalized(smooth, 0.0, maxStrongPeakEstimatedValue):
+                strongPeak.getValueNormalized(0.0, maxStrongPeakEstimatedValue);
+            }else{
+                r = smooth ?
+                strongPeak.getSmoothedValue(smooth):
+                strongPeak.getValue();
+            }
+            break;
+        case STRONG_DECAY:
+            if (normalized){
+                r = smooth ?
+                strongDecay.getSmoothedValueNormalized(smooth, 0.0, maxStrongDecayEstimatedValue):
+                strongDecay.getValueNormalized(0.0, maxStrongDecayEstimatedValue);
+            }else{
+                r = smooth ?
+                strongDecay.getSmoothedValue(smooth):
+                strongDecay.getValue();
+            }
+            break;
+            
             
         default:
             ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting value.";
@@ -544,6 +671,10 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithm algorithm, float s
             
         case MULTI_PITCHES:
             return multiPitchKlapuri.getPitches();
+            break;
+            
+        case TRISTIMULUS:
+            return smooth ? tristimulus.getSmoothedValues(smooth) : tristimulus.getValues();
             break;
             
         default:

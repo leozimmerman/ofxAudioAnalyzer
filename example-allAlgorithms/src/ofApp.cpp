@@ -27,11 +27,17 @@ void ofApp::setup(){
     gui.add(centroid_smth.setup("Centroid", 0.0, 0.0, 1.0));
     
     gui.add(dissonance_smth.setup("Dissonance", 0.0, 0.0, 1.0));
+    gui.add(rollOff_smth.setup("Roll Off", 0.0, 0.0, 1.0));
+    gui.add(oddToEven_smth.setup("Odd To Even Ratio", 0.0, 0.0, 1.0));
+    gui.add(strongPeak_smth.setup("Strong Peak", 0.0, 0.0, 1.0));
+    gui.add(strongDecay_smth.setup("Strong Decay", 0.0, 0.0, 1.0));
     
     gui.add(spectrum_smth.setup("Spectrum", 0.0, 0.0, 1.0));
     gui.add(melBands_smth.setup("Mel Bands", 0.0, 0.0, 1.0));
     gui.add(mfcc_smth.setup("MFCC", 0.0, 0.0, 1.0));
     gui.add(hpcp_smth.setup("HPCP", 0.0, 0.0, 1.0));
+    gui.add(tristimulus_smth.setup("Tristimulus", 0.0, 0.0, 1.0));
+
 }
 
 //--------------------------------------------------------------
@@ -65,11 +71,22 @@ void ofApp::update(){
     melBands = audioAnalyzer.getValues(MEL_BANDS, 0, melBands_smth);
     mfcc = audioAnalyzer.getValues(MFCC, 0, mfcc_smth);
     hpcp = audioAnalyzer.getValues(HPCP, 0, hpcp_smth);
+
+    dissonance = audioAnalyzer.getValue(DISSONANCE, 0, dissonance_smth);
+    rollOff = audioAnalyzer.getValue(ROLL_OFF, 0, rollOff_smth);
+    oddToEven = audioAnalyzer.getValue(ODD_TO_EVEN, 0, oddToEven_smth, true);
+    strongPeak = audioAnalyzer.getValue(STRONG_PEAK, 0, strongPeak_smth, true);
+    strongDecay = audioAnalyzer.getValue(STRONG_DECAY, 0, strongDecay_smth, true);
+    
+    tristimulus = audioAnalyzer.getValues(TRISTIMULUS, 0, tristimulus_smth);
     
     multiPitches = audioAnalyzer.getValues(MULTI_PITCHES, 0);
-    saliencePeaks = audioAnalyzer.getSalienceFunctionPeaks(0);
+    ///saliencePeaks = audioAnalyzer.getSalienceFunctionPeaks(0);
     
     isOnset = audioAnalyzer.getOnsetValue(0);
+    
+    cout<<"multi = "<<multiPitches<<endl;
+    
 }
 
 //--------------------------------------------------------------
@@ -169,6 +186,38 @@ void ofApp::draw(){
     
     ypos += 50;
     ofSetColor(255);
+    value = rollOff;
+    strValue = "Roll Off: " + ofToString(value);
+    ofDrawBitmapString(strValue, xpos, ypos);
+    ofSetColor(ofColor::cyan);
+    ofDrawRectangle(xpos, ypos+5, (ofClamp(value,0,11000.0) / 11000.0) * mw , 10);
+    
+    ypos += 50;
+    ofSetColor(255);
+    value = oddToEven;
+    strValue = "Odd To Even Harmonic Energy Ratio: " + ofToString(value);
+    ofDrawBitmapString(strValue, xpos, ypos);
+    ofSetColor(ofColor::cyan);
+    ofDrawRectangle(xpos, ypos+5, value * mw, 10);
+    
+    ypos += 50;
+    ofSetColor(255);
+    value = strongPeak;
+    strValue = "Strong Peak: " + ofToString(value);
+    ofDrawBitmapString(strValue, xpos, ypos);
+    ofSetColor(ofColor::cyan);
+    ofDrawRectangle(xpos, ypos+5, value * mw, 10);
+    
+    ypos += 50;
+    ofSetColor(255);
+    value = strongDecay;
+    strValue = "Strong Decay: " + ofToString(value);
+    ofDrawBitmapString(strValue, xpos, ypos);
+    ofSetColor(ofColor::cyan);
+    ofDrawRectangle(xpos, ypos+5, value * mw, 10);
+    
+    ypos += 50;
+    ofSetColor(255);
     value = isOnset;
     strValue = "Onsets: " + ofToString(value);
     ofDrawBitmapString(strValue, xpos, ypos);
@@ -183,7 +232,8 @@ void ofApp::draw(){
     
     ofTranslate(700, 0);
     
-    int graphH = 100;
+    int graphH = 75;
+    int yoffset = graphH + 50;
     ypos = 30;
     
     ofSetColor(255);
@@ -199,7 +249,7 @@ void ofApp::draw(){
     }
     ofPopMatrix();
     
-    ypos += 150;
+    ypos += yoffset;
     ofSetColor(255);
     ofDrawBitmapString("Mel Bands: ", 0, ypos);
     ofPushMatrix();
@@ -213,7 +263,7 @@ void ofApp::draw(){
     }
     ofPopMatrix();
     
-    ypos += 150;
+    ypos += yoffset;
     ofSetColor(255);
     ofDrawBitmapString("MFCC: ", 0, ypos);
     ofPushMatrix();
@@ -227,7 +277,7 @@ void ofApp::draw(){
     }
     ofPopMatrix();
     
-    ypos += 150;
+    ypos += yoffset;
     ofSetColor(255);
     ofDrawBitmapString("HPCP: ", 0, ypos);
     ofPushMatrix();
@@ -242,6 +292,34 @@ void ofApp::draw(){
     }
     ofPopMatrix();
     
+    ypos += yoffset;
+    ofSetColor(255);
+    ofDrawBitmapString("Tristimulus: ", 0, ypos);
+    ofPushMatrix();
+    ofTranslate(0, ypos);
+    ofSetColor(ofColor::cyan);
+    bin_w = (float) mw / tristimulus.size();
+    for (int i = 0; i < tristimulus.size(); i++){
+        //float scaledValue = ofMap(hpcp[i], DB_MIN, DB_MAX, 0.0, 1.0, true);//clamped value
+        float scaledValue = tristimulus[i];
+        float bin_h = -1 * (scaledValue * graphH);
+        ofDrawRectangle(i*bin_w, graphH, bin_w, bin_h);
+    }
+    ofPopMatrix();
+    
+    ypos += yoffset;
+    ofSetColor(255);
+    ofDrawBitmapString("MultiPitches: ", 0, ypos);
+    ofPushMatrix();
+    ofTranslate(0, ypos);
+    ofSetColor(ofColor::cyan);
+    for (int i = 0; i < multiPitches.size(); i++){
+        int y =  5 + 15*i;
+        float pitchVal = multiPitches[i] / 2000.0;
+        //float pitchVal = 1;
+        ofDrawRectangle(0, y, pitchVal* mw, 10);
+    }
+    ofPopMatrix();
     
     ofPopMatrix();
     
@@ -251,7 +329,7 @@ void ofApp::draw(){
     ofSetColor(255);
     ofDrawBitmapString("ofxAudioAnalyzer\n\nALL ALGORITHMS EXAMPLE", 10, 32);
     ofSetColor(ofColor::hotPink);
-    ofDrawBitmapString("Keys 1-4: Play audio tracks", 10, 100);
+    ofDrawBitmapString("Keys 1-5: Play audio tracks", 10, 100);
     
 }
 
@@ -262,7 +340,7 @@ void ofApp::keyPressed(int key){
        
         case '1':
             player.stop();
-            player.load("beatTrack.wav");
+            player.load("test440mono.wav");
             player.play();
             break;
         case '2':
@@ -280,6 +358,11 @@ void ofApp::keyPressed(int key){
             player.load("cadence.wav");
             player.play();
             break;
+        case '5':
+            player.stop();
+            player.load("beatTrack.wav");
+            player.play();
+            break;
             
             
         default:
@@ -288,7 +371,11 @@ void ofApp::keyPressed(int key){
     
     
 }
-
+//--------------------------------------------------------------
+void ofApp::exit(){
+    audioAnalyzer.exit();
+    player.stop();
+}
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
 

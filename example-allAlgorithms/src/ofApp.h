@@ -11,6 +11,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+        void exit();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -45,12 +46,17 @@ class ofApp : public ofBaseApp{
         float centroid;
         float centroidNorm;
         float dissonance;
+        float rollOff;
+        float oddToEven;
+        float strongPeak;
+        float strongDecay;
    
         vector<float> spectrum;
         vector<float> melBands;
         vector<float> mfcc;
         vector<float> hpcp;
         vector<float> multiPitches;
+        vector<float> tristimulus;
     
         vector<SalienceFunctionPeak> saliencePeaks;
     
@@ -67,11 +73,18 @@ class ofApp : public ofBaseApp{
         ofxFloatSlider hfc_smth;
         ofxFloatSlider specComp_smth;
         ofxFloatSlider centroid_smth;
-    
+        
         ofxFloatSlider dissonance_smth;
+        ofxFloatSlider rollOff_smth;
+        ofxFloatSlider oddToEven_smth;
+        ofxFloatSlider strongPeak_smth;
+        ofxFloatSlider strongDecay_smth;
     
         ofxFloatSlider spectrum_smth;
         ofxFloatSlider melBands_smth;
         ofxFloatSlider mfcc_smth;
         ofxFloatSlider hpcp_smth;
+        ofxFloatSlider tristimulus_smth;
+    
+    
 };

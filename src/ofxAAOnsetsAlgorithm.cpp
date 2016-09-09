@@ -16,7 +16,7 @@ void ofxAAOnsetsAlgorithm::setup(int bufferSize){
     lastOnsetBufferNum = 0;
     addHfc = addComplex = addFlux = true;
     hfc_max = complex_max = flux_max = 0.0;
-    usingTimeTreshold = false;
+    usingTimeTreshold = TRUE;
     onsetsMode = TIME_BASED;
     bufferCounter = 0;
     
@@ -80,6 +80,7 @@ void ofxAAOnsetsAlgorithm::evaluate(){
     
     //update bufferCounter for frameBased timeTreshold evaluation:
     if (onsetsMode == BUFFER_NUM_BASED) bufferCounter++;
+    
 }
 
 //--------------------------------------------------------------

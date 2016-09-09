@@ -30,7 +30,13 @@ enum ofxAAAlgorithm{
     HPCP,
     MULTI_PITCHES,
     PITCH_SALIENCE_FUNC_PEAKS,
-    ONSETS
+    ONSETS,
+    //testing
+    ROLL_OFF,
+    ODD_TO_EVEN,
+    STRONG_PEAK,
+    STRONG_DECAY,
+    TRISTIMULUS
 };
 
 

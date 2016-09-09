@@ -1,8 +1,9 @@
 
 #include "ofxAudioAnalyzer.h"
 
-//TODO: Document all this funcs and classes. Add description
+//TODO: Document all this funcs and classes. Add description.
 //TODO: Add throw error & exceptions with channel num checks??
+//FIXME: Spectrum and mel bands tiran error con el smoothing.
 
 
 //-------------------------------------------------------

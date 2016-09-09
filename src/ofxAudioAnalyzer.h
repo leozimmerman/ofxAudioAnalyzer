@@ -26,8 +26,6 @@
 #include "ofxAudioAnalyzerUnit.h"
 
 
-
-
 class ofxAudioAnalyzer{
  
  public:

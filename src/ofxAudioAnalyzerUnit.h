@@ -18,6 +18,7 @@ using namespace standard;
 //----------------------------
 #define MELBANDS_BANDS_NUM 24
 #define DCT_COEFF_NUM 10
+#define PITCH_SALIENCE_FUNC_NUM 10
 
 #define HPCP_SIZE 12
 #define HPCP_MIN_FREQ 40.0//hz
@@ -67,6 +68,7 @@ public:
     //Onsets:
     void resetOnsets();
     void setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
+    ofxAAOnsetsAlgorithm* getOnsetsAlgorithmPtr(){return &onsets;}
 
     
     //Max estimated values -------------------
@@ -74,6 +76,9 @@ public:
     void setMaxHfcEstimatedValue(float val){maxHfcEstimatedValue = val;}
     void setMaxSpecCompEstimatedValue(float val){maxSpecCompEstimatedValue = val;}
     void setMaxCentroidEstimatedValue(float val){maxCentroidEstimatedValue = val;}
+    void setMaxOddToEvenEstimatedValue(float val){maxOddToEvenEstimatedValue = val;}
+    void setMaxStrongPeakEstimatedValue(float val){maxStrongPeakEstimatedValue = val;}
+    void setMaxStrongDecayEstimatedValue(float val){maxStrongDecayEstimatedValue = val;}
 
 private:
     //Utils:
@@ -114,6 +119,14 @@ private:
     //onsets
     ofxAAOnsetsAlgorithm onsets;
     
+    ///testing...
+    ofxAABaseAlgorithm rollOff;
+    ofxAABaseAlgorithm oddToEven;
+    ofxAABaseAlgorithm strongPeak;
+    ofxAABaseAlgorithm strongDecay;
+    ofxAAOneVectorOutputAlgorithm tristimulus;
+    
+    
     //--------
     int framesize;
     int hopsize;
@@ -125,6 +138,9 @@ private:
     float maxHfcEstimatedValue;
     float maxSpecCompEstimatedValue;
     float maxCentroidEstimatedValue;
+    float maxOddToEvenEstimatedValue;
+    float maxStrongPeakEstimatedValue;
+    float maxStrongDecayEstimatedValue;
 
     
 };
