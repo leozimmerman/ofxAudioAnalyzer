@@ -1,7 +1,5 @@
 #include "ofxAudioAnalyzerUnit.h"
 
-//TODO: Check centroid, specComp, hfc max estimated values for normalizing
-
 
 #pragma mark - Main funcs
 //--------------------------------------------------------------
@@ -18,14 +16,14 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     audioBuffer.resize(bufferSize);
     
     //-Max estimated values:
-    maxEnergyEstimatedValue = 100.0;
-    maxHfcEstimatedValue = 30.0; //antes 1000?q
-    maxSpecCompEstimatedValue = 8.0; //antes 30
-    maxCentroidEstimatedValue = 5000.0;//antes 7000
-    
-    maxOddToEvenEstimatedValue = 5.0;
-    maxStrongPeakEstimatedValue = 7.0;
-    maxStrongDecayEstimatedValue = 100.0;
+    //default values set from testing with white noise.
+    maxEnergyEstimatedValue     = 100.0;
+    maxHfcEstimatedValue        = 2000.0;
+    maxSpecCompEstimatedValue   = 20.0;
+    maxCentroidEstimatedValue   = 11000.0;
+    maxOddToEvenEstimatedValue  = 10.0;
+    maxStrongPeakEstimatedValue = 20.0;
+    maxStrongDecayEstimatedValue= 100.0;
     
     #pragma mark -Init algorithms:
     
@@ -41,12 +39,17 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     centroid.init();
     spectralComplex.init();
     dissonance.init();
+    rollOff.init();
+    oddToEven.init();
+    strongPeak.init();
+    strongDecay.init();
     
     spectrum.initAndAssignSize((bufferSize/2)+1, 0.0);
     melBands.initAndAssignSize(MELBANDS_BANDS_NUM,0);
     dct.initAndAssignSize(DCT_COEFF_NUM, 0);
     hpcp.initAndAssignSize(HPCP_SIZE, 0);
     pitchSalienceFunction.initAndAssignSize(PITCH_SALIENCE_FUNC_NUM, 0.0);
+    tristimulus.initAndAssignSize(TRISTIMULUS_BANDS_NUM, 0.0);
     
     dcremoval.init();
     window.init();
@@ -55,17 +58,14 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     spectralPeaks.init();
     harmonicPeaks.init();
     
-    //testing...
-    rollOff.init();
-    oddToEven.init();
-    strongPeak.init();
-    strongDecay.init();
-    tristimulus.initAndAssignSize(3, 0.0);
-    
-    
-    ///-Not working well yet...
+
+    //------Not very useful...
     pitchSalienceFunctionPeaks.init();
+    setActive(PITCH_SALIENCE_FUNC_PEAKS, false);
     multiPitchKlapuri.init();
+    setActive(MULTI_PITCHES, false);
+    //------------------
+    
 
     essentia::init();
 
@@ -102,6 +102,13 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     
     dissonance.algorithm = factory.create("Dissonance");
     
+    rollOff.algorithm = factory.create("RollOff",
+                                       "sampleRate", sr);
+    oddToEven.algorithm = factory.create("OddToEvenHarmonicEnergyRatio");
+    strongPeak.algorithm = factory.create("StrongPeak");
+    strongDecay.algorithm = factory.create("StrongDecay",
+                                           "sampleRate", sr);
+    
     spectralPeaks.algorithm = factory.create("SpectralPeaks",
                                 "maxPeaks", PEAKS_MAXPEAKS_NUM,
                                 "magnitudeThreshold", 0.00001,
@@ -110,10 +117,14 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
                                 "orderBy", "frequency");
 
 
-    melBands.algorithm = factory.create("MelBands", "inputSize", (framesize/2)+1,
-                              "sampleRate", sr);
-    dct.algorithm = factory.create("DCT", "inputSize", MELBANDS_BANDS_NUM, "outputSize", DCT_COEFF_NUM);
-
+    melBands.algorithm = factory.create("MelBands",
+                                        "inputSize", (framesize/2)+1,
+                                        "sampleRate", sr,
+                                        "numberBands", MELBANDS_BANDS_NUM);
+    
+    dct.algorithm = factory.create("DCT",
+                                   "inputSize", MELBANDS_BANDS_NUM,
+                                   "outputSize", DCT_COEFF_NUM);
 
     inharmonicity.algorithm = factory.create("Inharmonicity");
 
@@ -137,13 +148,6 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     pitchSalienceFunction.algorithm = factory.create("PitchSalienceFunction");
     pitchSalienceFunctionPeaks.algorithm = factory.create("PitchSalienceFunctionPeaks");
     
-    ///testing
-    rollOff.algorithm = factory.create("RollOff",
-                                       "sampleRate", sr);
-    oddToEven.algorithm = factory.create("OddToEvenHarmonicEnergyRatio");
-    strongPeak.algorithm = factory.create("StrongPeak");
-    strongDecay.algorithm = factory.create("StrongDecay",
-                                           "sampleRate", sr);
     tristimulus.algorithm = factory.create("Tristimulus");
     
     
@@ -237,8 +241,7 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     pitchSalienceFunctionPeaks.algorithm->input("salienceFunction").set(pitchSalienceFunction.realValues);
     pitchSalienceFunctionPeaks.algorithm->output("salienceBins").set(pitchSalienceFunctionPeaks.realSalienceBins);
     pitchSalienceFunctionPeaks.algorithm->output("salienceValues").set(pitchSalienceFunctionPeaks.realSalienceValues);
-    
-    ////testing
+
     //RollOff
     rollOff.algorithm->input("spectrum").set(spectrum.realValues);
     rollOff.algorithm->output("rollOff").set(rollOff.realValue);
@@ -257,14 +260,9 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     tristimulus.algorithm->input("magnitudes").set(harmonicPeaks.magnitudes);
     tristimulus.algorithm->output("tristimulus").set(tristimulus.realValues);
     
-    
     //MultiPitch Kalpuri:
     multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, sr);
     
-    
-    
-    
-
     //-Shutdown factory:
     factory.shutdown();
     
@@ -329,7 +327,6 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     
     multiPitchKlapuri.compute();
     
-    ///testing...
     rollOff.compute();
     oddToEven.compute();
     strongPeak.compute();
@@ -359,17 +356,19 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     spectralComplex.castValueToFloat();
     inharmonicity.castValueToFloat();
     dissonance.castValueToFloat();
-    pitchSalienceFunctionPeaks.castValuesToFloat();
-    
-    onsets.castValuesToFloat();
-    onsets.evaluate();
-    
-    ///testing...
     rollOff.castValueToFloat();
     oddToEven.castValueToFloat();
     strongPeak.castValueToFloat();
     strongDecay.castValueToFloat();
+    
+    pitchSalienceFunctionPeaks.castValuesToFloat();
+    
     tristimulus.castValuesToFloat(false);
+    
+    onsets.castValuesToFloat();
+    onsets.evaluate();
+    
+ 
 }
 
 //--------------------------------------------------------------
@@ -478,7 +477,6 @@ void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithm algorithm, bool state){
         case ONSETS:
             onsets.setActive(state);
             break;
-        ///testing:
         case ROLL_OFF:
             rollOff.setActive(state);
             break;
@@ -595,8 +593,7 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
                 dissonance.getSmoothedValue(smooth):
                 dissonance.getValue();
             break;
-            
-        ///testing
+
         case ROLL_OFF:
             r = smooth ?
             rollOff.getSmoothedValue(smooth):
@@ -611,6 +608,8 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
                 r = smooth ?
                 oddToEven.getSmoothedValue(smooth):
                 oddToEven.getValue();
+                //limit value, because this algorithm reaches huge values (eg: 3.40282e+38)
+                r = ofClamp(r, 0.0, maxOddToEvenEstimatedValue);
             }
             break;
         case STRONG_PEAK:
@@ -683,8 +682,11 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithm algorithm, float s
     }
 }
 //----------------------------------------------
-vector<SalienceFunctionPeak>& ofxAudioAnalyzerUnit::getPitchSaliencePeaksRef(){
-    return pitchSalienceFunctionPeaks.getPeaks();
+vector<SalienceFunctionPeak>& ofxAudioAnalyzerUnit::getPitchSaliencePeaksRef(float smooth){
+    
+    return smooth ? pitchSalienceFunctionPeaks.getSmoothedPeaks(smooth) : pitchSalienceFunctionPeaks.getPeaks();
+    
+//    return pitchSalienceFunctionPeaks.getPeaks();
 }
 //----------------------------------------------
 int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithm algorithm){
@@ -711,18 +713,53 @@ int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithm algorithm){
     
 }
 //----------------------------------------------
+void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithm algorithm, float value){
+    
+    switch (algorithm) {
+            
+        case ENERGY:
+            maxEnergyEstimatedValue = value;
+            break;
+        case HFC:
+            maxHfcEstimatedValue = value;
+            break;
+        case SPECTRAL_COMPLEXITY:
+            maxSpecCompEstimatedValue = value;
+            break;
+        case CENTROID:
+            maxCentroidEstimatedValue = value;
+            break;
+        case ODD_TO_EVEN:
+            maxOddToEvenEstimatedValue = value;
+            break;
+        case STRONG_PEAK:
+            maxStrongPeakEstimatedValue = value;
+            break;
+        case STRONG_DECAY:
+            maxStrongDecayEstimatedValue = value;
+            break;
+            
+        default:
+             ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for setting max estimated value.";
+            break;
+    }
+}
+//----------------------------------------------
 void ofxAudioAnalyzerUnit::resetOnsets(){
     onsets.reset();
 }
+//----------------------------------------------
 void ofxAudioAnalyzerUnit::setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh){
     
     onsets.setOnsetAlpha(alpha);
     onsets.setOnsetSilenceTreshold(silenceTresh);
     onsets.setOnsetTimeTreshold(timeTresh);
     onsets.setUseTimeTreshold(useTimeTresh);
-
 }
-
+//----------------------------------------------
+void ofxAudioAnalyzerUnit::setSalienceFunctionPeaksParameters(int maxPeaks){
+    pitchSalienceFunctionPeaks.setMaxPeaksNum(maxPeaks);
+}
 //----------------------------------------------
 #pragma mark - Utils
 //----------------------------------------------

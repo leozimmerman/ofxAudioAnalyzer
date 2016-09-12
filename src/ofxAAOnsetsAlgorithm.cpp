@@ -3,9 +3,17 @@
 
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::setup(int bufferSize){
+    /*
+     at 44100:
+     512 samples = 11.6 ms
+     
+     detetctBufferSize: 1 detection x buffers.
+     512 x 64 = 742.4 ms
+     */
     
-    //-Onsets:
-    detecBufferSize = bufferSize; //FIXME: Check this value. Too big??? 
+//    detecBufferSize = bufferSize;
+    detecBufferSize = 64;
+    
     detection_sum.assign(detecBufferSize, 0.0);
     detections.assign(3, vector<Real> (detecBufferSize));
     silenceTreshold = 0.02;
@@ -60,15 +68,12 @@ void ofxAAOnsetsAlgorithm::evaluate(){
     if (usingTimeTreshold && isCurrentBufferOnset){
         
         switch (onsetsMode) {
-            
             case TIME_BASED:
                 _value = onsetTimeTresholdEvaluation();
                 break;
-            
             case BUFFER_NUM_BASED:
                 _value = onsetBufferNumTresholdEvaluation();
                 break;
-                
             default:
                 break;
         }

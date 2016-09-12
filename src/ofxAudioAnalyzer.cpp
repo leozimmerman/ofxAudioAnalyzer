@@ -1,10 +1,6 @@
 
 #include "ofxAudioAnalyzer.h"
 
-//TODO: Document all this funcs and classes. Add description.
-//TODO: Add throw error & exceptions with channel num checks??
-//FIXME: Spectrum and mel bands tiran error con el smoothing.
-
 
 //-------------------------------------------------------
 void ofxAudioAnalyzer::setup(int sampleRate, int bufferSize, int channels){
@@ -107,13 +103,13 @@ vector<float>& ofxAudioAnalyzer::getValues(ofxAAAlgorithm algorithm, int channel
     
 }
 //-------------------------------------------------------
-vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int channel){
+vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int channel, float smooth){
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return;
     }
     
-     return channelAnalyzerUnits[channel]->getPitchSaliencePeaksRef();
+     return channelAnalyzerUnits[channel]->getPitchSaliencePeaksRef(smooth);
 
 }
 //-------------------------------------------------------
@@ -138,7 +134,29 @@ void ofxAudioAnalyzer::resetOnsets(int channel){
     
     channelAnalyzerUnits[channel]->resetOnsets();
 }
+//-------------------------------------------------------
+void ofxAudioAnalyzer::setActive(int channel, ofxAAAlgorithm algorithm, bool state){
 
+    if (channel >= _channels){
+        ofLogError()<<"ofxAudioAnalyzer: channel for setting active is incorrect.";
+        return;
+    }
+    
+    channelAnalyzerUnits[channel]->setActive(algorithm, state);
+}
+//-------------------------------------------------------
+void ofxAudioAnalyzer::setMaxEstimatedValue(int channel, ofxAAAlgorithm algorithm, float value){
+    
+    if (channel >= _channels){
+        ofLogError()<<"ofxAudioAnalyzer: channel for setting max estimated value is incorrect.";
+        return;
+    }
+    
+    channelAnalyzerUnits[channel]->setMaxEstimatedValue(algorithm, value);
+    
+ 
+
+}
 //-------------------------------------------------------
 void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silenceTresh, float timeTresh, bool useTimeTresh){
     
@@ -150,6 +168,16 @@ void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silen
 
 }
 //-------------------------------------------------------
+void ofxAudioAnalyzer::setSalienceFunctionPeaksParameters(int channel, int maxPeaks){
+    
+    if (channel >= _channels){
+        ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
+        return;
+    }
+    
+    channelAnalyzerUnits[channel]->setSalienceFunctionPeaksParameters(maxPeaks);
+
+}
 
 
 

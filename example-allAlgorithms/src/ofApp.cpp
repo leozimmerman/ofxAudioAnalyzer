@@ -14,30 +14,10 @@ void ofApp::setup(){
     
     player.load("beatTrack.wav");
     
-    gui.setup("Smoothing Values");
+    gui.setup();
     gui.setPosition(20, 150);
-    gui.add(rms_smth.setup  ("RMS", 0.0, 0.0, 1.0));
-    gui.add(power_smth.setup("Power", 0.0, 0.0, 1.0));
-    gui.add(pitchFreq_smth.setup("Pitch Frequency", 0.0, 0.0, 1.0));
-    gui.add(pitchConf_smth.setup("Pitch Confidence", 0.0, 0.0, 1.0));
-    gui.add(melodySalience_smth.setup("Melody salience", 0.0, 0.0, 1.0));
-    gui.add(inharmonicity_smth.setup("Inharmonicity", 0.0, 0.0, 1.0));
-    gui.add(hfc_smth.setup("HFC", 0.0, 0.0, 1.0));
-    gui.add(specComp_smth.setup("Spectral Complexity", 0.0, 0.0, 1.0));
-    gui.add(centroid_smth.setup("Centroid", 0.0, 0.0, 1.0));
-    
-    gui.add(dissonance_smth.setup("Dissonance", 0.0, 0.0, 1.0));
-    gui.add(rollOff_smth.setup("Roll Off", 0.0, 0.0, 1.0));
-    gui.add(oddToEven_smth.setup("Odd To Even Ratio", 0.0, 0.0, 1.0));
-    gui.add(strongPeak_smth.setup("Strong Peak", 0.0, 0.0, 1.0));
-    gui.add(strongDecay_smth.setup("Strong Decay", 0.0, 0.0, 1.0));
-    
-    gui.add(spectrum_smth.setup("Spectrum", 0.0, 0.0, 1.0));
-    gui.add(melBands_smth.setup("Mel Bands", 0.0, 0.0, 1.0));
-    gui.add(mfcc_smth.setup("MFCC", 0.0, 0.0, 1.0));
-    gui.add(hpcp_smth.setup("HPCP", 0.0, 0.0, 1.0));
-    gui.add(tristimulus_smth.setup("Tristimulus", 0.0, 0.0, 1.0));
-
+    gui.add(smoothing.setup  ("Smoothing", 0.0, 0.0, 1.0));
+   
 }
 
 //--------------------------------------------------------------
@@ -45,48 +25,46 @@ void ofApp::update(){
     
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
     
-    //Get buffer from sound player:
+    //-:Get buffer from sound player:
     soundBuffer = player.getCurrentSoundBuffer(bufferSize);
     
-    //ANALYZE SOUNDBUFFER:
+    //-:ANALYZE SOUNDBUFFER:
     audioAnalyzer.analyze(soundBuffer);
     
-    rms     = audioAnalyzer.getValue(RMS, 0, rms_smth);
-    power   = audioAnalyzer.getValue(POWER, 0, power_smth);
-    pitchFreq = audioAnalyzer.getValue(PITCH_FREQ, 0, pitchFreq_smth);
-    pitchConf = audioAnalyzer.getValue(PITCH_CONFIDENCE, 0, pitchConf_smth);
-    pitchSalience  = audioAnalyzer.getValue(PITCH_SALIENCE, 0, melodySalience_smth);
-    inharmonicity   = audioAnalyzer.getValue(INHARMONICITY, 0, inharmonicity_smth);
-    hfc = audioAnalyzer.getValue(HFC, 0, hfc_smth);
-    specComp = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, specComp_smth);
-    centroid = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, centroid_smth);
+    //-:get Values:
+    rms     = audioAnalyzer.getValue(RMS, 0, smoothing);
+    power   = audioAnalyzer.getValue(POWER, 0, smoothing);
+    pitchFreq = audioAnalyzer.getValue(PITCH_FREQ, 0, smoothing);
+    pitchConf = audioAnalyzer.getValue(PITCH_CONFIDENCE, 0, smoothing);
+    pitchSalience  = audioAnalyzer.getValue(PITCH_SALIENCE, 0, smoothing);
+    inharmonicity   = audioAnalyzer.getValue(INHARMONICITY, 0, smoothing);
+    hfc = audioAnalyzer.getValue(HFC, 0, smoothing);
+    specComp = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, smoothing);
+    centroid = audioAnalyzer.getValue(CENTROID, 0, smoothing);
+    rollOff = audioAnalyzer.getValue(ROLL_OFF, 0, smoothing);
+    oddToEven = audioAnalyzer.getValue(ODD_TO_EVEN, 0, smoothing);
+    strongPeak = audioAnalyzer.getValue(STRONG_PEAK, 0, smoothing);
+    strongDecay = audioAnalyzer.getValue(STRONG_DECAY, 0, smoothing);
     //Normalized values for graphic meters:
-    hfcNorm = audioAnalyzer.getValue(HFC, 0, hfc_smth, true);
-    specCompNorm = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, specComp_smth, true);
-    centroidNorm = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, centroid_smth, true);
+    hfcNorm = audioAnalyzer.getValue(HFC, 0, smoothing, true);
+    specCompNorm = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, smoothing, true);
+    centroidNorm = audioAnalyzer.getValue(CENTROID, 0, smoothing, true);
+    oddToEvenNorm = audioAnalyzer.getValue(ODD_TO_EVEN, 0, smoothing, true);
+    strongPeakNorm = audioAnalyzer.getValue(STRONG_PEAK, 0, smoothing, true);
+    strongDecayNorm = audioAnalyzer.getValue(STRONG_DECAY, 0, smoothing, true);
     
-    dissonance = audioAnalyzer.getValue(DISSONANCE, 0, dissonance_smth);
+    dissonance = audioAnalyzer.getValue(DISSONANCE, 0, smoothing);
     
-    spectrum = audioAnalyzer.getValues(SPECTRUM, 0, spectrum_smth);
-    melBands = audioAnalyzer.getValues(MEL_BANDS, 0, melBands_smth);
-    mfcc = audioAnalyzer.getValues(MFCC, 0, mfcc_smth);
-    hpcp = audioAnalyzer.getValues(HPCP, 0, hpcp_smth);
-
-    dissonance = audioAnalyzer.getValue(DISSONANCE, 0, dissonance_smth);
-    rollOff = audioAnalyzer.getValue(ROLL_OFF, 0, rollOff_smth);
-    oddToEven = audioAnalyzer.getValue(ODD_TO_EVEN, 0, oddToEven_smth, true);
-    strongPeak = audioAnalyzer.getValue(STRONG_PEAK, 0, strongPeak_smth, true);
-    strongDecay = audioAnalyzer.getValue(STRONG_DECAY, 0, strongDecay_smth, true);
+    spectrum = audioAnalyzer.getValues(SPECTRUM, 0, smoothing);
+    melBands = audioAnalyzer.getValues(MEL_BANDS, 0, smoothing);
+    mfcc = audioAnalyzer.getValues(MFCC, 0, smoothing);
+    hpcp = audioAnalyzer.getValues(HPCP, 0, smoothing);
     
-    tristimulus = audioAnalyzer.getValues(TRISTIMULUS, 0, tristimulus_smth);
-    
-    multiPitches = audioAnalyzer.getValues(MULTI_PITCHES, 0);
-    ///saliencePeaks = audioAnalyzer.getSalienceFunctionPeaks(0);
+    tristimulus = audioAnalyzer.getValues(TRISTIMULUS, 0, smoothing);
     
     isOnset = audioAnalyzer.getOnsetValue(0);
-    
-    cout<<"multi = "<<multiPitches<<endl;
-    
+  
+   
 }
 
 //--------------------------------------------------------------
@@ -104,7 +82,7 @@ void ofApp::draw(){
     
     ofSetColor(255);
     value = rms;
-    string strValue = "RMS: " + ofToString(value);
+    string strValue = "RMS: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, value * mw, 10);
@@ -112,7 +90,7 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = power;
-    strValue = "Power: " + ofToString(value);
+    strValue = "Power: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, value * mw, 10);
@@ -120,7 +98,7 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = pitchFreq;
-    strValue = "Pitch Frequency: " + ofToString(value) + " hz.";
+    strValue = "Pitch Frequency: " + ofToString(value, 2) + " hz.";
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, (ofClamp(value,0,2000.0)/2000.0) * mw, 10);
@@ -128,7 +106,7 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = pitchConf;
-    strValue = "Pitch Confidence: " + ofToString(value);
+    strValue = "Pitch Confidence: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, value * mw, 10);
@@ -136,7 +114,7 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = pitchSalience;
-    strValue = "Pitch Salience: " + ofToString(value);
+    strValue = "Pitch Salience: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, value * mw, 10);
@@ -144,7 +122,7 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = inharmonicity;
-    strValue = "Inharmonicity: " + ofToString(value);
+    strValue = "Inharmonicity: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, value * mw, 10);
@@ -153,7 +131,7 @@ void ofApp::draw(){
     ofSetColor(255);
     value = hfc;
     valueNorm = hfcNorm;
-    strValue = "HFC: " + ofToString(value);
+    strValue = "HFC: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, valueNorm * mw, 10);
@@ -162,7 +140,7 @@ void ofApp::draw(){
     ofSetColor(255);
     value = specComp;
     valueNorm = specCompNorm;
-    strValue = "Spectral Complexity: " + ofToString(value);
+    strValue = "Spectral Complexity: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, valueNorm * mw, 10);
@@ -171,7 +149,7 @@ void ofApp::draw(){
     ofSetColor(255);
     value = centroid;
     valueNorm = centroidNorm;
-    strValue = "Centroid: " + ofToString(value);
+    strValue = "Centroid: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, valueNorm * mw, 10);
@@ -179,7 +157,7 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = dissonance;
-    strValue = "Dissonance: " + ofToString(value);
+    strValue = "Dissonance: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, value * mw, 10);
@@ -187,7 +165,7 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = rollOff;
-    strValue = "Roll Off: " + ofToString(value);
+    strValue = "Roll Off: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
     ofDrawRectangle(xpos, ypos+5, (ofClamp(value,0,11000.0) / 11000.0) * mw , 10);
@@ -195,26 +173,29 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = oddToEven;
-    strValue = "Odd To Even Harmonic Energy Ratio: " + ofToString(value);
+    valueNorm = oddToEvenNorm;
+    strValue = "Odd To Even Harmonic Energy Ratio: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
-    ofDrawRectangle(xpos, ypos+5, value * mw, 10);
+    ofDrawRectangle(xpos, ypos+5, valueNorm * mw, 10);
     
     ypos += 50;
     ofSetColor(255);
     value = strongPeak;
-    strValue = "Strong Peak: " + ofToString(value);
+    valueNorm = strongPeakNorm;
+    strValue = "Strong Peak: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
-    ofDrawRectangle(xpos, ypos+5, value * mw, 10);
+    ofDrawRectangle(xpos, ypos+5, valueNorm * mw, 10);
     
     ypos += 50;
     ofSetColor(255);
     value = strongDecay;
-    strValue = "Strong Decay: " + ofToString(value);
+    valueNorm = strongDecayNorm;
+    strValue = "Strong Decay: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
-    ofDrawRectangle(xpos, ypos+5, value * mw, 10);
+    ofDrawRectangle(xpos, ypos+5, valueNorm * mw, 10);
     
     ypos += 50;
     ofSetColor(255);
@@ -307,20 +288,7 @@ void ofApp::draw(){
     }
     ofPopMatrix();
     
-    ypos += yoffset;
-    ofSetColor(255);
-    ofDrawBitmapString("MultiPitches: ", 0, ypos);
-    ofPushMatrix();
-    ofTranslate(0, ypos);
-    ofSetColor(ofColor::cyan);
-    for (int i = 0; i < multiPitches.size(); i++){
-        int y =  5 + 15*i;
-        float pitchVal = multiPitches[i] / 2000.0;
-        //float pitchVal = 1;
-        ofDrawRectangle(0, y, pitchVal* mw, 10);
-    }
-    ofPopMatrix();
-    
+
     ofPopMatrix();
     
     //-Gui & info:
@@ -329,46 +297,41 @@ void ofApp::draw(){
     ofSetColor(255);
     ofDrawBitmapString("ofxAudioAnalyzer\n\nALL ALGORITHMS EXAMPLE", 10, 32);
     ofSetColor(ofColor::hotPink);
-    ofDrawBitmapString("Keys 1-5: Play audio tracks", 10, 100);
+    ofDrawBitmapString("Keys 1-6: Play audio tracks", 10, 100);
+    
+
     
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    
+    player.stop();
     switch (key) {
        
         case '1':
-            player.stop();
             player.load("test440mono.wav");
-            player.play();
             break;
         case '2':
-            player.stop();
             player.load("flute.wav");
-            player.play();
             break;
         case '3':
-            player.stop();
             player.load("chord.wav");
-            player.play();
             break;
         case '4':
-            player.stop();
             player.load("cadence.wav");
-            player.play();
             break;
         case '5':
-            player.stop();
             player.load("beatTrack.wav");
-            player.play();
+            break;
+        case '6':
+            player.load("noise.wav");
             break;
             
             
         default:
             break;
     }
-    
+    player.play();
     
 }
 //--------------------------------------------------------------

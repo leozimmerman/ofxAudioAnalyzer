@@ -23,7 +23,6 @@ void ofApp::setup(){
     gui.add(useTimeTreshold.setup("use time treshold", false));
     gui.add(timeTreshold.setup("time treshold (ms.)", 100.0, 0.0, 1000.0));
   
-    
 }
 
 //--------------------------------------------------------------

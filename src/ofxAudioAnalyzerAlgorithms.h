@@ -24,19 +24,19 @@ enum ofxAAAlgorithm{
     CENTROID,
     SPECTRAL_COMPLEXITY,
     DISSONANCE,
+    ROLL_OFF,
+    ODD_TO_EVEN,
+    STRONG_PEAK,
+    STRONG_DECAY,
     SPECTRUM,
     MEL_BANDS,
     MFCC,
     HPCP,
     MULTI_PITCHES,
     PITCH_SALIENCE_FUNC_PEAKS,
-    ONSETS,
-    //testing
-    ROLL_OFF,
-    ODD_TO_EVEN,
-    STRONG_PEAK,
-    STRONG_DECAY,
-    TRISTIMULUS
+    TRISTIMULUS,
+    ONSETS
+    
 };
 
 
@@ -117,20 +117,36 @@ private:
 struct SalienceFunctionPeak{
     float bin;//cents
     float value;
+    
+    SalienceFunctionPeak(){
+        bin = 0.0;
+        value = 0.0;
+    }
 };
 
 class ofxAAPitchSalienceFunctionPeaksAlgorithm : public ofxAABaseAlgorithm{
 public:
     
+    void init();
+    
     void castValuesToFloat();
     
     vector<SalienceFunctionPeak>& getPeaks();
+    vector<SalienceFunctionPeak>& getSmoothedPeaks(float smthAmnt);
+    
+    ///change to maxPeaks!!!!
+    void setMaxPeaksNum(int maxBins){maxPeaksNum = maxBins;}
     
     vector<Real> realSalienceBins;
     vector<Real> realSalienceValues;
     
 private:
     vector<SalienceFunctionPeak> peaks;
+    vector<SalienceFunctionPeak> smoothedPeaks;
+    
+    bool limitPeaksNum;
+    
+    int maxPeaksNum;
 };
 
 

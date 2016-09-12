@@ -101,16 +101,25 @@ void ofxAAOneVectorOutputAlgorithm::castValuesToFloat(bool logarithmic){
     
     for (int i=0; i<realValues.size(); i++){
         if(getIsActive()){
-            if(logarithmic)
-                floatValues[i] = log10((float) realValues[i]);
-            else
+            if(logarithmic){
+                
+                if(realValues[i] == 0.0){
+                    floatValues[i] = log10(0.000001);//DB_MIN
+                }else{
+                    floatValues[i] = log10((float) realValues[i]);
+                }
+                
+            }else{
                 floatValues[i] = (float) realValues[i];
+            }
         }else{
-            if(logarithmic)
-                floatValues[i] = log10(0.001);
-            else
+            if(logarithmic){
+                floatValues[i] = log10(0.000001);//DB_MIN
+            }else{
                 floatValues[i] = 0.0;
+            }
         }
+        
     }
     
 }
@@ -132,13 +141,23 @@ vector<float>& ofxAAOneVectorOutputAlgorithm::getValues(){
 //-------------------------------------------
 vector<float>& ofxAAOneVectorOutputAlgorithm::getSmoothedValues(float smthAmnt){
     
-    for(int i=0; i<floatValues.size(); i++){
+    for(int i=0; i<smoothedFloatValues.size(); i++){
         smoothedFloatValues[i] = smoothedFloatValues[i] * smthAmnt + (1-smthAmnt) * floatValues[i];
     }
+    
     return smoothedFloatValues;
 }
 //-------------------------------------------
 #pragma mark - ofxAAPitchSalienceFuntionPeaksAlgorithm
+//-------------------------------------------
+void ofxAAPitchSalienceFunctionPeaksAlgorithm::init(){
+    
+    limitPeaksNum = TRUE;
+    maxPeaksNum = 4;
+    
+    isActivated = TRUE;
+
+}
 //-------------------------------------------
 void ofxAAPitchSalienceFunctionPeaksAlgorithm::castValuesToFloat(){
     
@@ -154,16 +173,40 @@ void ofxAAPitchSalienceFunctionPeaksAlgorithm::castValuesToFloat(){
 }
 //-------------------------------------------
 vector<SalienceFunctionPeak>& ofxAAPitchSalienceFunctionPeaksAlgorithm::getPeaks(){
+    
+    if (limitPeaksNum && peaks.size() > maxPeaksNum){
+        peaks.resize(maxPeaksNum);
+    }
+    
     return peaks;
 }
 
+//-------------------------------------------
+vector<SalienceFunctionPeak>& ofxAAPitchSalienceFunctionPeaksAlgorithm::getSmoothedPeaks(float smthAmnt){
+    
+    if (limitPeaksNum && peaks.size() > maxPeaksNum){
+        peaks.resize(maxPeaksNum);
+    }
+    
+    smoothedPeaks.resize(peaks.size(), SalienceFunctionPeak());
+    
+    for(int i=0; i<smoothedPeaks.size(); i++){
+        smoothedPeaks[i].bin = smoothedPeaks[i].bin * smthAmnt + (1-smthAmnt) * peaks[i].bin;
+//        smoothedPeaks[i].bin = peaks[i].bin;
+        smoothedPeaks[i].value = smoothedPeaks[i].value * smthAmnt + (1-smthAmnt) * peaks[i].value;
+    }
+    
+    return smoothedPeaks;
+}
 //-------------------------------------------
 #pragma mark - ofxAAPitchDetectAlgorithm
 //-------------------------------------------
 void ofxAAPitchDetectAlgorithm::castValuesToFloat(){
     if(getIsActive()){
         pitchFloatVal = (float) pitchRealVal;
-        confidenceFloatVal = (float) confidenceRealVal;
+        confidenceFloatVal = (float)confidenceRealVal;
+        //avoid negative values...
+        if(confidenceFloatVal<0.0) confidenceFloatVal = 0.0;
     }
     else{
         pitchFloatVal = confidenceFloatVal = 0.0;

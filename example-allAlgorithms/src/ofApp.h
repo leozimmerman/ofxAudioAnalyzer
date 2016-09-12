@@ -39,52 +39,38 @@ class ofApp : public ofBaseApp{
         float pitchConf;
         float pitchSalience;
         float inharmonicity;
+    
+        float dissonance;
+    
+        float rollOff;
+        float oddToEven;
+        float oddToEvenNorm;
+        float strongPeak;
+        float strongPeakNorm;
+        float strongDecay;
+        float strongDecayNorm;
+    
         float hfc;
         float hfcNorm;
         float specComp;
         float specCompNorm;
         float centroid;
         float centroidNorm;
-        float dissonance;
-        float rollOff;
-        float oddToEven;
-        float strongPeak;
-        float strongDecay;
-   
+    
+    
+    
         vector<float> spectrum;
         vector<float> melBands;
         vector<float> mfcc;
         vector<float> hpcp;
-        vector<float> multiPitches;
-        vector<float> tristimulus;
     
-        vector<SalienceFunctionPeak> saliencePeaks;
+        vector<float> tristimulus;
     
         bool isOnset;
     
-    
         ofxPanel gui;
-        ofxFloatSlider rms_smth;
-        ofxFloatSlider power_smth;
-        ofxFloatSlider pitchFreq_smth;
-        ofxFloatSlider pitchConf_smth;
-        ofxFloatSlider melodySalience_smth;
-        ofxFloatSlider inharmonicity_smth;
-        ofxFloatSlider hfc_smth;
-        ofxFloatSlider specComp_smth;
-        ofxFloatSlider centroid_smth;
-        
-        ofxFloatSlider dissonance_smth;
-        ofxFloatSlider rollOff_smth;
-        ofxFloatSlider oddToEven_smth;
-        ofxFloatSlider strongPeak_smth;
-        ofxFloatSlider strongDecay_smth;
+        ofxFloatSlider smoothing;
     
-        ofxFloatSlider spectrum_smth;
-        ofxFloatSlider melBands_smth;
-        ofxFloatSlider mfcc_smth;
-        ofxFloatSlider hpcp_smth;
-        ofxFloatSlider tristimulus_smth;
     
     
 };

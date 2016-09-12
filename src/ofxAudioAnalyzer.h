@@ -48,7 +48,7 @@ class ofxAudioAnalyzer{
     vector<float>& getValues(ofxAAAlgorithm algorithm, int channel, float smooth=0.0);
     
     ///Gets the array of pitch salience function peaks: bin/cents & value
-    vector<SalienceFunctionPeak>& getSalienceFunctionPeaks(int channel);
+    vector<SalienceFunctionPeak>& getSalienceFunctionPeaks(int channel, float smooth=0.0);
     
     ///Returns if there is an onset in the speciefied channel.
     bool getOnsetValue(int channel);
@@ -60,6 +60,12 @@ class ofxAudioAnalyzer{
     ///Resets onsetsr detections buffer
     void resetOnsets(int channel);
     
+    ///Activates and deactives algorithms.
+    void setActive(int channel, ofxAAAlgorithm algorithm, bool state);
+    
+    ///Set max estimated values for algorithms that are not normalized
+    void setMaxEstimatedValue(int channel, ofxAAAlgorithm algorithm, float value);
+    
     ///Sets onsets detection parameters
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param alpha: the proportion of the mean included to reject smaller peaks--filters very short onsets
@@ -68,7 +74,8 @@ class ofxAudioAnalyzer{
     ///\param useTimeTreshold: use or note the time treshold.
     void setOnsetsParameters(int channel, float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
     
-   
+    void setSalienceFunctionPeaksParameters(int channel, int maxPeaks);
+    
     
 
  private:
