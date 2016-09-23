@@ -39,6 +39,20 @@ enum ofxAAAlgorithm{
     
 };
 
+//OSC INDEXES
+#define POWER_OSC_IDX 0
+#define PITCH_FREQ_OSC_IDX 1
+#define PITCH_CONF_OSC_IDX 2
+#define PITCH_SALIENCE_OSC_IDX 3
+#define HFC_OSC_IDX 4
+#define CENTROID_OSC_IDX 5
+#define SPEC_COMP_OSC_IDX 6
+#define INHARMONICITY_OSC_IDX 7
+#define DISSONANCE_OSC_IDX 8
+#define ROLLOFF_OSC_IDX 9
+#define ODDTOEVEN_OSC_IDX 10
+#define ONSETS_OSC_IDX 11
+
 
 
 class ofxAABaseAlgorithm{
@@ -51,18 +65,26 @@ public:
     float getValue();
     float getValueDb();
     
+    ///Gets the value normalized from 0 to maxEstimatedValue with Clamping
+    float getValueNormalized();
+    
     float getValueNormalized(float min, float max, bool doClamp=TRUE);
     float getValueDbNormalized(float min, float max, bool doClamp=TRUE);
     float getSmoothedValue(float smthAmnt);
     
+    ///Gets the value normalized and smoothed from 0 to maxEstimatedValue with Clamping
+    float getSmoothedValueNormalized(float smthAmnt);
     
     float getSmoothedValueNormalized(float smthAmnt, float min, float max, bool doClamp=TRUE);
     float getSmoothedValueDbNormalized(float smthAmnt, float min, float max, bool doClamp=TRUE);
+    
+    float getMaxEstimatedValue();
     
     bool getIsActive();
     
     void setActive(bool state);
     void setValueZero();
+    void setMaxEstimatedValue(float value);
     
     void compute();
     
@@ -77,10 +99,15 @@ public:
 protected:
     
     bool isActivated;
+    
+private:
+    
     float floatValue;
     float smoothedFloatValue;
     float smoothedNormFloatValue;
     float smoothedNormFloatValueDb;
+    
+    float maxEstimatedValue;
     
 };
 //---------------------------------------------------------------------
@@ -177,19 +204,33 @@ class ofxAAPitchDetectAlgorithm : public ofxAABaseAlgorithm{
 
 public:
     
+    void init();
+    
     void castValuesToFloat();
     
     float getPitchValue();
+    float getPitchValueNormalized();
     float getConfidenceValue();
+    
     float getSmoothedPitchValue(float smthAmnt);
+    float getSmoothedPitchValueNormalized(float smthAmnt);
     float getSmoothedConfidenceValue(float smthAmnt);
- 
+    
+    float getMaxPitchEstimatedValue(){return pitchMaxEstimatedValue;}
+    
+    void setMaxPitchEstimatedValue(float value);
+    
     Real pitchRealVal, confidenceRealVal;
 
 private:
+    
     float pitchFloatVal, confidenceFloatVal;
-    float smoothedPitchFloatValue = 0.0;
-    float smoothedConfidenceFloatValue = 0.0;
+    
+    float smoothedPitchFloatValue;
+    float smoothedNormPitchFloatValue;
+    float smoothedConfidenceFloatValue;
+    
+    float pitchMaxEstimatedValue;
 
 };
 

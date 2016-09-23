@@ -25,6 +25,10 @@ float ofxAABaseAlgorithm::getValueDb(){
     return log10(floatValue);
 }
 //-------------------------------------------
+float ofxAABaseAlgorithm::getValueNormalized(){
+    return ofMap(floatValue, 0.0, maxEstimatedValue, 0.0, 1.0, TRUE);
+}
+//-------------------------------------------
 float ofxAABaseAlgorithm::getValueNormalized(float min, float max, bool doClamp){
     return ofMap(floatValue, min, max, 0.0, 1.0, doClamp);
 }
@@ -36,6 +40,12 @@ float ofxAABaseAlgorithm::getValueDbNormalized(float min, float max, bool doClam
 float ofxAABaseAlgorithm::getSmoothedValue(float smthAmnt){
     smoothedFloatValue =  smoothedFloatValue * smthAmnt + (1-smthAmnt) * floatValue;
     return smoothedFloatValue;
+}
+//-------------------------------------------
+float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmnt){
+    float normVal = ofMap(floatValue, 0.0, maxEstimatedValue, 0.0, 1.0, TRUE);
+    smoothedNormFloatValue =  smoothedNormFloatValue * smthAmnt + (1-smthAmnt) * normVal;
+    return smoothedNormFloatValue;
 }
 //-------------------------------------------
 float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmnt, float min, float max, bool doClamp){
@@ -56,12 +66,20 @@ bool ofxAABaseAlgorithm::getIsActive(){
     return isActivated;
 }
 //-------------------------------------------
+float ofxAABaseAlgorithm::getMaxEstimatedValue(){
+    return maxEstimatedValue;
+}
+//-------------------------------------------
 void ofxAABaseAlgorithm::setActive(bool state){
     isActivated = state;
 }
 //-------------------------------------------
 void ofxAABaseAlgorithm::setValueZero(){
     floatValue = 0.0;
+}
+//-------------------------------------------
+void ofxAABaseAlgorithm::setMaxEstimatedValue(float value){
+    maxEstimatedValue = value;
 }
 //-------------------------------------------
 void ofxAABaseAlgorithm::compute(){
@@ -201,6 +219,19 @@ vector<SalienceFunctionPeak>& ofxAAPitchSalienceFunctionPeaksAlgorithm::getSmoot
 //-------------------------------------------
 #pragma mark - ofxAAPitchDetectAlgorithm
 //-------------------------------------------
+void ofxAAPitchDetectAlgorithm::init(){
+    
+    isActivated = TRUE;
+    
+    pitchFloatVal = 0.0;
+    confidenceFloatVal = 0.0;
+    
+    smoothedPitchFloatValue = 0.0;
+    smoothedNormPitchFloatValue = 0.0;
+    smoothedConfidenceFloatValue = 0.0;
+    
+}
+//-------------------------------------------
 void ofxAAPitchDetectAlgorithm::castValuesToFloat(){
     if(getIsActive()){
         pitchFloatVal = (float) pitchRealVal;
@@ -218,8 +249,19 @@ float ofxAAPitchDetectAlgorithm::getPitchValue(){
     return pitchFloatVal;
 }
 //-------------------------------------------
+float ofxAAPitchDetectAlgorithm::getPitchValueNormalized(){
+    return ofMap(pitchFloatVal, 0.0, pitchMaxEstimatedValue, 0.0, 1.0, TRUE);
+}
+//-------------------------------------------
 float ofxAAPitchDetectAlgorithm::getConfidenceValue(){
     return confidenceFloatVal;
+}
+//-------------------------------------------
+float ofxAAPitchDetectAlgorithm::getSmoothedPitchValueNormalized(float smthAmnt){
+    float normVal = ofMap(pitchFloatVal, 0.0, pitchMaxEstimatedValue, 0.0, 1.0, TRUE);
+    smoothedNormPitchFloatValue =  smoothedNormPitchFloatValue * smthAmnt + (1-smthAmnt) * normVal;
+    return smoothedNormPitchFloatValue;
+
 }
 //-------------------------------------------
 float ofxAAPitchDetectAlgorithm::getSmoothedPitchValue(float smthAmnt){
@@ -231,7 +273,10 @@ float ofxAAPitchDetectAlgorithm::getSmoothedConfidenceValue(float smthAmnt){
     smoothedConfidenceFloatValue =  smoothedConfidenceFloatValue * smthAmnt + (1-smthAmnt) * confidenceFloatVal;
     return smoothedConfidenceFloatValue;
 }
-
+//-------------------------------------------
+void ofxAAPitchDetectAlgorithm::setMaxPitchEstimatedValue(float value){
+    pitchMaxEstimatedValue = value;
+}
 
 
 //-------------------------------------------

@@ -36,13 +36,19 @@ class ofApp : public ofBaseApp{
         float rms;
         float power;
         float pitchFreq;
+        float pitchFreqNorm;
         float pitchConf;
         float pitchSalience;
+        float hfc;
+        float hfcNorm;
+        float specComp;
+        float specCompNorm;
+        float centroid;
+        float centroidNorm;
         float inharmonicity;
-    
         float dissonance;
-    
         float rollOff;
+        float rollOffNorm;
         float oddToEven;
         float oddToEvenNorm;
         float strongPeak;
@@ -50,12 +56,7 @@ class ofApp : public ofBaseApp{
         float strongDecay;
         float strongDecayNorm;
     
-        float hfc;
-        float hfcNorm;
-        float specComp;
-        float specCompNorm;
-        float centroid;
-        float centroidNorm;
+    
     
     
     

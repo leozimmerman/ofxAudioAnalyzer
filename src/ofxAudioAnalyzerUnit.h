@@ -48,35 +48,34 @@ public:
     ~ofxAudioAnalyzerUnit(){
         exit();
     }
+    
     void setup(int sampleRate, int bufferSize);
-    void exit();
-
     void analyze(const vector<float> &  inBuffer);
+    void exit();
+    
+    void resetOnsets();
+    
+    int getSampleRate() {return _samplerate;}
+    int getBufferSize() {return _framesize;}
     
     void setActive(ofxAAAlgorithm algorithm, bool state);
-    
     void setMaxEstimatedValue(ofxAAAlgorithm algorithm, float value);
-    
-    float getValue(ofxAAAlgorithm algorithm, float smooth=0.0, bool normalized=false);
-    bool getOnsetValue();
-    vector<float>& getValues(ofxAAAlgorithm algorithm, float smooth=0.0);
-    vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef(float smooth=0.0);
-    int getBinsNum(ofxAAAlgorithm algorithm);
-
-    int   getPitchFreqAsMidiNote(float smooth=0.0);
-    string getPitchFreqAsNoteName(float smooth=0.0);
-    
-    
-
-    //Onsets:
-    void resetOnsets();
     void setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
-    ofxAAOnsetsAlgorithm* getOnsetsAlgorithmPtr(){return &onsets;}
-
-    //PitchSalienceFunction
     void setSalienceFunctionPeaksParameters(int maxPeaks);
     
+    float getValue(ofxAAAlgorithm algorithm, float smooth=0.0, bool normalized=false);
+    vector<float>& getValues(ofxAAAlgorithm algorithm, float smooth=0.0);
+    vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef(float smooth=0.0);
+    bool getIsActive(ofxAAAlgorithm algorithm);
+    bool getOnsetValue();
     
+    int getBinsNum(ofxAAAlgorithm algorithm);
+    float getMaxEstimatedValue(ofxAAAlgorithm algorithm);
+    
+    ofxAAOnsetsAlgorithm* getOnsetsAlgorithmPtr(){return &onsets;}
+    
+    int   getPitchFreqAsMidiNote(float smooth=0.0);
+    string getPitchFreqAsNoteName(float smooth=0.0);
     
    
 private:
@@ -124,20 +123,23 @@ private:
     ofxAAOnsetsAlgorithm onsets;
     
     //--------
-    int framesize;
+    int _samplerate;
+    int _framesize;
+    
     int hopsize;
-    int sr;
     int zeropadding;
     Real framerate;
     
     //Max estimated values (for normalizing)
-    float maxEnergyEstimatedValue;
-    float maxHfcEstimatedValue;
-    float maxSpecCompEstimatedValue;
-    float maxCentroidEstimatedValue;
-    float maxOddToEvenEstimatedValue;
-    float maxStrongPeakEstimatedValue;
-    float maxStrongDecayEstimatedValue;
+//    float maxEnergyEstimatedValue;
+//    float maxPitchFreqEstimatedValue;
+//    float maxHfcEstimatedValue;
+//    float maxSpecCompEstimatedValue;
+//    float maxCentroidEstimatedValue;
+//    float maxRollOffEstimatedValue;
+//    float maxOddToEvenEstimatedValue;
+//    float maxStrongPeakEstimatedValue;
+//    float maxStrongDecayEstimatedValue;
 
     
 };

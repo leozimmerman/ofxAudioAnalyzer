@@ -46,12 +46,14 @@ void ofApp::update(){
     strongPeak = audioAnalyzer.getValue(STRONG_PEAK, 0, smoothing);
     strongDecay = audioAnalyzer.getValue(STRONG_DECAY, 0, smoothing);
     //Normalized values for graphic meters:
-    hfcNorm = audioAnalyzer.getValue(HFC, 0, smoothing, true);
-    specCompNorm = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, smoothing, true);
-    centroidNorm = audioAnalyzer.getValue(CENTROID, 0, smoothing, true);
-    oddToEvenNorm = audioAnalyzer.getValue(ODD_TO_EVEN, 0, smoothing, true);
-    strongPeakNorm = audioAnalyzer.getValue(STRONG_PEAK, 0, smoothing, true);
-    strongDecayNorm = audioAnalyzer.getValue(STRONG_DECAY, 0, smoothing, true);
+    pitchFreqNorm   = audioAnalyzer.getValue(PITCH_FREQ, 0, smoothing, TRUE);
+    hfcNorm     = audioAnalyzer.getValue(HFC, 0, smoothing, TRUE);
+    specCompNorm = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, smoothing, TRUE);
+    centroidNorm = audioAnalyzer.getValue(CENTROID, 0, smoothing, TRUE);
+    rollOffNorm  = audioAnalyzer.getValue(ROLL_OFF, 0, smoothing, TRUE);
+    oddToEvenNorm   = audioAnalyzer.getValue(ODD_TO_EVEN, 0, smoothing, TRUE);
+    strongPeakNorm  = audioAnalyzer.getValue(STRONG_PEAK, 0, smoothing, TRUE);
+    strongDecayNorm = audioAnalyzer.getValue(STRONG_DECAY, 0, smoothing, TRUE);
     
     dissonance = audioAnalyzer.getValue(DISSONANCE, 0, smoothing);
     
@@ -98,10 +100,11 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = pitchFreq;
+    valueNorm = pitchFreqNorm;
     strValue = "Pitch Frequency: " + ofToString(value, 2) + " hz.";
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
-    ofDrawRectangle(xpos, ypos+5, (ofClamp(value,0,2000.0)/2000.0) * mw, 10);
+    ofDrawRectangle(xpos, ypos+5, valueNorm * mw, 10);
     
     ypos += 50;
     ofSetColor(255);
@@ -165,10 +168,11 @@ void ofApp::draw(){
     ypos += 50;
     ofSetColor(255);
     value = rollOff;
+    valueNorm = rollOffNorm;
     strValue = "Roll Off: " + ofToString(value, 2);
     ofDrawBitmapString(strValue, xpos, ypos);
     ofSetColor(ofColor::cyan);
-    ofDrawRectangle(xpos, ypos+5, (ofClamp(value,0,11000.0) / 11000.0) * mw , 10);
+    ofDrawRectangle(xpos, ypos+5, valueNorm * mw , 10);
     
     ypos += 50;
     ofSetColor(255);

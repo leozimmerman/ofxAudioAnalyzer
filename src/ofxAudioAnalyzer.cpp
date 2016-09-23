@@ -122,6 +122,16 @@ bool ofxAudioAnalyzer::getOnsetValue(int channel){
     
     return channelAnalyzerUnits[channel]->getOnsetValue();
     
+}
+//-------------------------------------------------------
+bool ofxAudioAnalyzer::getIsActive(int channel, ofxAAAlgorithm algorithm){
+    
+    if (channel >= _channels){
+        ofLogError()<<"ofxAudioAnalyzer: channel for getting if its active is incorrect.";
+        return;
+    }
+    
+    return channelAnalyzerUnits[channel]->getIsActive(algorithm);
     
 }
 //-------------------------------------------------------

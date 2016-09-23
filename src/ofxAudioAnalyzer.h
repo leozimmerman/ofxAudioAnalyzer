@@ -35,6 +35,10 @@ class ofxAudioAnalyzer{
     void analyze(const ofSoundBuffer & inBuffer);
     void exit();
     
+    int getSampleRate() {return _samplerate;}
+    int getBufferSize() {return _buffersize;}
+    int getChannelsNum(){return _channels;}
+    
     ///Gets value of single output  Algorithms.
     ///\param algorithm
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
@@ -52,6 +56,9 @@ class ofxAudioAnalyzer{
     
     ///Returns if there is an onset in the speciefied channel.
     bool getOnsetValue(int channel);
+    
+    ///Gets the state of an algorithm
+    bool getIsActive(int channel, ofxAAAlgorithm algorithm);
 
     ///Pointers for the audio analyzing units.
     ///Use very carefully!

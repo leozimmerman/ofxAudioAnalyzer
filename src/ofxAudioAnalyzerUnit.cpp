@@ -7,23 +7,14 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     
     #pragma mark -Init variables:
     
-    framesize = bufferSize;
-    hopsize = framesize/2;
-    sr = sampleRate;
+    _framesize = bufferSize;
+    hopsize = _framesize/2;
+    _samplerate = sampleRate;
     zeropadding = 0;
-    framerate = (Real) sr / hopsize;
+    framerate = (Real) _samplerate / hopsize;
     
     audioBuffer.resize(bufferSize);
-    
-    //-Max estimated values:
-    //default values set from testing with white noise.
-    maxEnergyEstimatedValue     = 100.0;
-    maxHfcEstimatedValue        = 2000.0;
-    maxSpecCompEstimatedValue   = 20.0;
-    maxCentroidEstimatedValue   = 11000.0;
-    maxOddToEvenEstimatedValue  = 10.0;
-    maxStrongPeakEstimatedValue = 20.0;
-    maxStrongDecayEstimatedValue= 100.0;
+
     
     #pragma mark -Init algorithms:
     
@@ -58,6 +49,19 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     spectralPeaks.init();
     harmonicPeaks.init();
     
+    //-:Set Max Estimated Values for Non Normalized Algorithms
+    //default values set from testing with white noise.
+    energy.setMaxEstimatedValue(100.0);
+    pitchDetect.setMaxPitchEstimatedValue(4186.0);//C8
+    hfc.setMaxEstimatedValue(2000.0);
+    spectralComplex.setMaxEstimatedValue(20.0);
+    centroid.setMaxEstimatedValue(11000.0);
+    rollOff.setMaxEstimatedValue(sampleRate/2);
+    oddToEven.setMaxEstimatedValue(10.0);
+    strongPeak.setMaxEstimatedValue(20.0);
+    strongDecay.setMaxEstimatedValue(100.0);
+    
+    
 
     //------Not very useful...
     pitchSalienceFunctionPeaks.init();
@@ -76,38 +80,38 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     energy.algorithm = factory.create("Energy");
     power.algorithm = factory.create("InstantPower");
 
-    dcremoval.algorithm = factory.create("DCRemoval", "sampleRate", sr);
+    dcremoval.algorithm = factory.create("DCRemoval", "sampleRate", _samplerate);
 
     window.algorithm = factory.create("Windowing",
                                  "type", "hann",
                                  "zeroPadding", zeropadding);
 
-    fft.algorithm = factory.create("FFT", "size", framesize);
+    fft.algorithm = factory.create("FFT", "size", _framesize);
     cartesian2polar.algorithm = factory.create("CartesianToPolar");
 
-    onsets.onsetHfc.algorithm     = factory.create("OnsetDetection", "method", "hfc", "sampleRate", sr);
-    onsets.onsetComplex.algorithm = factory.create("OnsetDetection", "method", "complex", "sampleRate", sr);
-    onsets.onsetFlux.algorithm    = factory.create("OnsetDetection", "method", "flux", "sampleRate", sr);
+    onsets.onsetHfc.algorithm     = factory.create("OnsetDetection", "method", "hfc", "sampleRate", _samplerate);
+    onsets.onsetComplex.algorithm = factory.create("OnsetDetection", "method", "complex", "sampleRate", _samplerate);
+    onsets.onsetFlux.algorithm    = factory.create("OnsetDetection", "method", "flux", "sampleRate", _samplerate);
 
     spectrum.algorithm = factory.create("Spectrum",
-                                   "size", framesize);
+                                   "size", _framesize);
 
-    hfc.algorithm = factory.create("HFC", "sampleRate", sr);
+    hfc.algorithm = factory.create("HFC", "sampleRate", _samplerate);
 
-    pitchSalience.algorithm = factory.create("PitchSalience", "sampleRate",sr);
+    pitchSalience.algorithm = factory.create("PitchSalience", "sampleRate",_samplerate);
 
-    centroid.algorithm = factory.create("Centroid", "range", sr/2);
+    centroid.algorithm = factory.create("Centroid", "range", _samplerate/2);
 
-    spectralComplex.algorithm = factory.create("SpectralComplexity", "sampleRate", sr);
+    spectralComplex.algorithm = factory.create("SpectralComplexity", "sampleRate", _samplerate);
     
     dissonance.algorithm = factory.create("Dissonance");
     
     rollOff.algorithm = factory.create("RollOff",
-                                       "sampleRate", sr);
+                                       "sampleRate", _samplerate);
     oddToEven.algorithm = factory.create("OddToEvenHarmonicEnergyRatio");
     strongPeak.algorithm = factory.create("StrongPeak");
     strongDecay.algorithm = factory.create("StrongDecay",
-                                           "sampleRate", sr);
+                                           "sampleRate", _samplerate);
     
     spectralPeaks.algorithm = factory.create("SpectralPeaks",
                                 "maxPeaks", PEAKS_MAXPEAKS_NUM,
@@ -118,8 +122,9 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
 
 
     melBands.algorithm = factory.create("MelBands",
-                                        "inputSize", (framesize/2)+1,
-                                        "sampleRate", sr,
+                                        "inputSize", (_framesize/2)+1,
+                                        "sampleRate", _samplerate,
+                                        "highFrequencyBound", _samplerate/2,
                                         "numberBands", MELBANDS_BANDS_NUM);
     
     dct.algorithm = factory.create("DCT",
@@ -129,8 +134,8 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     inharmonicity.algorithm = factory.create("Inharmonicity");
 
     pitchDetect.algorithm = factory.create("PitchYinFFT",
-                                      "frameSize", framesize,
-                                      "sampleRate", sr);
+                                      "frameSize", _framesize,
+                                      "sampleRate", _samplerate);
 
     harmonicPeaks.algorithm = factory.create("HarmonicPeaks");
 
@@ -261,7 +266,7 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     tristimulus.algorithm->output("tristimulus").set(tristimulus.realValues);
     
     //MultiPitch Kalpuri:
-    multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, sr);
+    multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, _samplerate);
     
     //-Shutdown factory:
     factory.shutdown();
@@ -273,11 +278,11 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
 //--------------------------------------------------------------
 void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     
-    if(inBuffer.size() != framesize){
-        ofLogWarning()<<"ofxAudioAnalyzerUnit: buffer requested to analyze size(" <<inBuffer.size()<<")doesnt match the buffer size already set: "<<framesize;
+    if(inBuffer.size() != _framesize){
+        ofLogWarning()<<"ofxAudioAnalyzerUnit: buffer requested to analyze size(" <<inBuffer.size()<<")doesnt match the buffer size already set: "<<_framesize;
     }
     
-    //Cast of incoming audio buffer to Real ------------
+    //Cast of incoming audio buffer to Real
     for (int i=0; i<inBuffer.size();i++){
         audioBuffer[i] = (Real) inBuffer[i];
     }
@@ -504,6 +509,86 @@ void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithm algorithm, bool state){
 //----------------------------------------------
 #pragma mark - Get values
 //----------------------------------------------
+bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithm algorithm){
+    
+    switch (algorithm) {
+        case RMS:
+            return rms.getIsActive();
+            break;
+        case ENERGY:
+            return energy.getIsActive();
+            break;
+        case POWER:
+            return power.getIsActive();
+            break;
+        case PITCH_FREQ:
+            return pitchDetect.getIsActive();
+            break;
+        case PITCH_CONFIDENCE:
+            return pitchDetect.getIsActive();
+            break;
+        case PITCH_SALIENCE:
+            return pitchSalience.getIsActive();
+            break;
+        case INHARMONICITY:
+            return inharmonicity.getIsActive();
+            break;
+        case HFC:
+            return hfc.getIsActive();
+            break;
+        case CENTROID:
+            return centroid.getIsActive();
+            break;
+        case SPECTRAL_COMPLEXITY:
+            return spectralComplex.getIsActive();
+            break;
+        case DISSONANCE:
+            return dissonance.getIsActive();
+            break;
+        case SPECTRUM:
+            ofLogWarning()<<"ofxAudioAnalyzerUnit: Spectrum Algorithm cant be turned off.";
+            break;
+        case MEL_BANDS:
+            return melBands.getIsActive();
+            break;
+        case MFCC:
+            return dct.getIsActive();
+            break;
+        case HPCP:
+            return hpcp.getIsActive();
+            break;
+        case MULTI_PITCHES:
+            return multiPitchKlapuri.getIsActive();
+            break;
+        case PITCH_SALIENCE_FUNC_PEAKS:
+            return pitchSalienceFunctionPeaks.getIsActive();
+            break;
+        case ONSETS:
+            return onsets.getIsActive();
+            break;
+        case ROLL_OFF:
+            return rollOff.getIsActive();
+            break;
+        case ODD_TO_EVEN:
+            return oddToEven.getIsActive();
+            break;
+        case STRONG_PEAK:
+            return strongPeak.getIsActive();
+            break;
+        case STRONG_DECAY:
+            return strongDecay.getIsActive();
+            break;
+        case TRISTIMULUS:
+            return tristimulus.getIsActive();
+            break;
+            
+        default:
+            ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm to get if is active.";
+            break;
+    }
+
+}
+//----------------------------------------------
 float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, bool normalized){
     
     float r = 0.0;
@@ -518,8 +603,8 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
             
         case ENERGY:
             r = smooth ?
-                energy.getSmoothedValueNormalized(smooth, 0.0, maxEnergyEstimatedValue):
-                energy.getValueNormalized(0.0, maxEnergyEstimatedValue);
+                energy.getSmoothedValueNormalized(smooth):
+                energy.getValueNormalized();
             break;
             
         case POWER:
@@ -529,9 +614,15 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
             break;
             
         case PITCH_FREQ:
-            r = smooth ?
+            if (normalized){
+                r = smooth ?
+                hfc.getSmoothedValueNormalized(smooth):
+                hfc.getValueNormalized();
+            }else{
+                r = smooth ?
                 pitchDetect.getSmoothedPitchValue(smooth):
                 pitchDetect.getPitchValue();
+            }
             break;
             
         case PITCH_CONFIDENCE:
@@ -555,8 +646,8 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
         case HFC:
             if (normalized){
                 r = smooth ?
-                hfc.getSmoothedValueNormalized(smooth, 0.0, maxHfcEstimatedValue):
-                hfc.getValueNormalized(0.0, maxHfcEstimatedValue);
+                hfc.getSmoothedValueNormalized(smooth):
+                hfc.getValueNormalized();
             }else{
                 r = smooth ?
                 hfc.getSmoothedValue(smooth):
@@ -567,8 +658,8 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
         case SPECTRAL_COMPLEXITY:
             if (normalized){
                 r = smooth ?
-                spectralComplex.getSmoothedValueNormalized(smooth, 0.0, maxSpecCompEstimatedValue):
-                spectralComplex.getValueNormalized(0.0, maxSpecCompEstimatedValue);
+                spectralComplex.getSmoothedValueNormalized(smooth):
+                spectralComplex.getValueNormalized();
             }else{
                 r = smooth ?
                 spectralComplex.getSmoothedValue(smooth):
@@ -579,8 +670,8 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
         case CENTROID:
             if (normalized){
                 r = smooth ?
-                centroid.getSmoothedValueNormalized(smooth, 0.0, maxCentroidEstimatedValue):
-                centroid.getValueNormalized(0.0, maxCentroidEstimatedValue);
+                centroid.getSmoothedValueNormalized(smooth):
+                centroid.getValueNormalized();
             }else{
                 r = smooth ?
                 centroid.getSmoothedValue(smooth):
@@ -595,28 +686,34 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
             break;
 
         case ROLL_OFF:
-            r = smooth ?
-            rollOff.getSmoothedValue(smooth):
-            rollOff.getValue();
+            if (normalized){
+                r = smooth ?
+                rollOff.getSmoothedValueNormalized(smooth):
+                rollOff.getValueNormalized();
+            }else{
+                r = smooth ?
+                rollOff.getSmoothedValue(smooth):
+                rollOff.getValue();
+            }
             break;
         case ODD_TO_EVEN:
             if (normalized){
                 r = smooth ?
-                oddToEven.getSmoothedValueNormalized(smooth, 0.0, maxOddToEvenEstimatedValue):
-                oddToEven.getValueNormalized(0.0, maxOddToEvenEstimatedValue);
+                oddToEven.getSmoothedValueNormalized(smooth):
+                oddToEven.getValueNormalized();
             }else{
                 r = smooth ?
                 oddToEven.getSmoothedValue(smooth):
                 oddToEven.getValue();
                 //limit value, because this algorithm reaches huge values (eg: 3.40282e+38)
-                r = ofClamp(r, 0.0, maxOddToEvenEstimatedValue);
+                r = ofClamp(r, 0.0, oddToEven.getMaxEstimatedValue());
             }
             break;
         case STRONG_PEAK:
             if (normalized){
                 r = smooth ?
-                strongPeak.getSmoothedValueNormalized(smooth, 0.0, maxStrongPeakEstimatedValue):
-                strongPeak.getValueNormalized(0.0, maxStrongPeakEstimatedValue);
+                strongPeak.getSmoothedValueNormalized(smooth):
+                strongPeak.getValueNormalized();
             }else{
                 r = smooth ?
                 strongPeak.getSmoothedValue(smooth):
@@ -626,8 +723,8 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
         case STRONG_DECAY:
             if (normalized){
                 r = smooth ?
-                strongDecay.getSmoothedValueNormalized(smooth, 0.0, maxStrongDecayEstimatedValue):
-                strongDecay.getValueNormalized(0.0, maxStrongDecayEstimatedValue);
+                strongDecay.getSmoothedValueNormalized(smooth):
+                strongDecay.getValueNormalized();
             }else{
                 r = smooth ?
                 strongDecay.getSmoothedValue(smooth):
@@ -713,30 +810,78 @@ int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithm algorithm){
     
 }
 //----------------------------------------------
+float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithm algorithm){
+    
+    float r = 0.0;
+    
+    switch (algorithm) {
+            
+        case ENERGY:
+            r = energy.getMaxEstimatedValue();
+            break;
+        case PITCH_FREQ:
+            r = pitchDetect.getMaxPitchEstimatedValue();
+            break;
+        case HFC:
+            r = hfc.getMaxEstimatedValue();
+            break;
+        case SPECTRAL_COMPLEXITY:
+            r = spectralComplex.getMaxEstimatedValue();
+            break;
+        case CENTROID:
+            r = centroid.getMaxEstimatedValue();
+            break;
+        case ROLL_OFF:
+            r = rollOff.getMaxEstimatedValue();
+            break;
+        case ODD_TO_EVEN:
+            r = oddToEven.getMaxEstimatedValue();
+            break;
+        case STRONG_PEAK:
+            r = strongPeak.getMaxEstimatedValue();
+            break;
+        case STRONG_DECAY:
+            r = strongDecay.getMaxEstimatedValue();
+            break;
+            
+        default:
+            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for setting max estimated value.";
+            break;
+    }
+    
+    return r;
+}
+//----------------------------------------------
 void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithm algorithm, float value){
     
     switch (algorithm) {
             
         case ENERGY:
-            maxEnergyEstimatedValue = value;
+            energy.setMaxEstimatedValue(value);
+            break;
+        case PITCH_FREQ:
+            pitchDetect.setMaxPitchEstimatedValue(value);
             break;
         case HFC:
-            maxHfcEstimatedValue = value;
+            hfc.setMaxEstimatedValue(value);
             break;
         case SPECTRAL_COMPLEXITY:
-            maxSpecCompEstimatedValue = value;
+            spectralComplex.setMaxEstimatedValue(value);
             break;
         case CENTROID:
-            maxCentroidEstimatedValue = value;
+            centroid.setMaxEstimatedValue(value);
+            break;
+        case ROLL_OFF:
+            rollOff.setMaxEstimatedValue(value);
             break;
         case ODD_TO_EVEN:
-            maxOddToEvenEstimatedValue = value;
+            oddToEven.setMaxEstimatedValue(value);
             break;
         case STRONG_PEAK:
-            maxStrongPeakEstimatedValue = value;
+            strongPeak.setMaxEstimatedValue(value);
             break;
         case STRONG_DECAY:
-            maxStrongDecayEstimatedValue = value;
+            strongDecay.setMaxEstimatedValue(value);
             break;
             
         default:
