@@ -107,7 +107,7 @@ float ofxAudioAnalyzer::getValue(ofxAAAlgorithm algorithm, int channel, float sm
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        return;
+        return 0.0;
     }
     
     return channelAnalyzerUnits[channel]->getValue(algorithm, smooth, normalized);
@@ -118,7 +118,8 @@ vector<float>& ofxAudioAnalyzer::getValues(ofxAAAlgorithm algorithm, int channel
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        return;
+        vector<float>r (1, 0.0);
+        return r;
     }
     
     return channelAnalyzerUnits[channel]->getValues(algorithm, smooth);
@@ -128,7 +129,9 @@ vector<float>& ofxAudioAnalyzer::getValues(ofxAAAlgorithm algorithm, int channel
 vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int channel, float smooth){
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        return;
+        //SalienceFunctionPeak peak = SalienceFunctionPeak();
+        vector<SalienceFunctionPeak> r(1, SalienceFunctionPeak());
+        return r;
     }
     
      return channelAnalyzerUnits[channel]->getPitchSaliencePeaksRef(smooth);
@@ -139,7 +142,7 @@ bool ofxAudioAnalyzer::getOnsetValue(int channel){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        return;
+        return false;
     }
     
     return channelAnalyzerUnits[channel]->getOnsetValue();
@@ -150,7 +153,7 @@ bool ofxAudioAnalyzer::getIsActive(int channel, ofxAAAlgorithm algorithm){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting if its active is incorrect.";
-        return;
+        return false;
     }
     
     return channelAnalyzerUnits[channel]->getIsActive(algorithm);

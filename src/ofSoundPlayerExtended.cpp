@@ -869,17 +869,15 @@ ofSoundBuffer& ofSoundPlayerExtended::getCurrentSoundBuffer(int _size){
     
     if(currentSoundBuffer.getNumChannels()!= channels){
         ofLogError()<<"ofSoundPlayerExtended: currentSoundBuffer incorrect NumChannels";
-        return;
     }
     if(currentSoundBuffer.getSampleRate()!= samplerate){
         ofLogError()<<"ofSoundPlayerExtended: currentSoundBuffer incorrect Sample Rate";
-        return;
     }
     if(channelSoundBuffer.getSampleRate()!= samplerate){
         ofLogError()<<"ofSoundPlayerExtended: channelSoundBuffer incorrect Sample Rate";
-        return;
     }
     
+    //-----------
     
     for (int i=0; i<channels; i++){
         channelSoundBuffer.copyFrom( getCurrentBufferForChannel(_size, i), 1, samplerate);
@@ -895,8 +893,9 @@ ofSoundBuffer&  ofSoundPlayerExtended::getCurrentSoundBufferMono(int _size){
     
     if(channelSoundBuffer.getSampleRate()!= samplerate){
         ofLogError()<<"ofSoundPlayerExtended: channelSoundBuffer incorrect Sample Rate";
-        return;
     }
+    
+    //-----------
     
     channelSoundBuffer.copyFrom( getCurrentBuffer(_size), 1, samplerate);
     
@@ -946,15 +945,12 @@ ofSoundBuffer& ofSoundPlayerExtended::getSoundBufferForFrame(int _frame, float _
     
     if(currentSoundBuffer.getNumChannels()!= channels){
         ofLogError()<<"Sound Player: currentSoundBuffer incorrect NumChannels";
-        return;
     }
     if(currentSoundBuffer.getSampleRate()!= samplerate){
         ofLogError()<<"Sound Player: currentSoundBuffer incorrect Sample Rate";
-        return;
     }
     if(channelSoundBuffer.getSampleRate()!= samplerate){
         ofLogError()<<"Sound Player: channelSoundBuffer incorrect Sample Rate";
-        return;
     }
     
     //---------------------------------------------
@@ -973,8 +969,9 @@ ofSoundBuffer& ofSoundPlayerExtended::getSoundBufferMonoForFrame(int _frame, flo
     
     if(channelSoundBuffer.getSampleRate()!= samplerate){
         ofLogError()<<"Sound Player: channelSoundBuffer incorrect Sample Rate";
-        return;
     }
+    
+    //-----------
     
     channelSoundBuffer.copyFrom( getBufferForFrame(_frame, _fps, _size), 1, samplerate);
     

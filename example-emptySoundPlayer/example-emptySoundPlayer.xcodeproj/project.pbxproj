@@ -16,6 +16,7 @@
 		B30CE6791D64ED090014E4C7 /* audiodecoderbase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30CE6761D64ED090014E4C7 /* audiodecoderbase.cpp */; };
 		B30CE67A1D64ED090014E4C7 /* audiodecodercoreaudio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30CE6771D64ED090014E4C7 /* audiodecodercoreaudio.cpp */; };
 		B30CE67C1D64ED910014E4C7 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B30CE67B1D64ED910014E4C7 /* OpenAL.framework */; };
+		B32777BC1D9B02FD00D947E4 /* ofxAAOnsetsAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B32777BA1D9B02FD00D947E4 /* ofxAAOnsetsAlgorithm.cpp */; };
 		B39332151D77403F00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B39332131D77403F00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */; };
 		B3B3E8FF1CC920AE007A2FA6 /* libavresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3B3E8F51CC920AE007A2FA6 /* libavresample.a */; };
 		B3B3E9001CC920AE007A2FA6 /* libessentia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3B3E8F61CC920AE007A2FA6 /* libessentia.a */; };
@@ -171,6 +172,8 @@
 		B30CE6761D64ED090014E4C7 /* audiodecoderbase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = audiodecoderbase.cpp; sourceTree = "<group>"; };
 		B30CE6771D64ED090014E4C7 /* audiodecodercoreaudio.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = audiodecodercoreaudio.cpp; sourceTree = "<group>"; };
 		B30CE67B1D64ED910014E4C7 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		B32777BA1D9B02FD00D947E4 /* ofxAAOnsetsAlgorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAAOnsetsAlgorithm.cpp; sourceTree = "<group>"; };
+		B32777BB1D9B02FD00D947E4 /* ofxAAOnsetsAlgorithm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxAAOnsetsAlgorithm.h; sourceTree = "<group>"; };
 		B39332131D77403F00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAAMultiPitchKlapuriAlgorithm.cpp; sourceTree = "<group>"; };
 		B39332141D77403F00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxAAMultiPitchKlapuriAlgorithm.h; sourceTree = "<group>"; };
 		B3B3E8F51CC920AE007A2FA6 /* libavresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavresample.a; path = ../../../../../../../usr/local/lib/libavresample.a; sourceTree = "<group>"; };
@@ -236,16 +239,18 @@
 		B30CE5F21D64ECF70014E4C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				B39332131D77403F00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */,
-				B39332141D77403F00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.h */,
-				B30CE5F31D64ECF70014E4C7 /* ofSoundPlayerExtended.cpp */,
-				B30CE5F41D64ECF70014E4C7 /* ofSoundPlayerExtended.h */,
 				B30CE5F51D64ECF70014E4C7 /* ofxAudioAnalyzer.cpp */,
 				B30CE5F61D64ECF70014E4C7 /* ofxAudioAnalyzer.h */,
-				B30CE5F71D64ECF70014E4C7 /* ofxAudioAnalyzerAlgorithms.cpp */,
-				B30CE5F81D64ECF70014E4C7 /* ofxAudioAnalyzerAlgorithms.h */,
 				B30CE5F91D64ECF70014E4C7 /* ofxAudioAnalyzerUnit.cpp */,
 				B30CE5FA1D64ECF70014E4C7 /* ofxAudioAnalyzerUnit.h */,
+				B30CE5F71D64ECF70014E4C7 /* ofxAudioAnalyzerAlgorithms.cpp */,
+				B30CE5F81D64ECF70014E4C7 /* ofxAudioAnalyzerAlgorithms.h */,
+				B39332131D77403F00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */,
+				B39332141D77403F00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.h */,
+				B32777BA1D9B02FD00D947E4 /* ofxAAOnsetsAlgorithm.cpp */,
+				B32777BB1D9B02FD00D947E4 /* ofxAAOnsetsAlgorithm.h */,
+				B30CE5F31D64ECF70014E4C7 /* ofSoundPlayerExtended.cpp */,
+				B30CE5F41D64ECF70014E4C7 /* ofSoundPlayerExtended.h */,
 			);
 			name = src;
 			path = ../src;
@@ -673,6 +678,7 @@
 				B30CE6631D64ECF70014E4C7 /* ofSoundPlayerExtended.cpp in Sources */,
 				B30CE6641D64ECF70014E4C7 /* ofxAudioAnalyzer.cpp in Sources */,
 				B30CE6651D64ECF70014E4C7 /* ofxAudioAnalyzerAlgorithms.cpp in Sources */,
+				B32777BC1D9B02FD00D947E4 /* ofxAAOnsetsAlgorithm.cpp in Sources */,
 				B30CE6661D64ECF70014E4C7 /* ofxAudioAnalyzerUnit.cpp in Sources */,
 				B30CE6781D64ED090014E4C7 /* ofxAudioDecoder.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,

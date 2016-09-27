@@ -16,6 +16,7 @@
 		B30CE5E21D64E4F70014E4C7 /* ofxAudioAnalyzerAlgorithms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30CE5741D64E4F70014E4C7 /* ofxAudioAnalyzerAlgorithms.cpp */; };
 		B30CE5E31D64E4F70014E4C7 /* ofxAudioAnalyzerUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30CE5761D64E4F70014E4C7 /* ofxAudioAnalyzerUnit.cpp */; };
 		B30CE5E81D64E5A70014E4C7 /* libsndfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B30CE5E71D64E5A70014E4C7 /* libsndfile.a */; };
+		B32777C21D9B0A4400D947E4 /* ofxAAOnsetsAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B32777C01D9B0A4400D947E4 /* ofxAAOnsetsAlgorithm.cpp */; };
 		B393320D1D773FEA00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B393320B1D773FEA00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */; };
 		B3B3E8FF1CC920AE007A2FA6 /* libavresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3B3E8F51CC920AE007A2FA6 /* libavresample.a */; };
 		B3B3E9001CC920AE007A2FA6 /* libessentia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3B3E8F61CC920AE007A2FA6 /* libessentia.a */; };
@@ -171,6 +172,8 @@
 		B30CE5DB1D64E4F70014E4C7 /* sndfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sndfile.h; sourceTree = "<group>"; };
 		B30CE5DC1D64E4F70014E4C7 /* sndfile.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = sndfile.hh; sourceTree = "<group>"; };
 		B30CE5E71D64E5A70014E4C7 /* libsndfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libsndfile.a; sourceTree = "<group>"; };
+		B32777C01D9B0A4400D947E4 /* ofxAAOnsetsAlgorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAAOnsetsAlgorithm.cpp; sourceTree = "<group>"; };
+		B32777C11D9B0A4400D947E4 /* ofxAAOnsetsAlgorithm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxAAOnsetsAlgorithm.h; sourceTree = "<group>"; };
 		B393320B1D773FEA00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxAAMultiPitchKlapuriAlgorithm.cpp; sourceTree = "<group>"; };
 		B393320C1D773FEA00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxAAMultiPitchKlapuriAlgorithm.h; sourceTree = "<group>"; };
 		B3B3E8F51CC920AE007A2FA6 /* libavresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavresample.a; path = ../../../../../../../usr/local/lib/libavresample.a; sourceTree = "<group>"; };
@@ -302,16 +305,18 @@
 		B30CE56F1D64E4F70014E4C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				B30CE5721D64E4F70014E4C7 /* ofxAudioAnalyzer.cpp */,
+				B30CE5731D64E4F70014E4C7 /* ofxAudioAnalyzer.h */,
+				B30CE5761D64E4F70014E4C7 /* ofxAudioAnalyzerUnit.cpp */,
+				B30CE5771D64E4F70014E4C7 /* ofxAudioAnalyzerUnit.h */,
+				B30CE5741D64E4F70014E4C7 /* ofxAudioAnalyzerAlgorithms.cpp */,
+				B30CE5751D64E4F70014E4C7 /* ofxAudioAnalyzerAlgorithms.h */,
+				B32777C01D9B0A4400D947E4 /* ofxAAOnsetsAlgorithm.cpp */,
+				B32777C11D9B0A4400D947E4 /* ofxAAOnsetsAlgorithm.h */,
 				B393320B1D773FEA00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.cpp */,
 				B393320C1D773FEA00A58E5E /* ofxAAMultiPitchKlapuriAlgorithm.h */,
 				B30CE5701D64E4F70014E4C7 /* ofSoundPlayerExtended.cpp */,
 				B30CE5711D64E4F70014E4C7 /* ofSoundPlayerExtended.h */,
-				B30CE5721D64E4F70014E4C7 /* ofxAudioAnalyzer.cpp */,
-				B30CE5731D64E4F70014E4C7 /* ofxAudioAnalyzer.h */,
-				B30CE5741D64E4F70014E4C7 /* ofxAudioAnalyzerAlgorithms.cpp */,
-				B30CE5751D64E4F70014E4C7 /* ofxAudioAnalyzerAlgorithms.h */,
-				B30CE5761D64E4F70014E4C7 /* ofxAudioAnalyzerUnit.cpp */,
-				B30CE5771D64E4F70014E4C7 /* ofxAudioAnalyzerUnit.h */,
 			);
 			name = src;
 			path = ../src;
@@ -673,6 +678,7 @@
 				B30CE5371D64DB3F0014E4C7 /* audiodecodercoreaudio.cpp in Sources */,
 				B30CE5E31D64E4F70014E4C7 /* ofxAudioAnalyzerUnit.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
+				B32777C21D9B0A4400D947E4 /* ofxAAOnsetsAlgorithm.cpp in Sources */,
 				B30CE5E01D64E4F70014E4C7 /* ofSoundPlayerExtended.cpp in Sources */,
 				B30CE5E21D64E4F70014E4C7 /* ofxAudioAnalyzerAlgorithms.cpp in Sources */,
 				B30CE5351D64DB3F0014E4C7 /* ofxAudioDecoder.cpp in Sources */,
