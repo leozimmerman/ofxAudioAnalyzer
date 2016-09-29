@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2013  Music Technology Group - Universitat Pompeu Fabra
+ * Copyright (C) 2006-2016  Music Technology Group - Universitat Pompeu Fabra
  *
  * This file is part of Essentia
  *
@@ -46,6 +46,7 @@ class ESSENTIA_API AlgorithmInfo {
   AlgorithmCreator create;
   std::string name; // do we need this one or is it redundant
   std::string description;
+  std::string category;
 };
 
 
@@ -73,6 +74,14 @@ class ESSENTIA_API EssentiaFactory {
 
   /**
    * Creates an instance of the algorithm specified by its name.
+   * All the other overloads of this method do the same thing, and additionally
+   * configure the algorithm using the given parameters.
+   *
+   * @throw EssentiaException in case the algorithm could not be created.
+   *        This can happen because the given name is not a valid name, or
+   *        if any of the given parameters is not a valid one (ie: it is not
+   *        supported by the algorithm, or the value it has been given is not
+   *        an accepted one).
    */
   static BaseAlgorithm* create(const std::string& id) {
     return instance().create_i(id);
@@ -113,6 +122,7 @@ class ESSENTIA_API EssentiaFactory {
       entry.create = &create;
       entry.name = ReferenceConcreteProduct::name;
       entry.description = ReferenceConcreteProduct::description;
+      entry.category = ReferenceConcreteProduct::category;
 
       // insert object into the factory, or overwrite the existing one if any
       CreatorMap& algoMap = EssentiaFactory::instance()._map;

@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/leo/Development/openFrameworks/addons/ofxAudioAnalyzer/example-emptySoundPlayer/example-emptySoundPlayer.xcodeproj">
+      location = "self:">
    </FileRef>
 </Workspace>

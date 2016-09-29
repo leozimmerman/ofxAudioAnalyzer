@@ -6,9 +6,9 @@
 ################################################################################
 # OF ROOT
 #   The location of your root openFrameworks installation
-#       (default) OF_ROOT = ../../../../of_v0.9.3_osx_release 
+#       (default) OF_ROOT = ../../.. 
 ################################################################################
-# OF_ROOT = ../../../../of_v0.9.3_osx_release
+# OF_ROOT = ../../..
 
 ################################################################################
 # PROJECT ROOT
@@ -61,7 +61,7 @@
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-#PROJECT_EXCLUSIONS =
+# PROJECT_EXCLUSIONS =
 
 ################################################################################
 # PROJECT LINKER FLAGS
@@ -77,7 +77,7 @@
 # add a runtime path to search for those shared libraries, since they aren't 
 # incorporated directly into the final executable application binary.
 # TODO: should this be a default setting?
-PROJECT_LDFLAGS=  -lessentia -lfftw3 -lyaml -lavcodec -lavformat -lavutil -lsamplerate -ltag -lfftw3f -lavresample -framework OpenAL
+# PROJECT_LDFLAGS=-Wl,-rpath=./libs
 
 ################################################################################
 # PROJECT DEFINES

@@ -1,1 +1,2 @@
 ofxAudioAnalyzer
+ofxAudioDecoder

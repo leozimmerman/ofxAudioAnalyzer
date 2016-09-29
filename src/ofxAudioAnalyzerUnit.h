@@ -27,9 +27,9 @@
 #include "ofMain.h"
 
 #include <iostream>
-#include "essentia/algorithmfactory.h"
-#include "essentia/essentiamath.h"
-#include "essentia/pool.h"
+#include "algorithmfactory.h"
+#include "essentiamath.h"
+#include "pool.h"
 
 using namespace std;
 using namespace essentia;

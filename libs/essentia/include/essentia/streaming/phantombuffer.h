@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2013  Music Technology Group - Universitat Pompeu Fabra
+ * Copyright (C) 2006-2016  Music Technology Group - Universitat Pompeu Fabra
  *
  * This file is part of Essentia
  *
@@ -74,14 +74,19 @@ class PhantomBuffer : public MultiRateBuffer<T> {
       buf.maxContiguousElements = 0;
       break;
 
+    case BufferUsage::forMultipleFrames:
+      buf.size = 262144;
+      buf.maxContiguousElements = 32768;
+      break;
+
     case BufferUsage::forAudioStream:
       buf.size = 65536;
       buf.maxContiguousElements = 4096;
       break;
 
     case BufferUsage::forLargeAudioStream:
-      buf.size = 524288;
-      buf.maxContiguousElements = 131072;
+      buf.size = 1048576;
+      buf.maxContiguousElements = 262144;
       break;
 
     default:

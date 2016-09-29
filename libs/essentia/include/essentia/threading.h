@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2013  Music Technology Group - Universitat Pompeu Fabra
+ * Copyright (C) 2006-2016  Music Technology Group - Universitat Pompeu Fabra
  *
  * This file is part of Essentia
  *
@@ -19,6 +19,14 @@
 
 #ifndef ESSENTIA_THREADING_H
 #define ESSENTIA_THREADING_H
+
+
+#ifdef OS_WIN32
+#   include <windows.h>
+#else // OS_WIN32
+#   include <pthread.h>
+#endif // OS_WIN32
+
 
 namespace essentia {
 
@@ -54,7 +62,6 @@ class MutexLocker {
 #  ifdef OS_WIN32
 
 // windows CriticalSection implementation
-#include <windows.h>
 
 class ForcedMutex {
  protected:
@@ -69,7 +76,6 @@ class ForcedMutex {
 #  else // OS_WIN32
 
 // posix implementation for linux and osx
-#include <pthread.h>
 
 class ForcedMutex {
  protected:
