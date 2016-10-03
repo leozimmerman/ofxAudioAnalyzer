@@ -16,9 +16,11 @@ Demo video: https://vimeo.com/129795472
 
   OSX & Linux - OF 0.9.3 - 64 bits compilation.
 
+  Tested with OSX 10.11.6 and Ubuntu 14.04
+
 
 ## Dependencies
-  For playing and analyzing audio files (ofSoundPlayerExtended), [ofxAudioDecoder](https://github.com/kylemcdonald/ofxAudioDecoder) addon is needed. The examples in this repository were built using this fork of the addon: https://github.com/leozimmerman/ofxAudioDecoder
+  For playing and analyzing audio files (ofSoundPlayerExtended), [ofxAudioDecoder](https://github.com/kylemcdonald/ofxAudioDecoder) addon is needed for OSX. The examples in this repository were built using this fork of the addon: https://github.com/leozimmerman/ofxAudioDecoder
 
 
 ## Usage
@@ -50,6 +52,11 @@ Demo video: https://vimeo.com/129795472
   float rms = audioAnalyzer.getValue(RMS, channel, smoothAmount);
   ```
 
+## Compilation
+
+  * Linux: Makefiles.
+
+  * OSX: The best and easiest way is to use Xcode Projects. You can also use the makefiles, but in OSX you'll need to add ofxAudioDecoder to addons.make.
 
 ## History - New features
 
@@ -60,6 +67,17 @@ Demo video: https://vimeo.com/129795472
   * New examples added.
   * New algorithms added: Dissonance, Roll Off, Odd To Even Harmonic Energy Ratio, Strong Peak, Strong Decay and Tristimulus.
 
+## Audio File player
+
+  This repository includes an extended version of ofBaseSoundPlayer taken and modified from https://github.com/YCAMInterlab/ofxTimeline/tree/master/libs/ofOpenALSoundPlayer_TimelineAdditions/src.
+
+  This class [ofSoundPlayerExtended] lets you load, play and *analyze* audiofiles (wav & mp3). See examples: allAlgorithms, audioFilePlayer and onsets to understand how it works.
+
+  - In OSX, ofSoundPlayerExtended uses [ofxAudioDecoder](https://github.com/kylemcdonald/ofxAudioDecoder).  This fork was used for testing the examples https://github.com/leozimmerman/ofxAudioDecoder .
+
+  - Linux: ofxAudioDecoder, is not compatible with Linux. For replacing you need to use mpg123 lib. See this forum's thread to know how to make sure OF uses it: https://forum.openframeworks.cc/t/error-running-soundplayerexample-on-the-pi/13197/6?u=lzmmrman
+
+Note: ofSoundPlayerExtended is not really necessary for the addon to work. If you don't need or it's giving to much errors, just remove it from Xcode project or the addon's src directory.
 
 ## License
 Essentia library and this addon are distributed under  Affero GPLv3 license.
