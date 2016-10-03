@@ -13,7 +13,9 @@
 #include <math.h>
 #endif
 
+#if defined (TARGET_WIN32) || defined (TARGET_OSX)
 #include "ofxAudioDecoder.h"
+#endif
 
 ALCdevice * ofSoundPlayerExtended::alDevice = 0;
 ALCcontext * ofSoundPlayerExtended::alContext = 0;
@@ -177,6 +179,9 @@ bool ofSoundPlayerExtended::mpg123ReadFile(string path,vector<short> & buffer,ve
 //------------------------------------------------------------
 bool ofSoundPlayerExtended::decoderReadFile(string path,vector<short> & buffer,vector<float> & fftAuxBuffer){
     
+    
+    #if defined (TARGET_WIN32) || defined (TARGET_OSX)
+    
     ofxAudioDecoder audioDecoder;
     audioDecoder.load(path);
     
@@ -198,6 +203,8 @@ bool ofSoundPlayerExtended::decoderReadFile(string path,vector<short> & buffer,v
     duration = float(audioDecoder.getNumFrames()) / float(audioDecoder.getSampleRate());
     samplerate = audioDecoder.getSampleRate();
     return true;
+    
+    #endif
 }
 
 //------------------------------------------------------------
