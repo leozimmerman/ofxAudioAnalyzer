@@ -78,6 +78,10 @@ void ofxAudioAnalyzer::analyze(const ofSoundBuffer & inBuffer){
         return;
     }
     
+    if(inBuffer.getSampleRate() != _samplerate){
+        ofLogWarning()<<"ofxAudioAnalyzer: inBuffer sample rate not matching.";
+    }
+    
     for (int i=0; i<_channels; i++){
         ofSoundBuffer chBuff;
         inBuffer.getChannel(chBuff, i);//copy channel from inBuffer
