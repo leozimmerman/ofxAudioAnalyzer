@@ -84,8 +84,6 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     strongPeak.setMaxEstimatedValue(20.0);
     strongDecay.setMaxEstimatedValue(100.0);
     
-    
-
     //------Not very useful...
     pitchSalienceFunctionPeaks.init();
     setActive(PITCH_SALIENCE_FUNC_PEAKS, false);
@@ -93,7 +91,6 @@ void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     setActive(MULTI_PITCHES, false);
     //------------------
     
-
     essentia::init();
 
     #pragma mark -Create algorithms

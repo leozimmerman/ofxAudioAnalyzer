@@ -64,7 +64,6 @@ void ofxAudioAnalyzer::reset(int sampleRate, int bufferSize, int channels){
         channelAnalyzerUnits.push_back(aaUnit);
     }
     
-    
 }
 //-------------------------------------------------------
 void ofxAudioAnalyzer::analyze(const ofSoundBuffer & inBuffer){
@@ -90,8 +89,6 @@ void ofxAudioAnalyzer::analyze(const ofSoundBuffer & inBuffer){
         }
         
     }
-    
-    
     
 }
 //-------------------------------------------------------
@@ -178,6 +175,7 @@ void ofxAudioAnalyzer::setActive(int channel, ofxAAAlgorithm algorithm, bool sta
     }
     
     channelAnalyzerUnits[channel]->setActive(algorithm, state);
+    
 }
 //-------------------------------------------------------
 void ofxAudioAnalyzer::setMaxEstimatedValue(int channel, ofxAAAlgorithm algorithm, float value){
@@ -189,8 +187,6 @@ void ofxAudioAnalyzer::setMaxEstimatedValue(int channel, ofxAAAlgorithm algorith
     
     channelAnalyzerUnits[channel]->setMaxEstimatedValue(algorithm, value);
     
- 
-
 }
 //-------------------------------------------------------
 void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silenceTresh, float timeTresh, bool useTimeTresh){

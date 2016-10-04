@@ -154,16 +154,6 @@ private:
     int zeropadding;
     Real framerate;
     
-    //Max estimated values (for normalizing)
-//    float maxEnergyEstimatedValue;
-//    float maxPitchFreqEstimatedValue;
-//    float maxHfcEstimatedValue;
-//    float maxSpecCompEstimatedValue;
-//    float maxCentroidEstimatedValue;
-//    float maxRollOffEstimatedValue;
-//    float maxOddToEvenEstimatedValue;
-//    float maxStrongPeakEstimatedValue;
-//    float maxStrongDecayEstimatedValue;
 
     
 };
