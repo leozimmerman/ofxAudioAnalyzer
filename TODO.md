@@ -1,10 +1,8 @@
-# ToDo list
-- Create openframewors forum thread
-- Multi-pitch Algorithms:
-- Add Algorithm configuration functionality.
+# To Do list
 
-FIXME:
-- ofSoundPlayerExtended: cuando carga mp3 mono, tira 2 canales (?)
+- Multi-pitch Algorithms
+- Add Algorithm configuration functionality
+- Test and Calibrate
 
 
 
