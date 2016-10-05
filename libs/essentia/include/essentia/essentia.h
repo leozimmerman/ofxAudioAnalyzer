@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2013  Music Technology Group - Universitat Pompeu Fabra
+ * Copyright (C) 2006-2016  Music Technology Group - Universitat Pompeu Fabra
  *
  * This file is part of Essentia
  *
@@ -35,6 +35,7 @@
 namespace essentia {
 
 extern const char* version;
+extern const char* version_git_sha;
 
 /**
  * This function registers the algorithms in the factory, so that they are
@@ -49,10 +50,20 @@ bool isInitialized();
 void shutdown();
 
 namespace standard {
+  /**
+   * This function registers the algorithms in the factory. The waf build script 
+   * dynamically generates the contents of the file essentia_algorithms_reg.cpp
+   * which implements this function.
+   */
   void ESSENTIA_API registerAlgorithm();
 }
 
 namespace streaming {
+  /**
+   * This function registers the algorithms in the factory. The waf build script 
+   * dynamically generates the contents of the file essentia_algorithms_reg.cpp
+   * which implements this function.
+   */
   void ESSENTIA_API registerAlgorithm();
 }
 

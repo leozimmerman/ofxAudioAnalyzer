@@ -1,51 +1,89 @@
 # ofxAudioAnalyzer
 
-##Description
+## Description
 
-[openFrameworks](http://openframeworks.cc/) wrapper for [Essentia](http://essentia.upf.edu/). It provides audio analysis algorithms modified to process signals in real-time:
-- RMS, Instant power, Energy.
-- Pitch frequency, Pitch Confidence, Pitch Salience.
-- Tuning Frequency.
-- Onsets.
-- FFT, Mel Bands, MFCC
-- Harmonic Pitch Class Profile
-- HFC, Centroid, Inharmonicity, Spectral Complexity. 
-Algorithm reference: http://essentia.upf.edu/documentation/algorithms_reference.html
+[openFrameworks](http://openframeworks.cc/) addon for audio analysis. It provides the following algorithms :
+* RMS, Instant power, Energy, Pitch frequency, Pitch Confidence, Pitch Salience, HFC, Centroid, Inharmonicity, Spectral Complexity, Dissonance, Roll Off, Odd To Even Harmonic Energy Ratio, Strong Peak, Strong Decay,  Onsets, Spectrum, Mel Bands, MFCC, Harmonic Pitch Class Profile, Tristimulus
+
+  See [AlgorithmsReference.md](AlgorithmsReference.md)
+
+This addon uses [Essentia](http://essentia.upf.edu/) library.
 
 Demo video: https://vimeo.com/129795472
 
 
-##Compatibility
+## Compatibility
 
-OSX & Linux - OF 0.9.0 - 64 bits compilation. 
+  OSX & Linux - OF 0.9.3 - 64 bits compilation.
 
- 
-##Essentia Installation
+  Tested with OSX 10.11.6 and Ubuntu 14.04
 
-Install Essential library: http://essentia.upf.edu/documentation/installing.html
-	* Last commit of ofxAudioAnalyzer was tested with [ https://github.com/MTG/essentia/tree/master — commit a440f018a04631c57df95ce54e99736a73f3117c].
-	* There is no need to include the gaia flag in the Essential configuration (./waf configure —with-gaia).
+## Compilation
 
-##Adding ofxAudioAnalyzer to a New Project
+  * Linux: Makefiles.
 
-* The examples included in the repository can be used to build new projects over them. They can be compiled with Xcode or by Terminal using the Makefiles.
+  * OSX: The best and easiest way is to use Xcode Projects. You can also use the makefiles, but in OSX you'll need to add ofxAudioDecoder to addons.make.
 
-* For including the addon in new projects:
+## Dependencies
 
-  * 1- Install Essentia library.
-  * 2- Project Generator: Create a new project with the ofxAudioAnalyzer addon.  
-  - Makefiles by Terminal (OSX & Linux): 
-	* 3- config.make -> PROJECT_LDFLAGS= -lessentia -lfftw3 -lyaml -lavcodec -lavformat -lavutil -lsamplerate -ltag -lfftw3f -lavresample.  
-
-  - Xcode (OSX):
-  	* 3- Build Settings -> Library Search Paths -> “/usr/local/lib”.
-  	* 4- Drag the following library files from “/usr/local/lib” to the root of the Xcode project in the left side file hierarchy window: libavcodec.a - libavformat.a - libavresample - libavutil.a - libessentia.a - libfftw3f.a  - libsamplerate.a - libswresample.a  - libtag.dylib - libyaml.a.
-  
+  For playing and analyzing audio files (see [Audio File Player](#audio-file-player)), *ofxAudioDecoder* addon is needed for OSX.
 
 
-##License
+## Usage
 
-Essentia library and this addon are distributed under  Affero GPLv3 license. 
+* The examples included in the repository can be used to build new projects specially the empty ones. They can be compiled with Xcode or by Terminal using the Makefiles.
 
+* Creating a new project:
 
+  - Create a new project using the Project Generator. Be sure to include **ofxAudioAnalyzer** and **ofxAudioDecoder** addons.
 
+  - Include ofxAudioAnalyzer header into ofApp.h
+  ```cpp
+    #include "ofxAudioAnalyzer.h"
+  ```
+  - Create an instance of ofxAudioAnalyzer into ofApp class:
+  ```cpp
+  ofxAudioAnalyzer audioAnalyzer;
+  ```
+  - In the **setup()** function setup the audioAnalyzer's parameters (sampleRate, bufferSize, channels). Be sure that the parameters of the audioAnalyzer **match the parameters** of the ofSoundStream or the audio files you load to the sound player to avoid errors:
+  ```cpp
+  audioAnalyzer.setup(44100, 512, 2);
+  ```
+  - Analyze the ofSoundBuffer in ofApp::audioIn() and ofApp::audioOut() when using ofSoundStream, or in the ofApp::update() if you are using audio file player, ofSoundBuffer **parameters must always match** audioAnalyzer's:
+  ```cpp
+  audioAnalyzer.analyze(soundBuffer);
+  ```
+
+  - Retrieve analysis results specifying algorithm, channel, smooth amount and if you want it normalized (Smoothing and normalizing are optionals. Normalizing is not necessary for all algorithms, some of them output values from 0.0-1.0 by default. See *allAlgorithms* example):
+  ```cpp
+  float rms = audioAnalyzer.getValue(RMS, channel, smoothAmount, doNormalize);
+  ```
+
+## Audio File player
+
+  This repository includes an extended version of ofBaseSoundPlayer taken and modified from: https://github.com/YCAMInterlab/ofxTimeline/tree/master/libs/ofOpenALSoundPlayer_TimelineAdditions/src.
+
+  This class [ofSoundPlayerExtended] lets you load, play and *analyze* audiofiles (wav & mp3). See examples: *allAlgorithms*, *audioFilePlayer* and *onsets* to understand how it works.
+
+  - In OSX, ofSoundPlayerExtended uses [ofxAudioDecoder](https://github.com/kylemcdonald/ofxAudioDecoder).  This fork was used for testing the examples https://github.com/leozimmerman/ofxAudioDecoder .
+
+  - Linux: ofxAudioDecoder, is not compatible with Linux. For replacing it you need to use mpg123 lib. See this forum's thread to know how to make sure OF uses it: https://forum.openframeworks.cc/t/error-running-soundplayerexample-on-the-pi/13197/6?u=lzmmrman
+
+**(!)** ofSoundPlayerExtended is not really necessary for the addon to work. If you don't need or it's giving to much errors, just remove it from Xcode project or the addon's /src directory.
+
+## History - New features
+
+  * Added static builds of Essentia library to the addon directory, no need to install it into the system.
+
+  * Multichannel ofSoundBuffer functionality.
+
+  * Smoothing and Normalizing values functionality integrated into the algorithms.
+
+  * Added audio file player functionality.
+
+  * New examples added.
+
+  * New algorithms added: Dissonance, Roll Off, Odd To Even Harmonic Energy Ratio, Strong Peak, Strong Decay and Tristimulus.
+
+## License
+Essentia library and this addon are distributed under  Affero GPLv3 license. See [License](LICENSE)

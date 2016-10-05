@@ -10,6 +10,8 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
         void exit();
+    
+        void audioIn(ofSoundBuffer &inBuffer);
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -21,12 +23,11 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-        void audioIn(float * input, int bufferSize, int nChannels);
-    
         ofSoundStream soundStream;
-        ofxAudioAnalyzer audioAnalyzer1, audioAnalyzer2;
+        ofxAudioAnalyzer audioAnalyzer;
     
-        float *buffer_1;
-        float *buffer_2;
+        float rms_l, rms_r;
+        float smooth;
+    
 		
 };

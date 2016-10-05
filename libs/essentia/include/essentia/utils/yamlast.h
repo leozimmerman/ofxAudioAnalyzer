@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2013  Music Technology Group - Universitat Pompeu Fabra
+ * Copyright (C) 2006-2016  Music Technology Group - Universitat Pompeu Fabra
  *
  * This file is part of Essentia
  *
@@ -113,7 +113,7 @@ class YamlMappingNode : public YamlNode {
   std::map<std::string, YamlNode*> _data;
 };
 
-YamlNode* parseYaml(FILE*);
+YamlNode* parseYaml(FILE*, const std::string& fileString = std::string());
 
 } // namespace essentia
 
