@@ -85,5 +85,9 @@ Demo video: https://vimeo.com/129795472
 
   * New algorithms added: Dissonance, Roll Off, Odd To Even Harmonic Energy Ratio, Strong Peak, Strong Decay and Tristimulus.
 
+## Issues
+For any bug, help or feature request [open an  issue](https://github.com/leozimmerman/ofxAudioAnalyzer/issues)
+or check this [OF Forum Thread](https://forum.openframeworks.cc/t/ofxaudioanalyzer-update/24712).
+
 ## License
 Essentia library and this addon are distributed under  Affero GPLv3 license. See [License](LICENSE)
