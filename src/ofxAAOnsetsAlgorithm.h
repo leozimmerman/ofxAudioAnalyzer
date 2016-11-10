@@ -27,7 +27,7 @@
 #include "ofxAudioAnalyzerAlgorithms.h"
 
 
-enum OnsetsTimeTresholdMode{
+enum OnsetsTimeThresholdMode{
     TIME_BASED,
     BUFFER_NUM_BASED
 };
@@ -44,16 +44,16 @@ public:
     void reset();
     
     bool getValue(){return _value;}
-    float getOnsetSilenceTreshold(){return silenceTreshold;}
-    float getOnsetTimeTreshold(){return timeTreshold;}
+    float getOnsetSilenceThreshold(){return silenceThreshold;}
+    float getOnsetTimeThreshold(){return timeThreshold;}
     float getOnsetAlpha(){return alpha;}
     
-    void setOnsetSilenceTreshold(float val){silenceTreshold=val;}
+    void setOnsetSilenceThreshold(float val){silenceThreshold=val;}
     void setOnsetAlpha(float val){alpha=val;}
-    void setOnsetTimeTreshold(float ms){timeTreshold = ms;}
-    void setOnsetBufferNumTreshold(int buffersNum){bufferNumTreshold = buffersNum;}
-    void setUseTimeTreshold(bool doUse){usingTimeTreshold = doUse;}
-    void setOnsetTimeTresholdsMode(OnsetsTimeTresholdMode mode){onsetsMode = mode;}
+    void setOnsetTimeThreshold(float ms){timeThreshold = ms;}
+    void setOnsetBufferNumThreshold(int buffersNum){bufferNumThreshold = buffersNum;}
+    void setUseTimeThreshold(bool doUse){usingTimeThreshold = doUse;}
+    void setOnsetTimeThresholdsMode(OnsetsTimeThresholdMode mode){onsetsMode = mode;}
 
     ofxAABaseAlgorithm onsetHfc;
     ofxAABaseAlgorithm onsetComplex;
@@ -64,24 +64,24 @@ private:
     bool _value;//isOnset
     
     bool onsetBufferEvaluation (Real iDetectHfc, Real iDetectComplex, Real iDetectFlux);
-    bool onsetTimeTresholdEvaluation();
-    bool onsetBufferNumTresholdEvaluation();//framebased treshold eval.
+    bool onsetTimeThresholdEvaluation();
+    bool onsetBufferNumThresholdEvaluation();//framebased threshold eval.
     
     int detecBufferSize;
     vector<vector<Real> > detections;
     vector<Real> detection_sum;
     Real hfc_max, complex_max, flux_max;
 
-    Real silenceTreshold, alpha;
+    Real silenceThreshold, alpha;
     bool addHfc, addComplex, addFlux;
     
-    bool usingTimeTreshold;
-    float timeTreshold;
+    bool usingTimeThreshold;
+    float timeThreshold;
     float lastOnsetTime;
-    int bufferNumTreshold;
+    int bufferNumThreshold;
     int lastOnsetBufferNum;
     
-    OnsetsTimeTresholdMode onsetsMode;
+    OnsetsTimeThresholdMode onsetsMode;
     int bufferCounter;
     
 

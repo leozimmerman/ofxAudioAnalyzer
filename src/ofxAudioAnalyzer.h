@@ -78,9 +78,9 @@ class ofxAudioAnalyzer{
     ///Sets onsets detection parameters
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param alpha: the proportion of the mean included to reject smaller peaks--filters very short onsets
-    ///\param silenceTreshold: the threshold for silence
-    ///\param timeTreshold: time treshold in ms.
-    ///\param useTimeTreshold: use or note the time treshold.
+    ///\param silenceThreshold: the thhreshold for silence
+    ///\param timeThreshold: time threshold in ms.
+    ///\param useTimeThreshold: use or note the time threshold.
     void setOnsetsParameters(int channel, float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
     
     void setSalienceFunctionPeaksParameters(int channel, int maxPeaks);

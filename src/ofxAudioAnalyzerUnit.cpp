@@ -917,9 +917,9 @@ void ofxAudioAnalyzerUnit::resetOnsets(){
 void ofxAudioAnalyzerUnit::setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh){
     
     onsets.setOnsetAlpha(alpha);
-    onsets.setOnsetSilenceTreshold(silenceTresh);
-    onsets.setOnsetTimeTreshold(timeTresh);
-    onsets.setUseTimeTreshold(useTimeTresh);
+    onsets.setOnsetSilenceThreshold(silenceTresh);
+    onsets.setOnsetTimeThreshold(timeTresh);
+    onsets.setUseTimeThreshold(useTimeTresh);
 }
 //----------------------------------------------
 void ofxAudioAnalyzerUnit::setSalienceFunctionPeaksParameters(int maxPeaks){

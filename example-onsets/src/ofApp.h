@@ -37,8 +37,8 @@ class ofApp : public ofBaseApp{
     
         ofxPanel gui;
         ofxFloatSlider alpha;
-        ofxFloatSlider silenceTreshold;
-        ofxToggle useTimeTreshold;
-        ofxFloatSlider timeTreshold;
+        ofxFloatSlider silenceThreshold;
+        ofxToggle useTimeThreshold;
+        ofxFloatSlider timeThreshold;
     
 };

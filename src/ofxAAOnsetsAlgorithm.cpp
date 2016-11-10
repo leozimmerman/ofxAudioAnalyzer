@@ -39,15 +39,15 @@ void ofxAAOnsetsAlgorithm::setup(int bufferSize){
     
     detection_sum.assign(detecBufferSize, 0.0);
     detections.assign(3, vector<Real> (detecBufferSize));
-    silenceTreshold = 0.02;
+    silenceThreshold = 0.02;
     alpha = 0.1;
-    timeTreshold = 100.0;
-    bufferNumTreshold = 7; //116 ms at 60 fps
+    timeThreshold = 100.0;
+    bufferNumThreshold = 7; //116 ms at 60 fps
     lastOnsetTime = 0.0;
     lastOnsetBufferNum = 0;
     addHfc = addComplex = addFlux = true;
     hfc_max = complex_max = flux_max = 0.0;
-    usingTimeTreshold = TRUE;
+    usingTimeThreshold = TRUE;
     onsetsMode = TIME_BASED;
     bufferCounter = 0;
     
@@ -87,15 +87,15 @@ void ofxAAOnsetsAlgorithm::evaluate(){
     //is current buffer an Onset?
     bool isCurrentBufferOnset = onsetBufferEvaluation(onsetHfc.getValue(), onsetComplex.getValue(), onsetFlux.getValue());
     
-    //if current buffer is onset, check for timeTreshold evaluation
-    if (usingTimeTreshold && isCurrentBufferOnset){
+    //if current buffer is onset, check for timeThreshold evaluation
+    if (usingTimeThreshold && isCurrentBufferOnset){
         
         switch (onsetsMode) {
             case TIME_BASED:
-                _value = onsetTimeTresholdEvaluation();
+                _value = onsetTimeThresholdEvaluation();
                 break;
             case BUFFER_NUM_BASED:
-                _value = onsetBufferNumTresholdEvaluation();
+                _value = onsetBufferNumThresholdEvaluation();
                 break;
             default:
                 break;
@@ -106,7 +106,7 @@ void ofxAAOnsetsAlgorithm::evaluate(){
         _value = isCurrentBufferOnset;
     }
     
-    //update bufferCounter for frameBased timeTreshold evaluation:
+    //update bufferCounter for frameBased timeThreshold evaluation:
     if (onsetsMode == BUFFER_NUM_BASED) bufferCounter++;
     
 }
@@ -164,20 +164,20 @@ bool ofxAAOnsetsAlgorithm::onsetBufferEvaluation (Real iDetectHfc, Real iDetectC
             n++;
         }
         if(n>0) detection_sum[i] /= n;
-        if(detection_sum[i] < silenceTreshold) detection_sum[i] = 0.0;
+        if(detection_sum[i] < silenceThreshold) detection_sum[i] = 0.0;
     }
     
     Real buffer_median = median (detection_sum);
     Real buffer_mean = mean (detection_sum);
-    Real onset_threshold = buffer_median + alpha * buffer_mean;
+    Real onset_thhreshold = buffer_median + alpha * buffer_mean;
     
-    bool onsetDetection = detection_sum[detection_sum.size()-1] > onset_threshold;
+    bool onsetDetection = detection_sum[detection_sum.size()-1] > onset_thhreshold;
     
     return onsetDetection;
     
 }
 //----------------------------------------------
-bool ofxAAOnsetsAlgorithm::onsetTimeTresholdEvaluation(){
+bool ofxAAOnsetsAlgorithm::onsetTimeThresholdEvaluation(){
     
     bool onsetTimeEvaluation = false;
     
@@ -186,7 +186,7 @@ bool ofxAAOnsetsAlgorithm::onsetTimeTresholdEvaluation(){
     //elapsed time since last onset:
     float elapsed = currentTime - lastOnsetTime;
     
-    if (elapsed>timeTreshold){
+    if (elapsed>timeThreshold){
         onsetTimeEvaluation = true;
         lastOnsetTime = currentTime;
     }
@@ -194,14 +194,14 @@ bool ofxAAOnsetsAlgorithm::onsetTimeTresholdEvaluation(){
     return onsetTimeEvaluation;
 }
 //----------------------------------------------
-bool ofxAAOnsetsAlgorithm::onsetBufferNumTresholdEvaluation(){
+bool ofxAAOnsetsAlgorithm::onsetBufferNumThresholdEvaluation(){
     
     bool onsetBufferNumEvaluation = false;
     
     //elapsed frames/buffers since last onset:
     int elapsedBuffers = bufferCounter - lastOnsetBufferNum;
     
-    if (elapsedBuffers > bufferNumTreshold){
+    if (elapsedBuffers > bufferNumThreshold){
         onsetBufferNumEvaluation = true;
         lastOnsetBufferNum = bufferCounter;
     }

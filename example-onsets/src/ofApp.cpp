@@ -19,9 +19,9 @@ void ofApp::setup(){
     
     gui.setup();
     gui.add(alpha.setup("alpha", 0.1, 0.0, 1.0));
-    gui.add(silenceTreshold.setup("silence treshold", 0.02, 0.0, 1.0));
-    gui.add(useTimeTreshold.setup("use time treshold", false));
-    gui.add(timeTreshold.setup("time treshold (ms.)", 100.0, 0.0, 1000.0));
+    gui.add(silenceThreshold.setup("silence threshold", 0.02, 0.0, 1.0));
+    gui.add(useTimeThreshold.setup("use time threshold", false));
+    gui.add(timeThreshold.setup("time threshold (ms.)", 100.0, 0.0, 1000.0));
   
 }
 
@@ -30,7 +30,7 @@ void ofApp::update(){
     
     soundBuffer = player.getCurrentSoundBuffer(bufferSize);
     
-    audioAnalyzer.setOnsetsParameters(0, alpha, silenceTreshold, timeTreshold, useTimeTreshold);
+    audioAnalyzer.setOnsetsParameters(0, alpha, silenceThreshold, timeThreshold, useTimeThreshold);
     audioAnalyzer.analyze(soundBuffer);
     
     onset = audioAnalyzer.getOnsetValue(0);
