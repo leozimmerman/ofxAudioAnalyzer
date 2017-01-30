@@ -33,7 +33,7 @@ public:
     ofSoundPlayerExtended();
     virtual ~ofSoundPlayerExtended();
     
-    bool load(string fileName, bool stream = false) override;
+    bool load(std::filesystem::path fileName, bool stream = false) override;
     void unload() override;
     void play() override;
     void stop() override;
@@ -87,22 +87,22 @@ public:
     static ALCcontext * alContext;
 protected:
     
-    void threadedFunction();
+    void threadedFunction() override;
     
     void ofOpenALSoundUpdate();
     void update(ofEventArgs & args);
     
     
-    bool sfReadFile(string path,vector<short> & buffer,vector<float> & fftAuxBuffer);
-    bool sfStream(string path,vector<short> & buffer,vector<float> & fftAuxBuffer);
+    bool sfReadFile(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer);
+    bool sfStream(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer);
 #ifdef OF_USING_MPG123
-    bool mpg123ReadFile(string path,vector<short> & buffer,vector<float> & fftAuxBuffer);
-    bool mpg123Stream(string path,vector<short> & buffer,vector<float> & fftAuxBuffer);
+    bool mpg123ReadFile(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer);
+    bool mpg123Stream(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer);
 #endif
-    bool decoderReadFile(string path,vector<short> & buffer,vector<float> & fftAuxBuffer);
+    bool decoderReadFile(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer);
     
-    void readFile(string fileName,vector<short> & buffer);
-    void stream(string fileName, vector<short> & buffer);
+    void readFile(std::filesystem::path fileName,vector<short> & buffer);
+    void stream(std::filesystem::path fileName, vector<short> & buffer);
     
     bool isStreaming;
     bool bMultiPlay;
