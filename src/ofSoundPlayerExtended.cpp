@@ -90,11 +90,11 @@ void ofSoundPlayerExtended::close(){
 }
 
 // ----------------------------------------------------------------------------
-bool ofSoundPlayerExtended::sfReadFile(string path, vector<short> & buffer, vector<float> & fftAuxBuffer){
+bool ofSoundPlayerExtended::sfReadFile(std::filesystem::path path, vector<short> & buffer, vector<float> & fftAuxBuffer){
     SF_INFO sfInfo;
     SNDFILE* f = sf_open(path.c_str(),SFM_READ,&sfInfo);
     if(!f){
-        ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read " + path);
+        ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read " + path.string());
         return false;
     }
     
@@ -112,7 +112,7 @@ bool ofSoundPlayerExtended::sfReadFile(string path, vector<short> & buffer, vect
         
         sf_count_t samples_read = sf_read_float (f, &fftAuxBuffer[0], fftAuxBuffer.size());
         if(samples_read<(int)fftAuxBuffer.size())
-            ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read " + path);
+            ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read " + path.string());
         for (int i = 0 ; i < int(fftAuxBuffer.size()) ; i++){
             fftAuxBuffer[i] *= scale ;
             buffer[i] = 32565.0 * fftAuxBuffer[i];
@@ -120,13 +120,13 @@ bool ofSoundPlayerExtended::sfReadFile(string path, vector<short> & buffer, vect
     }else{
         sf_count_t frames_read = sf_readf_short(f,&buffer[0],sfInfo.frames);
         if(frames_read<sfInfo.frames){
-            ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read buffer for " + path);
+            ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read buffer for " + path.string());
             return false;
         }
         sf_seek(f,0,SEEK_SET);
         frames_read = sf_readf_float(f,&fftAuxBuffer[0],sfInfo.frames);
         if(frames_read<sfInfo.frames){
-            ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read fft buffer for " + path);
+            ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read fft buffer for " + path.string());
             return false;
         }
     }
@@ -177,16 +177,16 @@ bool ofSoundPlayerExtended::mpg123ReadFile(string path,vector<short> & buffer,ve
 #endif
 
 //------------------------------------------------------------
-bool ofSoundPlayerExtended::decoderReadFile(string path,vector<short> & buffer,vector<float> & fftAuxBuffer){
+bool ofSoundPlayerExtended::decoderReadFile(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer){
     
     
     #if defined (TARGET_WIN32) || defined (TARGET_OSX)
     
     ofxAudioDecoder audioDecoder;
-    audioDecoder.load(path);
+    audioDecoder.load(path.string());
     
     if (audioDecoder.getNumSamples() == 0) {
-        ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read " + path);
+        ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read " + path.string());
         return false;
     }
     
@@ -208,12 +208,12 @@ bool ofSoundPlayerExtended::decoderReadFile(string path,vector<short> & buffer,v
 }
 
 //------------------------------------------------------------
-bool ofSoundPlayerExtended::sfStream(string path,vector<short> & buffer,vector<float> & fftAuxBuffer){
+bool ofSoundPlayerExtended::sfStream(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer){
     if(!streamf){
         SF_INFO sfInfo;
         streamf = sf_open(path.c_str(),SFM_READ,&sfInfo);
         if(!streamf){
-            ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read " + path);
+            ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read " + path.string());
             return false;
         }
         
@@ -321,7 +321,7 @@ bool ofSoundPlayerExtended::mpg123Stream(string path,vector<short> & buffer,vect
 #endif
 
 //------------------------------------------------------------
-void ofSoundPlayerExtended::stream(string fileName, vector<short> & buffer){
+void ofSoundPlayerExtended::stream(std::filesystem::path fileName, vector<short> & buffer){
 #ifdef OF_USING_MPG123
     if(ofFilePath::getFileExt(fileName)=="mp3" || ofFilePath::getFileExt(fileName)=="MP3" || mp3streamf){
         if(!mpg123Stream(fileName,buffer,fftAuxBuffer)) return;
@@ -335,7 +335,7 @@ void ofSoundPlayerExtended::stream(string fileName, vector<short> & buffer){
     
 }
 
-void ofSoundPlayerExtended::readFile(string fileName, vector<short> & buffer){
+void ofSoundPlayerExtended::readFile(std::filesystem::path fileName, vector<short> & buffer){
     if(ofFilePath::getFileExt(fileName)!="mp3" && ofFilePath::getFileExt(fileName)!="MP3"){
         if(!sfReadFile(fileName,buffer,fftAuxBuffer)) return;
     }else{
@@ -351,7 +351,7 @@ void ofSoundPlayerExtended::readFile(string fileName, vector<short> & buffer){
 }
 
 //------------------------------------------------------------
-bool ofSoundPlayerExtended::load(string fileName, bool is_stream){
+bool ofSoundPlayerExtended::load(std::filesystem::path fileName, bool is_stream){
     
     string ext = ofToLower(ofFilePath::getFileExt(fileName));
     if(ext != "wav" && ext != "aif" && ext != "aiff" && ext != "mp3"){
@@ -398,7 +398,7 @@ bool ofSoundPlayerExtended::load(string fileName, bool is_stream){
         sources.resize(1);
         alGenSources(1, &sources[0]);
         if (alGetError() != AL_NO_ERROR){
-            ofLog(OF_LOG_WARNING,"ofSoundPlayerExtended: openAL error reported generating sources for " + fileName);
+            ofLog(OF_LOG_WARNING,"ofSoundPlayerExtended: openAL error reported generating sources for " + fileName.string());
             return false;
         }
         
@@ -436,7 +436,7 @@ bool ofSoundPlayerExtended::load(string fileName, bool is_stream){
                     }
                     alBufferData(buffers[s*2+i],format,&multibuffer[i][0],buffer.size()/channels*2,samplerate);
                     if (alGetError() != AL_NO_ERROR){
-                        ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: error creating stereo buffers for " + fileName);
+                        ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: error creating stereo buffers for " + fileName.string());
                         return false;
                     }
                     alSourceQueueBuffers(sources[i],1,&buffers[s*2+i]);
@@ -451,7 +451,7 @@ bool ofSoundPlayerExtended::load(string fileName, bool is_stream){
                 }
                 alBufferData(buffers[i],format,&multibuffer[i][0],buffer.size()/channels*2,samplerate);
                 if (alGetError() != AL_NO_ERROR){
-                    ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: error creating stereo buffers for " + fileName);
+                    ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: error creating stereo buffers for " + fileName.string());
                     return false;
                 }
                 alSourcei (sources[i], AL_BUFFER,   buffers[i]   );
@@ -460,7 +460,7 @@ bool ofSoundPlayerExtended::load(string fileName, bool is_stream){
         
         for(int i=0;i<channels;i++){
             if (alGetError() != AL_NO_ERROR){
-                ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: error creating stereo sources for " + fileName);
+                ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: error creating stereo sources for " + fileName.string());
                 return false;
             }
             
@@ -484,7 +484,7 @@ bool ofSoundPlayerExtended::load(string fileName, bool is_stream){
     channelSoundBuffer.setSampleRate(samplerate);
     channelSoundBuffer.clear();
     //--------------------------------------
-    ofLogVerbose("ofSoundPlayerExtended: successfully loaded " + fileName);
+    ofLogVerbose("ofSoundPlayerExtended: successfully loaded " + fileName.string());
     bLoadedOk = true;
     return true;
 }
