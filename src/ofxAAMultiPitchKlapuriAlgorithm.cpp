@@ -152,9 +152,9 @@ void ofxAAMultiPitchKlapuriAlgorithm::compute(){
     
     while (true) {
         // find numCandidates largest values
-        Real maxVal=-1;
-        int maxInd_i=0;
-        int maxInd_j=0;
+        Real maxVal = -1;
+        int maxInd_i = 0;
+        int maxInd_j = 0;
         
         for (int I=0; I < numCandidates; I++) {
             vector<int> localInd;
@@ -172,8 +172,8 @@ void ofxAAMultiPitchKlapuriAlgorithm::compute(){
             localInd.push_back(maxInd_j);
             selCandInd.push_back(localInd);
             selCandVal.push_back(G[maxInd_i][maxInd_j]);
-            G[maxInd_i][maxInd_j] =- 1;
-            maxVal =- 1;
+            G[maxInd_i][maxInd_j] = -1;
+            maxVal = -1;
             maxInd_i = 0;
             maxInd_j = 0;
         }
