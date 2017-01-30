@@ -606,7 +606,7 @@ bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithm algorithm){
             ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm to get if is active.";
             break;
     }
-
+    return 0;
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, bool normalized){
@@ -827,7 +827,7 @@ int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithm algorithm){
             ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting bins number.";
             break;
     }
-    
+    return 0;
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithm algorithm){
