@@ -119,7 +119,7 @@ vector<float>& ofxAudioAnalyzer::getValues(ofxAAAlgorithm algorithm, int channel
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        vector<float>r (1, 0.0);
+        vector<float>static r (1, 0.0);
         return r;
     }
     
@@ -131,7 +131,7 @@ vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int cha
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         //SalienceFunctionPeak peak = SalienceFunctionPeak();
-        vector<SalienceFunctionPeak> r(1, SalienceFunctionPeak());
+        vector<SalienceFunctionPeak>static r(1, SalienceFunctionPeak());
         return r;
     }
     
