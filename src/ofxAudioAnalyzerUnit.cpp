@@ -441,7 +441,7 @@ void ofxAudioAnalyzerUnit::exit(){
 //--------------------------------------------------------------
 #pragma mark - Activates
 //----------------------------------------------
-void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithm algorithm, bool state){
+void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithmType algorithm, bool state){
     
     switch (algorithm) {
         case RMS:
@@ -529,7 +529,7 @@ void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithm algorithm, bool state){
 //----------------------------------------------
 #pragma mark - Get values
 //----------------------------------------------
-bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithm algorithm){
+bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithmType algorithm){
     
     switch (algorithm) {
         case RMS:
@@ -609,7 +609,7 @@ bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithm algorithm){
 
 }
 //----------------------------------------------
-float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, bool normalized){
+float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithmType algorithm, float smooth, bool normalized){
     
     float r = 0.0;
     
@@ -765,7 +765,7 @@ bool ofxAudioAnalyzerUnit::getOnsetValue(){
     return onsets.getValue();
 }
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithm algorithm, float smooth){
+vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithmType algorithm, float smooth){
     
     switch (algorithm) {
         
@@ -806,10 +806,8 @@ vector<SalienceFunctionPeak>& ofxAudioAnalyzerUnit::getPitchSaliencePeaksRef(flo
 //    return pitchSalienceFunctionPeaks.getPeaks();
 }
 //----------------------------------------------
-int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithm algorithm){
-    
-    switch (algorithm) {
-        
+int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithmType algorithmType){
+    switch (algorithmType) {
         case SPECTRUM:
             return spectrum.getBinsNum();
             break;
@@ -822,15 +820,14 @@ int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithm algorithm){
         case HPCP:
             return hpcp.getBinsNum();
             break;
-            
         default:
             ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting bins number.";
             break;
     }
-    
+    return 0;
 }
 //----------------------------------------------
-float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithm algorithm){
+float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithmType algorithm){
     
     float r = 0.0;
     
@@ -872,7 +869,7 @@ float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithm algorithm){
     return r;
 }
 //----------------------------------------------
-void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithm algorithm, float value){
+void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithmType algorithm, float value){
     
     switch (algorithm) {
             

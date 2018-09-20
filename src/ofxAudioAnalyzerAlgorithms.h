@@ -35,7 +35,7 @@ using namespace essentia;
 using namespace standard;
 
 
-enum ofxAAAlgorithm{
+enum ofxAAAlgorithmType {
     RMS,
     ENERGY,
     POWER,
@@ -61,21 +61,6 @@ enum ofxAAAlgorithm{
     ONSETS
     
 };
-
-//OSC INDEXES
-#define POWER_OSC_IDX 0
-#define PITCH_FREQ_OSC_IDX 1
-#define PITCH_CONF_OSC_IDX 2
-#define PITCH_SALIENCE_OSC_IDX 3
-#define HFC_OSC_IDX 4
-#define CENTROID_OSC_IDX 5
-#define SPEC_COMP_OSC_IDX 6
-#define INHARMONICITY_OSC_IDX 7
-#define DISSONANCE_OSC_IDX 8
-#define ROLLOFF_OSC_IDX 9
-#define ODDTOEVEN_OSC_IDX 10
-#define ONSETS_OSC_IDX 11
-
 
 
 class ofxAABaseAlgorithm{
