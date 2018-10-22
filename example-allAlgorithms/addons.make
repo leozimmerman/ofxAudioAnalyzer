@@ -1,2 +1,3 @@
 ofxAudioAnalyzer
+ofxAudioDecoder
 ofxGui
