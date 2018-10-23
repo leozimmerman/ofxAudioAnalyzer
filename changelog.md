@@ -1,6 +1,10 @@
 
 ## Change Log
 
+#### v.1.1:
+* Updated ofSoundPlayerExtended and examples to compile with OF 0.10 and Xcode 10.
+
+
 #### v.1.0:
 
 * Compatibility:   
