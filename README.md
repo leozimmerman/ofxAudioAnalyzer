@@ -14,7 +14,7 @@ Demo video: https://vimeo.com/129795472
 
 ## Compatibility
 
-  OSX & Linux - OF 0.9.7 - 64 bits compilation.
+  OSX & Linux - OF 0.10.0 
 
   Tested with OSX 10.11.6 and Ubuntu 14.04
 
