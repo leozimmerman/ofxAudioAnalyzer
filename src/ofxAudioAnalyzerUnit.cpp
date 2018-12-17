@@ -636,8 +636,8 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
         case PITCH_FREQ:
             if (normalized){
                 r = smooth ?
-                hfc.getSmoothedValueNormalized(smooth):
-                hfc.getValueNormalized();
+                pitchDetect.getSmoothedPitchValueNormalized(smooth):
+                pitchDetect.getPitchValueNormalized();
             }else{
                 r = smooth ?
                 pitchDetect.getSmoothedPitchValue(smooth):
@@ -865,7 +865,7 @@ float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithm algorithm){
             break;
             
         default:
-            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for setting max estimated value.";
+            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting max estimated value.";
             break;
     }
     
