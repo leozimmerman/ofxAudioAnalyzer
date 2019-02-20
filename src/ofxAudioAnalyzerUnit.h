@@ -82,19 +82,19 @@ public:
     int getSampleRate() {return _samplerate;}
     int getBufferSize() {return _framesize;}
     
-    void setActive(ofxAAAlgorithmType algorithm, bool state);
-    void setMaxEstimatedValue(ofxAAAlgorithmType algorithm, float value);
+    void setActive(ofxAAAlgorithmType algorithmType, bool state);
+    void setMaxEstimatedValue(ofxAAAlgorithmType algorithmType, float value);
     void setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
     void setSalienceFunctionPeaksParameters(int maxPeaks);
     
-    float getValue(ofxAAAlgorithmType algorithm, float smooth=0.0, bool normalized=false);
-    vector<float>& getValues(ofxAAAlgorithmType algorithm, float smooth=0.0);
+    float getValue(ofxAAAlgorithmType algorithmType, float smooth=0.0, bool normalized=false);
+    vector<float>& getValues(ofxAAAlgorithmType algorithmType, float smooth=0.0);
     vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef(float smooth=0.0);
-    bool getIsActive(ofxAAAlgorithmType algorithm);
+    bool getIsActive(ofxAAAlgorithmType algorithmType);
     bool getOnsetValue();
     
     int getBinsNum(ofxAAAlgorithmType algorithmType);
-    float getMaxEstimatedValue(ofxAAAlgorithmType algorithm);
+    float getMaxEstimatedValue(ofxAAAlgorithmType algorithmType);
     
     ofxAAOnsetsAlgorithm* getOnsetsAlgorithmPtr(){return &onsets;}
     

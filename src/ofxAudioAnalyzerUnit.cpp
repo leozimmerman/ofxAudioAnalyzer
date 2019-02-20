@@ -23,6 +23,7 @@
  */
 
 #include "ofxAudioAnalyzerUnit.h"
+#include "ofxAAUtils.h"
 
 #pragma mark - Main funcs
 //--------------------------------------------------------------
@@ -441,9 +442,9 @@ void ofxAudioAnalyzerUnit::exit(){
 //--------------------------------------------------------------
 #pragma mark - Activates
 //----------------------------------------------
-void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithmType algorithm, bool state){
+void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithmType algorithmType, bool state){
     
-    switch (algorithm) {
+    switch (algorithmType) {
         case RMS:
             rms.setActive(state);
             break;
@@ -519,7 +520,7 @@ void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithmType algorithm, bool state){
             break;
             
         default:
-            ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm to set active.";
+            ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm to set active -> "<< ofxaa::algorithmTypeToString(algorithmType);
             break;
     }
 }
@@ -529,9 +530,9 @@ void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithmType algorithm, bool state){
 //----------------------------------------------
 #pragma mark - Get values
 //----------------------------------------------
-bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithmType algorithm){
+bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithmType algorithmType){
     
-    switch (algorithm) {
+    switch (algorithmType) {
         case RMS:
             return rms.getIsActive();
             break;
@@ -603,17 +604,17 @@ bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithmType algorithm){
             break;
             
         default:
-            ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm to get if is active.";
+            ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm to get if is active ->" << ofxaa::algorithmTypeToString(algorithmType);
             break;
     }
 
 }
 //----------------------------------------------
-float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithmType algorithm, float smooth, bool normalized){
+float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithmType algorithmType, float smooth, bool normalized){
     
     float r = 0.0;
     
-    switch (algorithm) {
+    switch (algorithmType) {
         
         case RMS:
             r = smooth ?
@@ -754,7 +755,7 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithmType algorithm, float smooth,
             
             
         default:
-            ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting value.";
+            ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting value -> "<< ofxaa::algorithmTypeToString(algorithmType);
             break;
     }
     
@@ -765,9 +766,9 @@ bool ofxAudioAnalyzerUnit::getOnsetValue(){
     return onsets.getValue();
 }
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithmType algorithm, float smooth){
+vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithmType algorithmType, float smooth){
     
-    switch (algorithm) {
+    switch (algorithmType) {
         
         case SPECTRUM:
             return smooth ? spectrum.getSmoothedValues(smooth) : spectrum.getValues();
@@ -794,7 +795,7 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithmType algorithm, flo
             break;
             
         default:
-            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting values.";
+            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting values -> "<< ofxaa::algorithmTypeToString(algorithmType);
             break;
     }
 }
@@ -820,18 +821,21 @@ int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithmType algorithmType){
         case HPCP:
             return hpcp.getBinsNum();
             break;
+        case TRISTIMULUS:
+            return tristimulus.getBinsNum();
+            break;
         default:
-            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting bins number.";
+            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting bins number -> "<< ofxaa::algorithmTypeToString(algorithmType);
             break;
     }
     return 0;
 }
 //----------------------------------------------
-float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithmType algorithm){
+float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithmType algorithmType){
     
     float r = 0.0;
     
-    switch (algorithm) {
+    switch (algorithmType) {
             
         case ENERGY:
             r = energy.getMaxEstimatedValue();
@@ -862,16 +866,16 @@ float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithmType algorithm){
             break;
             
         default:
-            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting max estimated value.";
+            ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting max estimated value -> " << ofxaa::algorithmTypeToString(algorithmType);
             break;
     }
     
     return r;
 }
 //----------------------------------------------
-void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithmType algorithm, float value){
+void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithmType algorithmType, float value){
     
-    switch (algorithm) {
+    switch (algorithmType) {
             
         case ENERGY:
             energy.setMaxEstimatedValue(value);
@@ -902,7 +906,7 @@ void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithmType algorithm, fl
             break;
             
         default:
-             ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for setting max estimated value.";
+             ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for setting max estimated value -> "<< ofxaa::algorithmTypeToString(algorithmType);
             break;
     }
 }
