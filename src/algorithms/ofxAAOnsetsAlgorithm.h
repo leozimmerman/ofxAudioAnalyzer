@@ -36,7 +36,10 @@ class ofxAAOnsetsAlgorithm : public ofxAABaseAlgorithm{
 
 public:
     
-    void setup(int bufferSize);
+    ofxAAOnsetsAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize);
+    
+    void deleteAlgorithm() override;
+    
     void compute();
     void castValuesToFloat();
     void evaluate();

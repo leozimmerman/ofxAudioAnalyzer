@@ -24,8 +24,9 @@
 
 #include "ofxAAOnsetsAlgorithm.h"
 
-//-------------------------------------------
-void ofxAAOnsetsAlgorithm::setup(int bufferSize){
+
+ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize), onsetHfc(ONSETS_DETECTION_HFC, samplerate, framesize), onsetComplex(ONSETS_DETECTION_COMPLEX, samplerate, framesize), onsetFlux(ONSETS_DETECTION_FLUX, samplerate, framesize) {
+    
     /*
      at 44100:
      512 samples = 11.6 ms
@@ -34,7 +35,7 @@ void ofxAAOnsetsAlgorithm::setup(int bufferSize){
      512 x 64 = 742.4 ms
      */
     
-//    detecBufferSize = bufferSize;
+    //    detecBufferSize = bufferSize;
     detecBufferSize = 64;
     
     detection_sum.assign(detecBufferSize, 0.0);
@@ -53,19 +54,14 @@ void ofxAAOnsetsAlgorithm::setup(int bufferSize){
     
     _value = false;
     
-    init();
-    
-    onsetHfc.init();
-    onsetComplex.init();
-    onsetFlux.init();
 }
+
+
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::compute(){
-    
     onsetHfc.compute();
     onsetComplex.compute();
     onsetFlux.compute();
-
 }
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::castValuesToFloat(){
@@ -222,9 +218,15 @@ void ofxAAOnsetsAlgorithm::reset(){
     onsetHfc.algorithm->reset();
     onsetComplex.algorithm->reset();
     onsetFlux.algorithm->reset();
-    
-    
     bufferCounter = 0;
 }
+
+//----------------------------------------------
+void ofxAAOnsetsAlgorithm::deleteAlgorithm(){
+    delete onsetHfc.algorithm;
+    delete onsetComplex.algorithm;
+    delete onsetFlux.algorithm;
+}
+
 
 

@@ -1,6 +1,8 @@
 ## Essentia static build compilation
 
- Essentia and Fftw3 static builds in /libs were compiled using Essentia's source at *commit `b07ca6b1bbd5cf6dbb06ada2b5f604313a84e2e3* .
+  Version: 2.1-beta5-dev
+  
+  Essentia and Fftw3 static builds in /libs were compiled using Essentia's source at *commit `b07ca6b1bbd5cf6dbb06ada2b5f604313a84e2e3* .
 
 ### Compilation
 

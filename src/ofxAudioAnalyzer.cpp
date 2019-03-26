@@ -36,6 +36,10 @@ void ofxAudioAnalyzer::setup(int sampleRate, int bufferSize, int channels){
         _channels = 1;
     }
     
+    if (!essentia::isInitialized()){
+        essentia::init();
+    }
+    
     for(int i=0; i<_channels; i++){
         ofxAudioAnalyzerUnit * aaUnit = new ofxAudioAnalyzerUnit(_samplerate, _buffersize);
         channelAnalyzerUnits.push_back(aaUnit);
@@ -98,10 +102,12 @@ void ofxAudioAnalyzer::analyze(const ofSoundBuffer & inBuffer){
 //-------------------------------------------------------
 void ofxAudioAnalyzer::exit(){
     
+     essentia::shutdown();
+    
     for(int i=0; i<channelAnalyzerUnits.size();i++){
         channelAnalyzerUnits[i]->exit();
     }
-    
+   
 }
 //-------------------------------------------------------
 float ofxAudioAnalyzer::getValue(ofxAAAlgorithmType algorithm, int channel, float smooth, bool normalized){

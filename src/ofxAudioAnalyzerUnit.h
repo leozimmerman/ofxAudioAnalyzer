@@ -26,18 +26,18 @@
 
 #include "ofMain.h"
 
-#include <iostream>
-#include "algorithmfactory.h"
-#include "essentiamath.h"
-#include "pool.h"
-
-using namespace std;
-using namespace essentia;
-using namespace standard;
+//#include <iostream>
+//#include "algorithmfactory.h"
+//#include "essentiamath.h"
+//#include "pool.h"
+//
+//using namespace std;
+//using namespace essentia;
+//using namespace standard;
 
 #include "ofxAudioAnalyzerAlgorithms.h"
-#include "ofxAAMultiPitchKlapuriAlgorithm.h"
-#include "ofxAAOnsetsAlgorithm.h"
+#include "ofxAudioAnalyzerUtils.h"
+
 
 
 //----------------------------------
@@ -66,14 +66,12 @@ class ofxAudioAnalyzerUnit
 
 public:
     
-    ofxAudioAnalyzerUnit(int sampleRate, int bufferSize){
-        setup(sampleRate, bufferSize);
-    }
+    ofxAudioAnalyzerUnit(int sampleRate, int bufferSize);
+    
     ~ofxAudioAnalyzerUnit(){
         exit();
     }
     
-    void setup(int sampleRate, int bufferSize);
     void analyze(const vector<float> &  inBuffer);
     void exit();
     
@@ -82,79 +80,47 @@ public:
     int getSampleRate() {return _samplerate;}
     int getBufferSize() {return _framesize;}
     
-    void setActive(ofxAAAlgorithmType algorithm, bool state);
-    void setMaxEstimatedValue(ofxAAAlgorithmType algorithm, float value);
+    void setActive(ofxAAAlgorithmType algorithmType, bool state);
+    void setMaxEstimatedValue(ofxAAAlgorithmType algorithmType, float value);
     void setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
     void setSalienceFunctionPeaksParameters(int maxPeaks);
     
-    float getValue(ofxAAAlgorithmType algorithm, float smooth=0.0, bool normalized=false);
-    vector<float>& getValues(ofxAAAlgorithmType algorithm, float smooth=0.0);
+    float getValue(ofxAAAlgorithmType algorithmType, float smooth=0.0, bool normalized=false);
+    vector<float>& getValues(ofxAAAlgorithmType algorithmType, float smooth=0.0);
     vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef(float smooth=0.0);
-    bool getIsActive(ofxAAAlgorithmType algorithm);
+    bool getIsActive(ofxAAAlgorithmType algorithmType);
     bool getOnsetValue();
     
     int getBinsNum(ofxAAAlgorithmType algorithmType);
-    float getMaxEstimatedValue(ofxAAAlgorithmType algorithm);
-    
-    ofxAAOnsetsAlgorithm* getOnsetsAlgorithmPtr(){return &onsets;}
+    float getMaxEstimatedValue(ofxAAAlgorithmType algorithmType);
     
     int   getPitchFreqAsMidiNote(float smooth=0.0);
     string getPitchFreqAsNoteName(float smooth=0.0);
     
    
 private:
-    //Utils:
-    int pitchToMidi(float pitch);
-    string midiToNoteName(int midiNote);
     
-    //Algorithms:
+    void createAlgorithms();
+    void connectAlgorithms();
+    ofxAABaseAlgorithm& algorithm(ofxAAAlgorithmType type);
+    ofxAAOneVectorOutputAlgorithm& vectorAlgorithm(ofxAAAlgorithmType type);
+    vector<ofxAABaseAlgorithm> algorithms;
+    vector<ofxAAOneVectorOutputAlgorithm> vectorAlgorithms;
+    
     vector<Real> audioBuffer;
 
-    //algorithms with return value func
-    ofxAABaseAlgorithm rms;
-    ofxAABaseAlgorithm energy;
-    ofxAABaseAlgorithm power;
-    ofxAAPitchDetectAlgorithm pitchDetect;
-    ofxAABaseAlgorithm pitchSalience;
-    //ofxAATuningFrequencyAlgorithm tuning;
-    ofxAABaseAlgorithm inharmonicity;
-    ofxAABaseAlgorithm hfc;
-    ofxAABaseAlgorithm centroid;
-    ofxAABaseAlgorithm spectralComplex;
-    ofxAABaseAlgorithm dissonance;
-    ofxAABaseAlgorithm rollOff;
-    ofxAABaseAlgorithm oddToEven;
-    ofxAABaseAlgorithm strongPeak;
-    ofxAABaseAlgorithm strongDecay;
-    
-    ofxAAOneVectorOutputAlgorithm spectrum;
-    ofxAAOneVectorOutputAlgorithm melBands;
-    ofxAAOneVectorOutputAlgorithm dct;//MFCC
-    ofxAAOneVectorOutputAlgorithm hpcp;
-    ofxAAOneVectorOutputAlgorithm tristimulus;
-    //MultiPitch
-    ofxAAPitchSalienceFunctionPeaksAlgorithm pitchSalienceFunctionPeaks;
-    ofxAAMultiPitchKlapuriAlgorithm multiPitchKlapuri;
-    
-    //Algorithms for internal functionality:
-    ofxAAOneVectorOutputAlgorithm dcremoval;
-    ofxAAOneVectorOutputAlgorithm window;
     ofxAAFftAlgorithm fft;
     ofxAACartToPolAlgorithm cartesian2polar;
     ofxAAPeaksAlgorithm spectralPeaks;
     ofxAAPeaksAlgorithm harmonicPeaks;
-    ofxAAOneVectorOutputAlgorithm pitchSalienceFunction;
+    ofxAAPitchDetectAlgorithm pitchDetect;
     ofxAAOnsetsAlgorithm onsets;
+    ofxAAPitchSalienceFunctionPeaksAlgorithm pitchSalienceFunctionPeaks;
     
-    //--------
     int _samplerate;
     int _framesize;
     
-    int hopsize;
-    int zeropadding;
-    Real framerate;
-    
-
+    int _hopsize;
     
 };
 
