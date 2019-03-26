@@ -39,11 +39,21 @@
 
 namespace ofxaa {
     
+    void initializeEssentia(){
+        if (!essentia::isInitialized()){
+            essentia::init();
+        }
+    }
+    
+    void shutEssentiaFactoryDown(){
+        AlgorithmFactory& factory = AlgorithmFactory::instance();
+        factory.shutdown();
+    }
+    
     Algorithm* createAlgorithmWithType(ofxAAAlgorithmType algorithmType, int samplerate, int framesize){
         AlgorithmFactory& factory = AlgorithmFactory::instance();
         
         
-        //factory.init();
         
         switch (algorithmType) {
             case RMS:
@@ -155,26 +165,26 @@ namespace ofxaa {
         // factory.shutdown();
     }
     
-    bool algorithmHasVectorOutput(ofxAABaseAlgorithm& algorithm){
-        ofxAAOneVectorOutputAlgorithm* vectorAlgorithm = dynamic_cast<ofxAAOneVectorOutputAlgorithm*>(&algorithm);
+    bool algorithmHasVectorOutput(ofxAABaseAlgorithm* algorithm){
+        ofxAAOneVectorOutputAlgorithm* vectorAlgorithm = dynamic_cast<ofxAAOneVectorOutputAlgorithm*>(algorithm);
         return vectorAlgorithm != NULL;
     }
     
-    bool algorithmHasOutputInDbs(ofxAABaseAlgorithm& algorithm){
+    bool algorithmHasOutputInDbs(ofxAABaseAlgorithm* algorithm){
         for (auto a : algorithmsWithOutputInDbs){
-            if (algorithm.getType() == a){
+            if (algorithm->getType() == a){
                 return true;
             }
         }
         return false;
     }
     
-    bool algorithmHasNormalizedSingleOutputByDefault(ofxAABaseAlgorithm& algorithm){
+    bool algorithmHasNormalizedSingleOutputByDefault(ofxAABaseAlgorithm* algorithm){
         if (algorithmHasVectorOutput(algorithm)){
             return false;
         }
         for (auto a : algorithmsWithNoNormalizedSingleOutput){
-            if (algorithm.getType() == a){
+            if (algorithm->getType() == a){
                 return false;
             }
         }

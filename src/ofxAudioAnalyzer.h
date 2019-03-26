@@ -27,8 +27,6 @@
 #include "ofMain.h"
 #include "ofxAudioAnalyzerUnit.h"
 
-using namespace ofxaa;
-
 class ofxAudioAnalyzer{
  
  public:

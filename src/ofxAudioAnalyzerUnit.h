@@ -36,8 +36,6 @@
 //using namespace standard;
 
 #include "ofxAudioAnalyzerAlgorithms.h"
-#include "ofxAudioAnalyzerUtils.h"
-
 
 
 //----------------------------------
@@ -102,20 +100,20 @@ private:
     
     void createAlgorithms();
     void connectAlgorithms();
-    ofxAABaseAlgorithm& algorithm(ofxAAAlgorithmType type);
-    ofxAAOneVectorOutputAlgorithm& vectorAlgorithm(ofxAAAlgorithmType type);
-    vector<ofxAABaseAlgorithm> algorithms;
-    vector<ofxAAOneVectorOutputAlgorithm> vectorAlgorithms;
+    ofxAABaseAlgorithm* algorithm(ofxAAAlgorithmType type);
+    ofxAAOneVectorOutputAlgorithm* vectorAlgorithm(ofxAAAlgorithmType type);
+    vector<ofxAABaseAlgorithm*> algorithms;
+    vector<ofxAAOneVectorOutputAlgorithm*> vectorAlgorithms;
     
     vector<Real> audioBuffer;
 
-    ofxAAFftAlgorithm fft;
-    ofxAACartToPolAlgorithm cartesian2polar;
-    ofxAAPeaksAlgorithm spectralPeaks;
-    ofxAAPeaksAlgorithm harmonicPeaks;
-    ofxAAPitchDetectAlgorithm pitchDetect;
-    ofxAAOnsetsAlgorithm onsets;
-    ofxAAPitchSalienceFunctionPeaksAlgorithm pitchSalienceFunctionPeaks;
+    ofxAAFftAlgorithm* fft;
+    ofxAACartToPolAlgorithm* cartesian2polar;
+    ofxAAPeaksAlgorithm* spectralPeaks;
+    ofxAAPeaksAlgorithm* harmonicPeaks;
+    ofxAAPitchDetectAlgorithm* pitchDetect;
+    ofxAAOnsetsAlgorithm* onsets;
+    ofxAAPitchSalienceFunctionPeaksAlgorithm* pitchSalienceFunctionPeaks;
     
     int _samplerate;
     int _framesize;

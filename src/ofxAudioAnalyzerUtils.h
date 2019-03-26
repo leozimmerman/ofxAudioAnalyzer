@@ -41,19 +41,17 @@ namespace ofxaa {
     
     Algorithm* createAlgorithmWithType(ofxAAAlgorithmType algorithmType, int samplerate, int framesize);
     
-    void shutEssentiaFactoryDown(){
-        AlgorithmFactory& factory = AlgorithmFactory::instance();
-        factory.shutdown();
-    }
+    void initializeEssentia();
+    void shutEssentiaFactoryDown();
     
     static const vector<ofxAAAlgorithmType> algorithmsWithNoNormalizedSingleOutput = { ENERGY, PITCH_YIN_FREQ, HFC, SPECTRAL_COMPLEXITY, CENTROID, ROLL_OFF, ODD_TO_EVEN, STRONG_PEAK, STRONG_DECAY };
     
     static const vector<ofxAAAlgorithmType> algorithmsWithOutputInDbs = { RMS, POWER };
     
     
-    bool algorithmHasVectorOutput(ofxAABaseAlgorithm& algorithm);
-    bool algorithmHasNormalizedSingleOutputByDefault(ofxAABaseAlgorithm& algorithm);
-    bool algorithmHasOutputInDbs(ofxAABaseAlgorithm& algorithm);
+    bool algorithmHasVectorOutput(ofxAABaseAlgorithm* algorithm);
+    bool algorithmHasNormalizedSingleOutputByDefault(ofxAABaseAlgorithm* algorithm);
+    bool algorithmHasOutputInDbs(ofxAABaseAlgorithm* algorithm);
     
     int pitchToMidi(float pitch);
     string midiToNoteName(int midiNote);
