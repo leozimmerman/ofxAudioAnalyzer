@@ -95,11 +95,15 @@ public:
     int   getPitchFreqAsMidiNote(float smooth=0.0);
     string getPitchFreqAsNoteName(float smooth=0.0);
     
-   
+    
+    
+    
 private:
     
     void createAlgorithms();
     void connectAlgorithms();
+    void setDefaultMaxEstimatedValues();
+    
     ofxAABaseAlgorithm* algorithm(ofxAAAlgorithmType type);
     ofxAAOneVectorOutputAlgorithm* vectorAlgorithm(ofxAAAlgorithmType type);
     vector<ofxAABaseAlgorithm*> algorithms;

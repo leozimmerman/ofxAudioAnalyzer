@@ -22,33 +22,12 @@
  *
  */
 
-#pragma once
-
-#include "ofMain.h"
-#include "ofxAudioAnalyzerAlgorithms.h"
-
-//#include <iostream>
-#include "algorithmfactory.h"
-//#include "essentiamath.h"
-//#include "pool.h"
-
-using namespace std;
-using namespace essentia;
-using namespace standard;
-
+#include "ofxAAConfigurations.h"
 
 namespace ofxaa {
     
-    Algorithm* createAlgorithmWithType(ofxAAAlgorithmType algorithmType, int samplerate, int framesize);
-    
-    void initializeEssentia();
-    void shutEssentiaFactoryDown();
-    
-    static const vector<ofxAAAlgorithmType> algorithmsWithNoNormalizedSingleOutput = { ENERGY, PITCH_YIN_FREQ, HFC, SPECTRAL_COMPLEXITY, ROLL_OFF, ODD_TO_EVEN, STRONG_PEAK, STRONG_DECAY };
-    static const vector<ofxAAAlgorithmType> algorithmsWithOutputInDbs = { RMS, POWER };
-
-    bool algorithmHasVectorOutput(ofxAABaseAlgorithm* algorithm);
-    bool algorithmHasNormalizedSingleOutputByDefault(ofxAABaseAlgorithm* algorithm);
-    bool algorithmHasOutputInDbs(ofxAABaseAlgorithm* algorithm);
+    void configureWindowAlgorithm(Algorithm* algorithm, int size, string type, int zeroPadding){
+        algorithm->configure("size", size, "type", type, "zeroPadding", zeroPadding);
+    }
     
 }

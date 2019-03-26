@@ -65,8 +65,5 @@ enum ofxAAAlgorithmType {
     
     DC_REMOVAL,
     WINDOW,
-    FFT,
-    
-    
-    NONE
+    FFT
 };

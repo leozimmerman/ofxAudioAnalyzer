@@ -24,25 +24,28 @@
 
 #include "ofxAudioAnalyzerUnit.h"
 #include "ofxAudioAnalyzerUtils.h"
+#include "ofxAAConfigurations.h"
+
+#define DEFAULT_MAX_VALUE_ENERGY 100.0
+#define DEFAULT_MAX_VALUE_HFC 2000.0
+#define DEFAULT_MAX_VALUE_SPECTRAL_COMPLEXITY 20.0
+#define DEFAULT_MAX_VALUE_ODD_TO_EVEN 10.0
+#define DEFAULT_MAX_VALUE_STRONG_PEAK 20.0
+#define DEFAULT_MAX_VALUE_STRONG_DECAY 100.0
+#define DEFAULT_MAX_VALUE_PITCH_FREQ 4186.0 //C8
 
 #pragma mark - Main funcs
 
-ofxAudioAnalyzerUnit::ofxAudioAnalyzerUnit(int sampleRate, int bufferSize)
-//cartesian2polar(CART_TO_POLAR, sampleRate, bufferSize),
-//onsets(ONSETS, sampleRate, bufferSize),
-//pitchDetect(PITCH_YIN_FREQ, sampleRate, bufferSize),
-//fft(FFT, sampleRate, bufferSize),
-//spectralPeaks(SPECTRAL_PEAKS, sampleRate, bufferSize),
-//harmonicPeaks(HARMONIC_PEAKS, sampleRate, bufferSize),
-//pitchSalienceFunctionPeaks(PITCH_SALIENCE_FUNC_PEAKS, sampleRate, bufferSize) {
-    {
+ofxAudioAnalyzerUnit::ofxAudioAnalyzerUnit(int sampleRate, int bufferSize) {
     _framesize = bufferSize;
     _samplerate = sampleRate;
     
     audioBuffer.resize(bufferSize);
     
     createAlgorithms();
+    setDefaultMaxEstimatedValues();
     connectAlgorithms();
+    
     
     //------Not very useful...
     /**
@@ -55,7 +58,9 @@ ofxAudioAnalyzerUnit::ofxAudioAnalyzerUnit(int sampleRate, int bufferSize)
     
     
     //MultiPitch Kalpuri:
-    ///multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, _samplerate);;
+    ///multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, _samplerate);
+    
+    
 }
 //--------------------------------------------------------------
 void ofxAudioAnalyzerUnit::createAlgorithms(){
@@ -96,19 +101,18 @@ void ofxAudioAnalyzerUnit::createAlgorithms(){
     vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(TRISTIMULUS, _samplerate, _framesize, TRISTIMULUS_BANDS_NUM));
     vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(DC_REMOVAL, _samplerate, _framesize));
     vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(WINDOW, _samplerate, _framesize));
-    
-    //-:Set Default Max Estimated Values for Non Normalized Algorithms
+}
+
+void ofxAudioAnalyzerUnit::setDefaultMaxEstimatedValues(){
     //default values set from testing with white noise.
-    
-    algorithm(ENERGY)->setMaxEstimatedValue(100.0);
-    algorithm(HFC)->setMaxEstimatedValue(2000.0);
-    algorithm(SPECTRAL_COMPLEXITY)->setMaxEstimatedValue(20.0);
-    algorithm(CENTROID)->setMaxEstimatedValue(11000.0);
+    algorithm(ENERGY)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ENERGY);
+    algorithm(HFC)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_HFC);
+    algorithm(SPECTRAL_COMPLEXITY)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_SPECTRAL_COMPLEXITY);
     algorithm(ROLL_OFF)->setMaxEstimatedValue(_samplerate/2);
-    algorithm(ODD_TO_EVEN)->setMaxEstimatedValue(10.0);
-    algorithm(STRONG_PEAK)->setMaxEstimatedValue(20.0);
-    algorithm(STRONG_DECAY)->setMaxEstimatedValue(100.0);
-    pitchDetect->setMaxEstimatedValue(4186.0);//C8
+    algorithm(ODD_TO_EVEN)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ODD_TO_EVEN);
+    algorithm(STRONG_PEAK)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_PEAK);
+    algorithm(STRONG_DECAY)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_DECAY);
+    pitchDetect->setMaxEstimatedValue(DEFAULT_MAX_VALUE_PITCH_FREQ);//C8
 }
 
 void ofxAudioAnalyzerUnit::connectAlgorithms(){
@@ -294,25 +298,14 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     vectorAlgorithm(DCT)->castValuesToFloat(false);
     vectorAlgorithm(HPCP)->castValuesToFloat(false);
     vectorAlgorithm(TRISTIMULUS)->castValuesToFloat(false);
-    
-    algorithm(RMS)->castValueToFloat();
-    algorithm(ENERGY)->castValueToFloat();
-    algorithm(POWER)->castValueToFloat();
-    algorithm(PITCH_SALIENCE)->castValueToFloat();
-    algorithm(HFC)->castValueToFloat();
-    algorithm(CENTROID)->castValueToFloat();
-    algorithm(SPECTRAL_COMPLEXITY)->castValueToFloat();
-    algorithm(INHARMONICITY)->castValueToFloat();
-    algorithm(DISSONANCE)->castValueToFloat();
-    algorithm(ROLL_OFF)->castValueToFloat();
-    algorithm(ODD_TO_EVEN)->castValueToFloat();
-    algorithm(STRONG_PEAK)->castValueToFloat();
-    algorithm(STRONG_DECAY)->castValueToFloat();
-    
+
+    for (auto a : algorithms){
+        a->castValueToFloat();
+    }
     pitchSalienceFunctionPeaks->castValuesToFloat();
     pitchDetect->castValuesToFloat();
-    
     onsets->castValuesToFloat();
+    
     onsets->evaluate();
 }
 
@@ -374,16 +367,6 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithmType algorithmType, float smo
             
         case PITCH_YIN_CONFIDENCE:
             return smooth ? pitchDetect->getSmoothedConfidenceValue(smooth) : pitchDetect->getConfidenceValue();
-            break;
-            
-        case ODD_TO_EVEN:
-            if (normalized){
-                return smooth ? algorithm(ODD_TO_EVEN)->getSmoothedValueNormalized(smooth) : algorithm(ODD_TO_EVEN)->getValueNormalized();
-            }else{
-                float r = smooth ? algorithm(ODD_TO_EVEN)->getSmoothedValue(smooth) : algorithm(ODD_TO_EVEN)->getValue();
-                //limit value, because this algorithm reaches huge values (eg: 3.40282e+38)
-                return ofClamp(r, 0.0, algorithm(ODD_TO_EVEN)->getMaxEstimatedValue());
-            }
             break;
             
         default:
@@ -462,9 +445,6 @@ void ofxAudioAnalyzerUnit::setSalienceFunctionPeaksParameters(int maxPeaks){
 }
 //----------------------------------------------
 ofxAABaseAlgorithm* ofxAudioAnalyzerUnit::algorithm(ofxAAAlgorithmType type){
-    if (type == NONE){
-         ofLogError()<<"ofxAudioAnalyzerUnit: algorithm type NONE requested.";
-    }
     for (int i=0; i<algorithms.size(); i++){
         if (type == algorithms[i]->getType()){
             return algorithms[i];
@@ -498,18 +478,9 @@ void ofxAudioAnalyzerUnit::setOnsetsParameters(float alpha, float silenceTresh, 
     onsets->setUseTimeThreshold(useTimeTresh);
 }
 //----------------------------------------------
-#pragma mark - Pitch
-//----------------------------------------------
-int ofxAudioAnalyzerUnit::getPitchFreqAsMidiNote(float smooth){
-    return ofxaa::pitchToMidi(getValue(PITCH_YIN_FREQ, smooth));
-}
-//----------------------------------------------
-string ofxAudioAnalyzerUnit::getPitchFreqAsNoteName(float smooth){
-    return ofxaa::midiToNoteName(getValue(PITCH_YIN_FREQ, smooth));
-}
-//----------------------------------------------
 vector<SalienceFunctionPeak>& ofxAudioAnalyzerUnit::getPitchSaliencePeaksRef(float smooth){
     return smooth ? pitchSalienceFunctionPeaks->getSmoothedPeaks(smooth) : pitchSalienceFunctionPeaks->getPeaks();
 }
+//----------------------------------------------
 
 
