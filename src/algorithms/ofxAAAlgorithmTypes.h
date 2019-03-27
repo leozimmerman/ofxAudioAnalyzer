@@ -25,6 +25,10 @@
 #pragma once
 
 enum ofxAAAlgorithmType {
+    DC_REMOVAL,
+    WINDOW,
+    FFT,
+    
     RMS,
     ENERGY,
     POWER,
@@ -61,9 +65,5 @@ enum ofxAAAlgorithmType {
     CART_TO_POLAR,
     SPECTRAL_PEAKS,
     HARMONIC_PEAKS,
-    DCT,
-    
-    DC_REMOVAL,
-    WINDOW,
-    FFT
+    DCT
 };

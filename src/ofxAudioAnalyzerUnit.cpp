@@ -26,6 +26,12 @@
 #include "ofxAudioAnalyzerUtils.h"
 #include "ofxAAConfigurations.h"
 
+#define DEFAULT_MELBANDS_BANDS_NUM 24
+#define DEFAULT_DCT_COEFF_NUM 10
+#define DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES 10
+#define DEFAULT_TRISTIMULUS_BANDS_NUM 3
+#define DEFAULT_HPCP_SIZE 12
+
 #define DEFAULT_MAX_VALUE_ENERGY 100.0
 #define DEFAULT_MAX_VALUE_HFC 2000.0
 #define DEFAULT_MAX_VALUE_SPECTRAL_COMPLEXITY 20.0
@@ -46,8 +52,6 @@ ofxAudioAnalyzerUnit::ofxAudioAnalyzerUnit(int sampleRate, int bufferSize) {
     setDefaultMaxEstimatedValues();
     connectAlgorithms();
     
-    
-    //------Not very useful...
     /**
      pitchSalienceFunctionPeaks.init();
      setActive(PITCH_SALIENCE_FUNC_PEAKS, false);
@@ -56,11 +60,8 @@ ofxAudioAnalyzerUnit::ofxAudioAnalyzerUnit(int sampleRate, int bufferSize) {
      //------------------
      */
     
-    
     //MultiPitch Kalpuri:
     ///multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, _samplerate);
-    
-    
 }
 //--------------------------------------------------------------
 void ofxAudioAnalyzerUnit::createAlgorithms(){
@@ -94,11 +95,11 @@ void ofxAudioAnalyzerUnit::createAlgorithms(){
     algorithms.push_back(new ofxAABaseAlgorithm(STRONG_DECAY, _samplerate, _framesize));
     
     vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(SPECTRUM, _samplerate, _framesize, (_framesize/2)+1));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(MEL_BANDS, _samplerate, _framesize, MELBANDS_BANDS_NUM));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(DCT, _samplerate, _framesize, DCT_COEFF_NUM));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(HPCP, _samplerate, _framesize, HPCP_SIZE));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(PITCH_SALIENCE_FUNC, _samplerate, _framesize, PITCH_SALIENCE_FUNC_NUM));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(TRISTIMULUS, _samplerate, _framesize, TRISTIMULUS_BANDS_NUM));
+    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(MEL_BANDS, _samplerate, _framesize, DEFAULT_MELBANDS_BANDS_NUM));
+    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(DCT, _samplerate, _framesize, DEFAULT_DCT_COEFF_NUM));
+    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(HPCP, _samplerate, _framesize, DEFAULT_HPCP_SIZE));
+    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(PITCH_SALIENCE_FUNC, _samplerate, _framesize, DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES));
+    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(TRISTIMULUS, _samplerate, _framesize, DEFAULT_TRISTIMULUS_BANDS_NUM));
     vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(DC_REMOVAL, _samplerate, _framesize));
     vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(WINDOW, _samplerate, _framesize));
 }

@@ -38,26 +38,12 @@
 #include "ofxAudioAnalyzerAlgorithms.h"
 
 
-//----------------------------------
+
 //for scaling values:
 #define DB_MIN -6
 #define DB_MAX 0
 #define MFCC_MAX_ESTIMATED_VALUE 300.0
-//----------------------------------
-//Vars for algorithm creation:
-#define MELBANDS_BANDS_NUM 24
-#define DCT_COEFF_NUM 13
-#define PITCH_SALIENCE_FUNC_NUM 10
-#define TRISTIMULUS_BANDS_NUM 3
 
-#define HPCP_SIZE 12
-#define HPCP_MIN_FREQ 40.0//hz
-#define HPCP_MAX_FREQ 5000.0//hz
-
-#define PEAKS_MAXPEAKS_NUM 10000
-#define PEAKS_MIN_FREQ 40.0//hz
-#define PEAKS_MAX_FREQ 5000.0//hz
-//----------------------------------
 
 class ofxAudioAnalyzerUnit
 {

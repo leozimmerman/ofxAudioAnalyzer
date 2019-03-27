@@ -56,10 +56,6 @@ class ofApp : public ofBaseApp{
         float strongDecay;
         float strongDecayNorm;
     
-    
-    
-    
-    
         vector<float> spectrum;
         vector<float> melBands;
         vector<float> mfcc;
@@ -71,7 +67,4 @@ class ofApp : public ofBaseApp{
     
         ofxPanel gui;
         ofxFloatSlider smoothing;
-    
-    
-    
 };
