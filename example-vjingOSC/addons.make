@@ -1,0 +1,4 @@
+ofxAudioAnalyzer
+ofxAudioDecoder
+ofxGui
+ofxOsc
