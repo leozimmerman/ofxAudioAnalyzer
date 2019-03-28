@@ -10,14 +10,45 @@ void ofApp::setup(){
     bufferSize = 512;
     int channels = 1;
     
+    bAudioInput = true;
+    
     audioAnalyzer.setup(sampleRate, bufferSize, channels);
     
-    player.load("beatTrack.wav");
     
     gui.setup();
     gui.setPosition(20, 150);
-    gui.add(smoothing.setup  ("Smoothing", 0.0, 0.0, 1.0));
+    gui.add(smoothAttack.setup  ("Smooth Attack", 0.0, 0.0, 1.0));
+    gui.add(smoothRelease.setup  ("Smooth Release", 0.0, 0.0, 1.0));
+
+    sound.printDeviceList();
+    
+    settings.sampleRate = sampleRate;
+    settings.bufferSize = 512;
+    settings.setInListener(this);
+    settings.setOutListener(this);
+    settings.numOutputChannels = 0;
+    settings.numInputChannels = 1;
+    
+    sound.setup(settings);
+    
+    
+    auto names = sound.getMatchingDevices("Microphone");
+    if(!names.empty()) {
+        ofLog() << "Setting audio input device to " << names[0];
+        sound.stop();
+        settings.setInDevice(names[0]);
+        sound.setup(settings);
+        sound.start();
+    } else {
+        ofLog() << "Could not find audio input device ";
+    }
    
+}
+
+void ofApp::audioIn(ofSoundBuffer & buffer){
+    
+    if (bAudioInput) audioAnalyzer.analyze(buffer);
+    
 }
 
 //--------------------------------------------------------------
@@ -25,44 +56,45 @@ void ofApp::update(){
     
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
     
-    //-:Get buffer from sound player:
-    soundBuffer = player.getCurrentSoundBuffer(bufferSize);
+    if (!bAudioInput) {
+        
+        playerBuffer = player.getCurrentSoundBuffer(bufferSize);
+        audioAnalyzer.analyze(playerBuffer);
+    }
     
-    //-:ANALYZE SOUNDBUFFER:
-    audioAnalyzer.analyze(soundBuffer);
     
-    //-:get Values:
-    rms     = audioAnalyzer.getValue(RMS, 0, smoothing);
-    power   = audioAnalyzer.getValue(POWER, 0, smoothing);
-    pitchFreq = audioAnalyzer.getValue(PITCH_FREQ, 0, smoothing);
-    pitchConf = audioAnalyzer.getValue(PITCH_CONFIDENCE, 0, smoothing);
-    pitchSalience  = audioAnalyzer.getValue(PITCH_SALIENCE, 0, smoothing);
-    inharmonicity   = audioAnalyzer.getValue(INHARMONICITY, 0, smoothing);
-    hfc = audioAnalyzer.getValue(HFC, 0, smoothing);
-    specComp = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, smoothing);
-    centroid = audioAnalyzer.getValue(CENTROID, 0, smoothing);
-    rollOff = audioAnalyzer.getValue(ROLL_OFF, 0, smoothing);
-    oddToEven = audioAnalyzer.getValue(ODD_TO_EVEN, 0, smoothing);
-    strongPeak = audioAnalyzer.getValue(STRONG_PEAK, 0, smoothing);
-    strongDecay = audioAnalyzer.getValue(STRONG_DECAY, 0, smoothing);
+    
+    rms     = audioAnalyzer.getValue(RMS, 0, smoothAttack, smoothRelease);
+    power   = audioAnalyzer.getValue(POWER, 0, smoothAttack, smoothRelease);
+    pitchFreq = audioAnalyzer.getValue(PITCH_FREQ, 0, smoothAttack, smoothRelease);
+    pitchConf = audioAnalyzer.getValue(PITCH_CONFIDENCE, 0, smoothAttack, smoothRelease);
+    pitchSalience  = audioAnalyzer.getValue(PITCH_SALIENCE, 0, smoothAttack, smoothRelease);
+    inharmonicity   = audioAnalyzer.getValue(INHARMONICITY, 0, smoothAttack, smoothRelease);
+    hfc = audioAnalyzer.getValue(HFC, 0, smoothAttack, smoothRelease);
+    specComp = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, smoothAttack, smoothRelease);
+    centroid = audioAnalyzer.getValue(CENTROID, 0, smoothAttack, smoothRelease);
+    rollOff = audioAnalyzer.getValue(ROLL_OFF, 0, smoothAttack, smoothRelease);
+    oddToEven = audioAnalyzer.getValue(ODD_TO_EVEN, 0, smoothAttack, smoothRelease);
+    strongPeak = audioAnalyzer.getValue(STRONG_PEAK, 0, smoothAttack, smoothRelease);
+    strongDecay = audioAnalyzer.getValue(STRONG_DECAY, 0, smoothAttack, smoothRelease);
     //Normalized values for graphic meters:
-    pitchFreqNorm   = audioAnalyzer.getValue(PITCH_FREQ, 0, smoothing, TRUE);
-    hfcNorm     = audioAnalyzer.getValue(HFC, 0, smoothing, TRUE);
-    specCompNorm = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, smoothing, TRUE);
-    centroidNorm = audioAnalyzer.getValue(CENTROID, 0, smoothing, TRUE);
-    rollOffNorm  = audioAnalyzer.getValue(ROLL_OFF, 0, smoothing, TRUE);
-    oddToEvenNorm   = audioAnalyzer.getValue(ODD_TO_EVEN, 0, smoothing, TRUE);
-    strongPeakNorm  = audioAnalyzer.getValue(STRONG_PEAK, 0, smoothing, TRUE);
-    strongDecayNorm = audioAnalyzer.getValue(STRONG_DECAY, 0, smoothing, TRUE);
+    pitchFreqNorm   = audioAnalyzer.getValue(PITCH_FREQ, 0, smoothAttack, smoothRelease, TRUE);
+    hfcNorm     = audioAnalyzer.getValue(HFC, 0, smoothAttack, smoothRelease, TRUE);
+    specCompNorm = audioAnalyzer.getValue(SPECTRAL_COMPLEXITY, 0, smoothAttack, smoothRelease, TRUE);
+    centroidNorm = audioAnalyzer.getValue(CENTROID, 0, smoothAttack, smoothRelease, TRUE);
+    rollOffNorm  = audioAnalyzer.getValue(ROLL_OFF, 0, smoothAttack, smoothRelease, TRUE);
+    oddToEvenNorm   = audioAnalyzer.getValue(ODD_TO_EVEN, 0, smoothAttack, smoothRelease, TRUE);
+    strongPeakNorm  = audioAnalyzer.getValue(STRONG_PEAK, 0, smoothAttack, smoothRelease, TRUE);
+    strongDecayNorm = audioAnalyzer.getValue(STRONG_DECAY, 0, smoothAttack, smoothRelease, TRUE);
     
-    dissonance = audioAnalyzer.getValue(DISSONANCE, 0, smoothing);
+    dissonance = audioAnalyzer.getValue(DISSONANCE, 0, smoothAttack, smoothRelease);
     
-    spectrum = audioAnalyzer.getValues(SPECTRUM, 0, smoothing);
-    melBands = audioAnalyzer.getValues(MEL_BANDS, 0, smoothing);
-    mfcc = audioAnalyzer.getValues(MFCC, 0, smoothing);
-    hpcp = audioAnalyzer.getValues(HPCP, 0, smoothing);
+    spectrum = audioAnalyzer.getValues(SPECTRUM, 0, smoothAttack, smoothRelease);
+    melBands = audioAnalyzer.getValues(MEL_BANDS, 0, smoothAttack, smoothRelease);
+    mfcc = audioAnalyzer.getValues(MFCC, 0, smoothAttack, smoothRelease);
+    hpcp = audioAnalyzer.getValues(HPCP, 0, smoothAttack, smoothRelease);
     
-    tristimulus = audioAnalyzer.getValues(TRISTIMULUS, 0, smoothing);
+    tristimulus = audioAnalyzer.getValues(TRISTIMULUS, 0, smoothAttack, smoothRelease);
     
     isOnset = audioAnalyzer.getOnsetValue(0);
   
@@ -302,6 +334,7 @@ void ofApp::draw(){
     ofDrawBitmapString("ofxAudioAnalyzer\n\nALL ALGORITHMS EXAMPLE", 10, 32);
     ofSetColor(ofColor::hotPink);
     ofDrawBitmapString("Keys 1-6: Play audio tracks", 10, 100);
+    ofDrawBitmapString("Key 0: Live audio input", 10, 120);
     
 
     
@@ -309,39 +342,54 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    player.stop();
+    
+    
     switch (key) {
-       
+        case '0':
+            bAudioInput = true;
+            player.stop();
+            break;
         case '1':
             player.load("test440mono.wav");
+            player.play();
+            bAudioInput = false;
             break;
         case '2':
             player.load("flute.wav");
+            player.play();
+            bAudioInput = false;
             break;
         case '3':
             player.load("chord.wav");
+            player.play();
+            bAudioInput = false;
             break;
         case '4':
             player.load("cadence.wav");
+            player.play();
+            bAudioInput = false;
             break;
         case '5':
             player.load("beatTrack.wav");
+            player.play();
+            bAudioInput = false;
             break;
         case '6':
             player.load("noise.wav");
+            player.play();
+            bAudioInput = false;
             break;
-            
-            
+
+
         default:
             break;
     }
-    player.play();
     
 }
 //--------------------------------------------------------------
 void ofApp::exit(){
     audioAnalyzer.exit();
-    player.stop();
+//    player.stop();
 }
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){

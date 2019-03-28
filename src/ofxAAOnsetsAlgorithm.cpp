@@ -81,6 +81,7 @@ void ofxAAOnsetsAlgorithm::castValuesToFloat(){
     }
 
 }
+
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::evaluate(){
     

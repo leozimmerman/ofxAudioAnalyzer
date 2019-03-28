@@ -58,28 +58,35 @@ float ofxAABaseAlgorithm::getValueNormalized(float min, float max, bool doClamp)
 float ofxAABaseAlgorithm::getValueDbNormalized(float min, float max, bool doClamp){
     return ofMap(getValueDb(), min, max, 0.0, 1.0, doClamp);
 }
+
+//----------------------------------------------
+float ofxAABaseAlgorithm::smoothAttackRelease(float currentValue, float newValue, float smoothAttck, float smoothRlse) {
+    float smthAmnt = (newValue > currentValue) ? smoothAttck : smoothRlse;
+    return currentValue * smthAmnt + (1-smthAmnt) * newValue;
+}
 //-------------------------------------------
-float ofxAABaseAlgorithm::getSmoothedValue(float smthAmnt){
-    smoothedFloatValue =  smoothedFloatValue * smthAmnt + (1-smthAmnt) * floatValue;
+float ofxAABaseAlgorithm::getSmoothedValue(float smthAmntAttck, float smthAmntRlse){
+
+    smoothedFloatValue = ofxAABaseAlgorithm::smoothAttackRelease(smoothedFloatValue, floatValue, smthAmntAttck, smthAmntRlse);
     return smoothedFloatValue;
 }
 //-------------------------------------------
-float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmnt){
+float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmntAttck, float smthAmntRlse){
     float normVal = ofMap(floatValue, 0.0, maxEstimatedValue, 0.0, 1.0, TRUE);
-    smoothedNormFloatValue =  smoothedNormFloatValue * smthAmnt + (1-smthAmnt) * normVal;
+    smoothedNormFloatValue = ofxAABaseAlgorithm::smoothAttackRelease(smoothedNormFloatValue, normVal, smthAmntAttck, smthAmntRlse);
     return smoothedNormFloatValue;
 }
 //-------------------------------------------
-float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmnt, float min, float max, bool doClamp){
+float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmntAttck, float smthAmntRlse, float min, float max, bool doClamp){
     float normVal = ofMap(floatValue, min, max, 0.0, 1.0, doClamp);
-    smoothedNormFloatValue =  smoothedNormFloatValue * smthAmnt + (1-smthAmnt) * normVal;
+    smoothedNormFloatValue = ofxAABaseAlgorithm::smoothAttackRelease(smoothedNormFloatValue, normVal, smthAmntAttck, smthAmntRlse);
     return smoothedNormFloatValue;
 }
 //-------------------------------------------
-float ofxAABaseAlgorithm::getSmoothedValueDbNormalized(float smthAmnt, float min, float max, bool doClamp){
+float ofxAABaseAlgorithm::getSmoothedValueDbNormalized(float smthAmntAttck, float smthAmntRlse, float min, float max, bool doClamp){
     
     float normVal = ofMap(getValueDb(), min, max, 0.0, 1.0, doClamp);
-    smoothedNormFloatValueDb = smoothedNormFloatValueDb * smthAmnt + (1-smthAmnt) * normVal;
+    smoothedNormFloatValueDb = ofxAABaseAlgorithm::smoothAttackRelease(smoothedNormFloatValueDb, normVal, smthAmntAttck, smthAmntRlse);
     return smoothedNormFloatValueDb;
     
 }
@@ -179,10 +186,10 @@ vector<float>& ofxAAOneVectorOutputAlgorithm::getValues(){
     return floatValues;
 }
 //-------------------------------------------
-vector<float>& ofxAAOneVectorOutputAlgorithm::getSmoothedValues(float smthAmnt){
+vector<float>& ofxAAOneVectorOutputAlgorithm::getSmoothedValues(float smthAmntAttck, float smthAmntRlse){
     
     for(int i=0; i<smoothedFloatValues.size(); i++){
-        smoothedFloatValues[i] = smoothedFloatValues[i] * smthAmnt + (1-smthAmnt) * floatValues[i];
+        smoothedFloatValues[i] = ofxAABaseAlgorithm::smoothAttackRelease(smoothedFloatValues[i], floatValues[i], smthAmntAttck, smthAmntRlse);
     }
     
     return smoothedFloatValues;
@@ -222,7 +229,7 @@ vector<SalienceFunctionPeak>& ofxAAPitchSalienceFunctionPeaksAlgorithm::getPeaks
 }
 
 //-------------------------------------------
-vector<SalienceFunctionPeak>& ofxAAPitchSalienceFunctionPeaksAlgorithm::getSmoothedPeaks(float smthAmnt){
+vector<SalienceFunctionPeak>& ofxAAPitchSalienceFunctionPeaksAlgorithm::getSmoothedPeaks(float smthAmntAttck, float smthAmntRlse){
     
     if (limitPeaksNum && peaks.size() > maxPeaksNum){
         peaks.resize(maxPeaksNum);
@@ -231,9 +238,9 @@ vector<SalienceFunctionPeak>& ofxAAPitchSalienceFunctionPeaksAlgorithm::getSmoot
     smoothedPeaks.resize(peaks.size(), SalienceFunctionPeak());
     
     for(int i=0; i<smoothedPeaks.size(); i++){
-        smoothedPeaks[i].bin = smoothedPeaks[i].bin * smthAmnt + (1-smthAmnt) * peaks[i].bin;
-//        smoothedPeaks[i].bin = peaks[i].bin;
-        smoothedPeaks[i].value = smoothedPeaks[i].value * smthAmnt + (1-smthAmnt) * peaks[i].value;
+
+        smoothedPeaks[i].bin = ofxAABaseAlgorithm::smoothAttackRelease(smoothedPeaks[i].bin, peaks[i].bin, smthAmntAttck, smthAmntRlse);
+        smoothedPeaks[i].value = ofxAABaseAlgorithm::smoothAttackRelease(smoothedPeaks[i].bin, peaks[i].value, smthAmntAttck, smthAmntRlse);
     }
     
     return smoothedPeaks;
@@ -279,20 +286,20 @@ float ofxAAPitchDetectAlgorithm::getConfidenceValue(){
     return confidenceFloatVal;
 }
 //-------------------------------------------
-float ofxAAPitchDetectAlgorithm::getSmoothedPitchValueNormalized(float smthAmnt){
+float ofxAAPitchDetectAlgorithm::getSmoothedPitchValueNormalized(float smthAmntAttck, float smthAmntRlse){
     float normVal = ofMap(pitchFloatVal, 0.0, pitchMaxEstimatedValue, 0.0, 1.0, TRUE);
-    smoothedNormPitchFloatValue =  smoothedNormPitchFloatValue * smthAmnt + (1-smthAmnt) * normVal;
+    smoothedNormPitchFloatValue = ofxAABaseAlgorithm::smoothAttackRelease(smoothedNormPitchFloatValue, normVal, smthAmntAttck, smthAmntRlse);
     return smoothedNormPitchFloatValue;
 
 }
 //-------------------------------------------
-float ofxAAPitchDetectAlgorithm::getSmoothedPitchValue(float smthAmnt){
-    smoothedPitchFloatValue =  smoothedPitchFloatValue * smthAmnt + (1-smthAmnt) * pitchFloatVal;
+float ofxAAPitchDetectAlgorithm::getSmoothedPitchValue(float smthAmntAttck, float smthAmntRlse){
+    smoothedPitchFloatValue = ofxAABaseAlgorithm::smoothAttackRelease(smoothedPitchFloatValue, pitchFloatVal, smthAmntAttck, smthAmntRlse);
     return smoothedPitchFloatValue;
 }
 //-------------------------------------------
-float ofxAAPitchDetectAlgorithm::getSmoothedConfidenceValue(float smthAmnt){
-    smoothedConfidenceFloatValue =  smoothedConfidenceFloatValue * smthAmnt + (1-smthAmnt) * confidenceFloatVal;
+float ofxAAPitchDetectAlgorithm::getSmoothedConfidenceValue(float smthAmntAttck, float smthAmntRlse){
+    smoothedConfidenceFloatValue = ofxAABaseAlgorithm::smoothAttackRelease(smoothedConfidenceFloatValue, confidenceFloatVal, smthAmntAttck, smthAmntRlse);
     return smoothedConfidenceFloatValue;
 }
 //-------------------------------------------

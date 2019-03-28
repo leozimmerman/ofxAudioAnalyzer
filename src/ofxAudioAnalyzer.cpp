@@ -104,18 +104,18 @@ void ofxAudioAnalyzer::exit(){
     
 }
 //-------------------------------------------------------
-float ofxAudioAnalyzer::getValue(ofxAAAlgorithm algorithm, int channel, float smooth, bool normalized){
+float ofxAudioAnalyzer::getValue(ofxAAAlgorithm algorithm, int channel, float smoothAttack, float smoothRlse, bool normalized){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return 0.0;
     }
     
-    return channelAnalyzerUnits[channel]->getValue(algorithm, smooth, normalized);
+    return channelAnalyzerUnits[channel]->getValue(algorithm, smoothAttack, smoothRlse, normalized);
 
 }
 //-------------------------------------------------------
-vector<float>& ofxAudioAnalyzer::getValues(ofxAAAlgorithm algorithm, int channel, float smooth){
+vector<float>& ofxAudioAnalyzer::getValues(ofxAAAlgorithm algorithm, int channel, float smoothAttack, float smoothRlse){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
@@ -123,11 +123,11 @@ vector<float>& ofxAudioAnalyzer::getValues(ofxAAAlgorithm algorithm, int channel
         return r;
     }
     
-    return channelAnalyzerUnits[channel]->getValues(algorithm, smooth);
+    return channelAnalyzerUnits[channel]->getValues(algorithm, smoothAttack, smoothRlse);
     
 }
 //-------------------------------------------------------
-vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int channel, float smooth){
+vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int channel, float smoothAttack, float smoothRlse){
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         //SalienceFunctionPeak peak = SalienceFunctionPeak();
@@ -135,7 +135,7 @@ vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int cha
         return r;
     }
     
-     return channelAnalyzerUnits[channel]->getPitchSaliencePeaksRef(smooth);
+     return channelAnalyzerUnits[channel]->getPitchSaliencePeaksRef(smoothAttack, smoothRlse);
 
 }
 //-------------------------------------------------------

@@ -35,4 +35,5 @@ xcuserdata/
 
 ## OSX
 .DS_Store
-
+*.xcodeproj
+*.xcconfig

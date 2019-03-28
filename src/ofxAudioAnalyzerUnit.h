@@ -87,9 +87,9 @@ public:
     void setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
     void setSalienceFunctionPeaksParameters(int maxPeaks);
     
-    float getValue(ofxAAAlgorithm algorithm, float smooth=0.0, bool normalized=false);
-    vector<float>& getValues(ofxAAAlgorithm algorithm, float smooth=0.0);
-    vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef(float smooth=0.0);
+    float getValue(ofxAAAlgorithm algorithm, float smoothAttck=0.0, float smoothRlse=0.0, bool normalized=false);
+    vector<float>& getValues(ofxAAAlgorithm algorithm, float smoothAttck=0.0, float smoothRlse=0.0);
+    vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef(float smoothAttck=0.0, float smoothRlse=0.0);
     bool getIsActive(ofxAAAlgorithm algorithm);
     bool getOnsetValue();
     
@@ -98,8 +98,8 @@ public:
     
     ofxAAOnsetsAlgorithm* getOnsetsAlgorithmPtr(){return &onsets;}
     
-    int   getPitchFreqAsMidiNote(float smooth=0.0);
-    string getPitchFreqAsNoteName(float smooth=0.0);
+    int   getPitchFreqAsMidiNote(float smoothAttck=0.0, float smoothRlse=0.0);
+    string getPitchFreqAsNoteName(float smoothAttck=0.0, float smoothRlse=0.0);
     
    
 private:

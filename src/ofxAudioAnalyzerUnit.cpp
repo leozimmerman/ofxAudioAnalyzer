@@ -25,6 +25,8 @@
 #include "ofxAudioAnalyzerUnit.h"
 
 #pragma mark - Main funcs
+
+
 //--------------------------------------------------------------
 void ofxAudioAnalyzerUnit::setup(int sampleRate, int bufferSize){
     
@@ -609,121 +611,121 @@ bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithm algorithm){
 
 }
 //----------------------------------------------
-float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, bool normalized){
+float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smoothAttck, float smoothRlse, bool normalized){
     
     float r = 0.0;
     
     switch (algorithm) {
         
         case RMS:
-            r = smooth ?
-                rms.getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX):
+            r = (smoothAttck + smoothRlse > 0.0) ?
+                rms.getSmoothedValueDbNormalized(smoothAttck, smoothRlse, DB_MIN, DB_MAX):
                 rms.getValueDbNormalized(DB_MIN, DB_MAX);
             break;
             
         case ENERGY:
-            r = smooth ?
-                energy.getSmoothedValueNormalized(smooth):
+            r = (smoothAttck + smoothRlse > 0.0) ?
+                energy.getSmoothedValueNormalized(smoothAttck, smoothRlse):
                 energy.getValueNormalized();
             break;
             
         case POWER:
-            r = smooth ?
-                power.getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX):
+            r = (smoothAttck + smoothRlse > 0.0) ?
+                power.getSmoothedValueDbNormalized(smoothAttck, smoothRlse, DB_MIN, DB_MAX):
                 power.getValueDbNormalized(DB_MIN, DB_MAX);
             break;
             
         case PITCH_FREQ:
             if (normalized){
-                r = smooth ?
-                pitchDetect.getSmoothedPitchValueNormalized(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                pitchDetect.getSmoothedPitchValueNormalized(smoothAttck, smoothRlse):
                 pitchDetect.getPitchValueNormalized();
             }else{
-                r = smooth ?
-                pitchDetect.getSmoothedPitchValue(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                pitchDetect.getSmoothedPitchValue(smoothAttck, smoothRlse):
                 pitchDetect.getPitchValue();
             }
             break;
             
         case PITCH_CONFIDENCE:
-            r = smooth ?
-                pitchDetect.getSmoothedConfidenceValue(smooth):
+            r = (smoothAttck + smoothRlse > 0.0) ?
+                pitchDetect.getSmoothedConfidenceValue(smoothAttck, smoothRlse):
                 pitchDetect.getConfidenceValue();
             break;
             
         case PITCH_SALIENCE:
-            r = smooth ?
-                pitchSalience.getSmoothedValue(smooth):
+            r = (smoothAttck + smoothRlse > 0.0) ?
+                pitchSalience.getSmoothedValue(smoothAttck, smoothRlse):
                 pitchSalience.getValue();
             break;
             
         case INHARMONICITY:
-            r =  smooth ?
-                inharmonicity.getSmoothedValue(smooth):
+            r =  (smoothAttck + smoothRlse > 0.0) ?
+                inharmonicity.getSmoothedValue(smoothAttck, smoothRlse):
                 inharmonicity.getValue();
             break;
             
         case HFC:
             if (normalized){
-                r = smooth ?
-                hfc.getSmoothedValueNormalized(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                hfc.getSmoothedValueNormalized(smoothAttck, smoothRlse):
                 hfc.getValueNormalized();
             }else{
-                r = smooth ?
-                hfc.getSmoothedValue(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                hfc.getSmoothedValue(smoothAttck, smoothRlse):
                 hfc.getValue();
             }
             break;
             
         case SPECTRAL_COMPLEXITY:
             if (normalized){
-                r = smooth ?
-                spectralComplex.getSmoothedValueNormalized(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                spectralComplex.getSmoothedValueNormalized(smoothAttck, smoothRlse):
                 spectralComplex.getValueNormalized();
             }else{
-                r = smooth ?
-                spectralComplex.getSmoothedValue(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                spectralComplex.getSmoothedValue(smoothAttck, smoothRlse):
                 spectralComplex.getValue();
             }
             break;
             
         case CENTROID:
             if (normalized){
-                r = smooth ?
-                centroid.getSmoothedValueNormalized(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                centroid.getSmoothedValueNormalized(smoothAttck, smoothRlse):
                 centroid.getValueNormalized();
             }else{
-                r = smooth ?
-                centroid.getSmoothedValue(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                centroid.getSmoothedValue(smoothAttck, smoothRlse):
                 centroid.getValue();
             }
             break;
             
         case DISSONANCE:
-            r = smooth ?
-                dissonance.getSmoothedValue(smooth):
+            r = (smoothAttck + smoothRlse > 0.0) ?
+                dissonance.getSmoothedValue(smoothAttck, smoothRlse):
                 dissonance.getValue();
             break;
 
         case ROLL_OFF:
             if (normalized){
-                r = smooth ?
-                rollOff.getSmoothedValueNormalized(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                rollOff.getSmoothedValueNormalized(smoothAttck, smoothRlse):
                 rollOff.getValueNormalized();
             }else{
-                r = smooth ?
-                rollOff.getSmoothedValue(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                rollOff.getSmoothedValue(smoothAttck, smoothRlse):
                 rollOff.getValue();
             }
             break;
         case ODD_TO_EVEN:
             if (normalized){
-                r = smooth ?
-                oddToEven.getSmoothedValueNormalized(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                oddToEven.getSmoothedValueNormalized(smoothAttck, smoothRlse):
                 oddToEven.getValueNormalized();
             }else{
-                r = smooth ?
-                oddToEven.getSmoothedValue(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                oddToEven.getSmoothedValue(smoothAttck, smoothRlse):
                 oddToEven.getValue();
                 //limit value, because this algorithm reaches huge values (eg: 3.40282e+38)
                 r = ofClamp(r, 0.0, oddToEven.getMaxEstimatedValue());
@@ -731,23 +733,23 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, boo
             break;
         case STRONG_PEAK:
             if (normalized){
-                r = smooth ?
-                strongPeak.getSmoothedValueNormalized(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                strongPeak.getSmoothedValueNormalized(smoothAttck, smoothRlse):
                 strongPeak.getValueNormalized();
             }else{
-                r = smooth ?
-                strongPeak.getSmoothedValue(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                strongPeak.getSmoothedValue(smoothAttck, smoothRlse):
                 strongPeak.getValue();
             }
             break;
         case STRONG_DECAY:
             if (normalized){
-                r = smooth ?
-                strongDecay.getSmoothedValueNormalized(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                strongDecay.getSmoothedValueNormalized(smoothAttck, smoothRlse):
                 strongDecay.getValueNormalized();
             }else{
-                r = smooth ?
-                strongDecay.getSmoothedValue(smooth):
+                r = (smoothAttck + smoothRlse > 0.0) ?
+                strongDecay.getSmoothedValue(smoothAttck, smoothRlse):
                 strongDecay.getValue();
             }
             break;
@@ -765,24 +767,24 @@ bool ofxAudioAnalyzerUnit::getOnsetValue(){
     return onsets.getValue();
 }
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithm algorithm, float smooth){
+vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithm algorithm, float smoothAttck, float smoothRlse){
     
     switch (algorithm) {
         
         case SPECTRUM:
-            return smooth ? spectrum.getSmoothedValues(smooth) : spectrum.getValues();
+            return (smoothAttck + smoothRlse > 0.0) ? spectrum.getSmoothedValues(smoothAttck, smoothRlse) : spectrum.getValues();
             break;
             
         case MEL_BANDS:
-            return smooth ? melBands.getSmoothedValues(smooth) : melBands.getValues();
+            return (smoothAttck + smoothRlse > 0.0) ? melBands.getSmoothedValues(smoothAttck, smoothRlse) : melBands.getValues();
             break;
             
         case MFCC:
-            return smooth ? dct.getSmoothedValues(smooth) : dct.getValues();
+            return (smoothAttck + smoothRlse > 0.0) ? dct.getSmoothedValues(smoothAttck, smoothRlse) : dct.getValues();
             break;
             
         case HPCP:
-            return smooth ? hpcp.getSmoothedValues(smooth) : hpcp.getValues();
+            return (smoothAttck + smoothRlse > 0.0) ? hpcp.getSmoothedValues(smoothAttck, smoothRlse) : hpcp.getValues();
             break;
             
         case MULTI_PITCHES:
@@ -790,7 +792,7 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithm algorithm, float s
             break;
             
         case TRISTIMULUS:
-            return smooth ? tristimulus.getSmoothedValues(smooth) : tristimulus.getValues();
+            return (smoothAttck + smoothRlse > 0.0) ? tristimulus.getSmoothedValues(smoothAttck, smoothRlse) : tristimulus.getValues();
             break;
             
         default:
@@ -799,9 +801,9 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithm algorithm, float s
     }
 }
 //----------------------------------------------
-vector<SalienceFunctionPeak>& ofxAudioAnalyzerUnit::getPitchSaliencePeaksRef(float smooth){
+vector<SalienceFunctionPeak>& ofxAudioAnalyzerUnit::getPitchSaliencePeaksRef(float smoothAttck, float smoothRlse){
     
-    return smooth ? pitchSalienceFunctionPeaks.getSmoothedPeaks(smooth) : pitchSalienceFunctionPeaks.getPeaks();
+    return (smoothAttck + smoothRlse > 0.0) ? pitchSalienceFunctionPeaks.getSmoothedPeaks(smoothAttck, smoothRlse) : pitchSalienceFunctionPeaks.getPeaks();
     
 //    return pitchSalienceFunctionPeaks.getPeaks();
 }
@@ -927,13 +929,14 @@ void ofxAudioAnalyzerUnit::setSalienceFunctionPeaksParameters(int maxPeaks){
 }
 //----------------------------------------------
 #pragma mark - Utils
+
 //----------------------------------------------
-int ofxAudioAnalyzerUnit::getPitchFreqAsMidiNote(float smooth){
-    return pitchToMidi(getValue(PITCH_FREQ, smooth));
+int ofxAudioAnalyzerUnit::getPitchFreqAsMidiNote(float smoothAttck, float smoothRlse){
+    return pitchToMidi(getValue(PITCH_FREQ, smoothAttck, smoothRlse));
 }
 //----------------------------------------------
-string ofxAudioAnalyzerUnit::getPitchFreqAsNoteName(float smooth){
-    return midiToNoteName(getValue(PITCH_FREQ, smooth));
+string ofxAudioAnalyzerUnit::getPitchFreqAsNoteName(float smoothAttck, float smoothRlse){
+    return midiToNoteName(getValue(PITCH_FREQ, smoothAttck, smoothRlse));
 }
 //----------------------------------------------
 int ofxAudioAnalyzerUnit::pitchToMidi(float pitch){

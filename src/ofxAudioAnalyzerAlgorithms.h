@@ -93,13 +93,16 @@ public:
     
     float getValueNormalized(float min, float max, bool doClamp=TRUE);
     float getValueDbNormalized(float min, float max, bool doClamp=TRUE);
-    float getSmoothedValue(float smthAmnt);
+
+    float smoothAttackRelease(float currentValue, float newValue, float smoothAttck, float smoothRlse);
+
+    float getSmoothedValue(float smthAmntAttck, float smthAmntRlse);
     
     ///Gets the value normalized and smoothed from 0 to maxEstimatedValue with Clamping
-    float getSmoothedValueNormalized(float smthAmnt);
+    float getSmoothedValueNormalized(float smthAmntAttck, float smthAmntRlse);
     
-    float getSmoothedValueNormalized(float smthAmnt, float min, float max, bool doClamp=TRUE);
-    float getSmoothedValueDbNormalized(float smthAmnt, float min, float max, bool doClamp=TRUE);
+    float getSmoothedValueNormalized(float smthAmntAttck, float smthAmntRlse, float min, float max, bool doClamp=TRUE);
+    float getSmoothedValueDbNormalized(float smthAmntAttck, float smthAmntRlse, float min, float max, bool doClamp=TRUE);
     
     float getMaxEstimatedValue();
     
@@ -150,7 +153,7 @@ public:
     
     int getBinsNum();
     vector<float>& getValues();
-    vector<float>& getSmoothedValues(float smthAmnt);
+    vector<float>& getSmoothedValues(float smthAmntAttck, float smthAmntRlse);
     
     vector<Real> realValues;
     vector<Real> logRealValues;
@@ -182,7 +185,7 @@ public:
     void castValuesToFloat();
     
     vector<SalienceFunctionPeak>& getPeaks();
-    vector<SalienceFunctionPeak>& getSmoothedPeaks(float smthAmnt);
+    vector<SalienceFunctionPeak>& getSmoothedPeaks(float smthAmntAttck, float smthAmntRlse);
     
     ///change to maxPeaks!!!!
     void setMaxPeaksNum(int maxBins){maxPeaksNum = maxBins;}
@@ -235,9 +238,9 @@ public:
     float getPitchValueNormalized();
     float getConfidenceValue();
     
-    float getSmoothedPitchValue(float smthAmnt);
-    float getSmoothedPitchValueNormalized(float smthAmnt);
-    float getSmoothedConfidenceValue(float smthAmnt);
+    float getSmoothedPitchValue(float smthAmntAttck, float smthAmntRlse);
+    float getSmoothedPitchValueNormalized(float smthAmntAttck, float smthAmntRlse);
+    float getSmoothedConfidenceValue(float smthAmntAttck, float smthAmntRlse);
     
     float getMaxPitchEstimatedValue(){return pitchMaxEstimatedValue;}
     
