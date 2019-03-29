@@ -26,209 +26,23 @@
 #include "ofxAudioAnalyzerUtils.h"
 #include "ofxAAConfigurations.h"
 
-#define DEFAULT_MELBANDS_BANDS_NUM 24
-#define DEFAULT_DCT_COEFF_NUM 10
-#define DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES 10
-#define DEFAULT_TRISTIMULUS_BANDS_NUM 3
-#define DEFAULT_HPCP_SIZE 12
 
-#define DEFAULT_MAX_VALUE_ENERGY 100.0
-#define DEFAULT_MAX_VALUE_HFC 2000.0
-#define DEFAULT_MAX_VALUE_SPECTRAL_COMPLEXITY 20.0
-#define DEFAULT_MAX_VALUE_ODD_TO_EVEN 10.0
-#define DEFAULT_MAX_VALUE_STRONG_PEAK 20.0
-#define DEFAULT_MAX_VALUE_STRONG_DECAY 100.0
-#define DEFAULT_MAX_VALUE_PITCH_FREQ 4186.0 //C8
 
 #pragma mark - Main funcs
 
 ofxAudioAnalyzerUnit::ofxAudioAnalyzerUnit(int sampleRate, int bufferSize) {
-    _framesize = bufferSize;
-    _samplerate = sampleRate;
+    samplerate = sampleRate;
+    framesize = bufferSize;
     
     audioBuffer.resize(bufferSize);
     
-    createAlgorithms();
-    setDefaultMaxEstimatedValues();
-    connectAlgorithms();
-    
-    /**
-     pitchSalienceFunctionPeaks.init();
-     setActive(PITCH_SALIENCE_FUNC_PEAKS, false);
-     multiPitchKlapuri.init(MULTI_PITCH_KLAPURI, _samplerate, _framesize);
-     setActive(MULTI_PITCHES, false);
-     //------------------
-     */
-    
-    //MultiPitch Kalpuri:
-    ///multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, _samplerate);
+    network = new ofxaa::Network(samplerate, framesize);
 }
-//--------------------------------------------------------------
-void ofxAudioAnalyzerUnit::createAlgorithms(){
-    fft = new ofxAAFftAlgorithm(FFT, _samplerate, _framesize);
-    vectorAlgorithms.push_back(fft);
-    pitchDetect = new ofxAAPitchDetectAlgorithm(PITCH_YIN_FREQ, _samplerate, _framesize);
-    algorithms.push_back(pitchDetect);
-    onsets = new ofxAAOnsetsAlgorithm(ONSETS, _samplerate, _framesize);
-    algorithms.push_back(onsets);
-    cartesian2polar = new ofxAACartToPolAlgorithm(CART_TO_POLAR, _samplerate, _framesize);
-    algorithms.push_back(cartesian2polar);
-    spectralPeaks = new ofxAAPeaksAlgorithm(SPECTRAL_PEAKS, _samplerate, _framesize);
-    algorithms.push_back(spectralPeaks);
-    harmonicPeaks = new ofxAAPeaksAlgorithm(HARMONIC_PEAKS, _samplerate, _framesize);
-    algorithms.push_back(harmonicPeaks);
-    pitchSalienceFunctionPeaks = new ofxAAPitchSalienceFunctionPeaksAlgorithm(PITCH_SALIENCE_FUNC_PEAKS, _samplerate, _framesize);
-    algorithms.push_back(pitchSalienceFunctionPeaks);
-    
-    algorithms.push_back(new ofxAABaseAlgorithm(RMS, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(ENERGY, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(POWER, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(PITCH_SALIENCE, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(INHARMONICITY, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(HFC, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(CENTROID, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(SPECTRAL_COMPLEXITY, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(DISSONANCE, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(ROLL_OFF, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(ODD_TO_EVEN, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(STRONG_PEAK, _samplerate, _framesize));
-    algorithms.push_back(new ofxAABaseAlgorithm(STRONG_DECAY, _samplerate, _framesize));
-    
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(SPECTRUM, _samplerate, _framesize, (_framesize/2)+1));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(MEL_BANDS, _samplerate, _framesize, DEFAULT_MELBANDS_BANDS_NUM));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(DCT, _samplerate, _framesize, DEFAULT_DCT_COEFF_NUM));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(HPCP, _samplerate, _framesize, DEFAULT_HPCP_SIZE));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(PITCH_SALIENCE_FUNC, _samplerate, _framesize, DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(TRISTIMULUS, _samplerate, _framesize, DEFAULT_TRISTIMULUS_BANDS_NUM));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(DC_REMOVAL, _samplerate, _framesize));
-    vectorAlgorithms.push_back(new ofxAAOneVectorOutputAlgorithm(WINDOW, _samplerate, _framesize));
-}
-
-void ofxAudioAnalyzerUnit::setDefaultMaxEstimatedValues(){
-    //default values set from testing with white noise.
-    algorithm(ENERGY)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ENERGY);
-    algorithm(HFC)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_HFC);
-    algorithm(SPECTRAL_COMPLEXITY)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_SPECTRAL_COMPLEXITY);
-    algorithm(ROLL_OFF)->setMaxEstimatedValue(_samplerate/2);
-    algorithm(ODD_TO_EVEN)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ODD_TO_EVEN);
-    algorithm(STRONG_PEAK)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_PEAK);
-    algorithm(STRONG_DECAY)->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_DECAY);
-    pitchDetect->setMaxEstimatedValue(DEFAULT_MAX_VALUE_PITCH_FREQ);//C8
-}
-
-void ofxAudioAnalyzerUnit::connectAlgorithms(){
-
-    vectorAlgorithm(DC_REMOVAL)->algorithm->input("signal").set(audioBuffer);
-    vectorAlgorithm(DC_REMOVAL)->algorithm->output("signal").set(vectorAlgorithm(DC_REMOVAL)->realValues);
-
-    algorithm(RMS)->algorithm->input("array").set(vectorAlgorithm(DC_REMOVAL)->realValues);
-    algorithm(RMS)->algorithm->output("rms").set(algorithm(RMS)->realValue);
-
-    algorithm(ENERGY)->algorithm->input("array").set(vectorAlgorithm(DC_REMOVAL)->realValues);
-    algorithm(ENERGY)->algorithm->output("energy").set(algorithm(ENERGY)->realValue);
-
-    algorithm(POWER)->algorithm->input("array").set(vectorAlgorithm(DC_REMOVAL)->realValues);
-    algorithm(POWER)->algorithm->output("power").set(algorithm(POWER)->realValue);
-
-    vectorAlgorithm(WINDOW)->algorithm->input("frame").set(vectorAlgorithm(DC_REMOVAL)->realValues);
-    vectorAlgorithm(WINDOW)->algorithm->output("frame").set(vectorAlgorithm(WINDOW)->realValues);
-
-    fft->algorithm->input("frame").set(vectorAlgorithm(WINDOW)->realValues);
-    fft->algorithm->output("fft").set(fft->fftRealValues);
-    cartesian2polar->algorithm->input("complex").set(fft->fftRealValues);
-    cartesian2polar->algorithm->output("magnitude").set(cartesian2polar->magnitudes);
-    cartesian2polar->algorithm->output("phase").set(cartesian2polar->phases);
-
-    onsets->onsetHfc.algorithm->input("spectrum").set(cartesian2polar->magnitudes);
-    onsets->onsetHfc.algorithm->input("phase").set(cartesian2polar->phases);
-    onsets->onsetHfc.algorithm->output("onsetDetection").set(onsets->onsetHfc.realValue);
-
-    onsets->onsetComplex.algorithm->input("spectrum").set(cartesian2polar->magnitudes);
-    onsets->onsetComplex.algorithm->input("phase").set(cartesian2polar->phases);
-    onsets->onsetComplex.algorithm->output("onsetDetection").set(onsets->onsetComplex.realValue);
-
-    onsets->onsetFlux.algorithm->input("spectrum").set(cartesian2polar->magnitudes);
-    onsets->onsetFlux.algorithm->input("phase").set(cartesian2polar->phases);
-    onsets->onsetFlux.algorithm->output("onsetDetection").set(onsets->onsetFlux.realValue);
-
-    vectorAlgorithm(SPECTRUM)->algorithm->input("frame").set(vectorAlgorithm(WINDOW)->realValues);
-    vectorAlgorithm(SPECTRUM)->algorithm->output("spectrum").set(vectorAlgorithm(SPECTRUM)->realValues);
-
-    algorithm(HFC)->algorithm->input("spectrum").set(vectorAlgorithm(SPECTRUM)->realValues);
-    algorithm(HFC)->algorithm->output("hfc").set(algorithm(HFC)->realValue);
-
-    algorithm(PITCH_SALIENCE)->algorithm->input("spectrum").set(vectorAlgorithm(SPECTRUM)->realValues);
-    algorithm(PITCH_SALIENCE)->algorithm->output("pitchSalience").set(algorithm(PITCH_SALIENCE)->realValue);
-
-    algorithm(CENTROID)->algorithm->input("array").set(vectorAlgorithm(SPECTRUM)->realValues);
-    algorithm(CENTROID)->algorithm->output("centroid").set(algorithm(CENTROID)->realValue);
-
-    algorithm(SPECTRAL_COMPLEXITY)->algorithm->input("spectrum").set(vectorAlgorithm(SPECTRUM)->realValues);
-    algorithm(SPECTRAL_COMPLEXITY)->algorithm->output("spectralComplexity").set(algorithm(SPECTRAL_COMPLEXITY)->realValue);
-
-    spectralPeaks->algorithm->input("spectrum").set(vectorAlgorithm(SPECTRUM)->realValues);
-    spectralPeaks->algorithm->output("frequencies").set(spectralPeaks->frequencies);
-    spectralPeaks->algorithm->output("magnitudes").set(spectralPeaks->magnitudes);
-
-    vectorAlgorithm(HPCP)->algorithm->input("frequencies").set(spectralPeaks->frequencies);
-    vectorAlgorithm(HPCP)->algorithm->input("magnitudes").set(spectralPeaks->magnitudes);
-    vectorAlgorithm(HPCP)->algorithm->output("hpcp").set(vectorAlgorithm(HPCP)->realValues);
-
-    vectorAlgorithm(MEL_BANDS)->algorithm->input("spectrum").set(vectorAlgorithm(SPECTRUM)->realValues);
-    vectorAlgorithm(MEL_BANDS)->algorithm->output("bands").set(vectorAlgorithm(MEL_BANDS)->realValues);
-
-    vectorAlgorithm(DCT)->algorithm->input("array").set(vectorAlgorithm(MEL_BANDS)->logRealValues);
-    vectorAlgorithm(DCT)->algorithm->output("dct").set(vectorAlgorithm(DCT)->realValues);
-
-    pitchDetect->algorithm->input("spectrum").set(vectorAlgorithm(SPECTRUM)->realValues);
-    pitchDetect->algorithm->output("pitch").set(pitchDetect->pitchRealVal);
-    pitchDetect->algorithm->output("pitchConfidence").set(pitchDetect->confidenceRealVal);
-
-    harmonicPeaks->algorithm->input("frequencies").set(spectralPeaks->frequencies);
-    harmonicPeaks->algorithm->input("magnitudes").set(spectralPeaks->magnitudes);
-    harmonicPeaks->algorithm->input("pitch").set(pitchDetect->pitchRealVal);
-    harmonicPeaks->algorithm->output("harmonicFrequencies").set(harmonicPeaks->frequencies);
-    harmonicPeaks->algorithm->output("harmonicMagnitudes").set(harmonicPeaks->magnitudes);
-
-    algorithm(INHARMONICITY)->algorithm->input("frequencies").set(harmonicPeaks->frequencies);
-    algorithm(INHARMONICITY)->algorithm->input("magnitudes").set(harmonicPeaks->magnitudes);
-    algorithm(INHARMONICITY)->algorithm->output("inharmonicity").set(algorithm(INHARMONICITY)->realValue);
-
-    algorithm(DISSONANCE)->algorithm->input("frequencies").set(spectralPeaks->frequencies);
-    algorithm(DISSONANCE)->algorithm->input("magnitudes").set(spectralPeaks->magnitudes);
-    algorithm(DISSONANCE)->algorithm->output("dissonance").set(algorithm(DISSONANCE)->realValue);
-
-    vectorAlgorithm(PITCH_SALIENCE_FUNC)->algorithm->input("frequencies").set(spectralPeaks->frequencies);
-    vectorAlgorithm(PITCH_SALIENCE_FUNC)->algorithm->input("magnitudes").set(spectralPeaks->magnitudes);
-    vectorAlgorithm(PITCH_SALIENCE_FUNC)->algorithm->output("salienceFunction").set(vectorAlgorithm(PITCH_SALIENCE_FUNC)->realValues);
-
-    pitchSalienceFunctionPeaks->algorithm->input("salienceFunction").set(vectorAlgorithm(PITCH_SALIENCE_FUNC)->realValues);
-    pitchSalienceFunctionPeaks->algorithm->output("salienceBins").set(pitchSalienceFunctionPeaks->realSalienceBins);
-    pitchSalienceFunctionPeaks->algorithm->output("salienceValues").set(pitchSalienceFunctionPeaks->realSalienceValues);
-    
-    algorithm(ROLL_OFF)->algorithm->input("spectrum").set(vectorAlgorithm(SPECTRUM)->realValues);
-    algorithm(ROLL_OFF)->algorithm->output("rollOff").set(algorithm(ROLL_OFF)->realValue);
-    
-    algorithm(STRONG_PEAK)->algorithm->input("spectrum").set(vectorAlgorithm(SPECTRUM)->realValues);
-    algorithm(STRONG_PEAK)->algorithm->output("strongPeak").set(algorithm(STRONG_PEAK)->realValue);
-    
-    algorithm(STRONG_DECAY)->algorithm->input("signal").set(vectorAlgorithm(DC_REMOVAL)->realValues);
-    algorithm(STRONG_DECAY)->algorithm->output("strongDecay").set(algorithm(STRONG_DECAY)->realValue);
-    
-    algorithm(ODD_TO_EVEN)->algorithm->input("frequencies").set(harmonicPeaks->frequencies);
-    algorithm(ODD_TO_EVEN)->algorithm->input("magnitudes").set(harmonicPeaks->magnitudes);
-    algorithm(ODD_TO_EVEN)->algorithm->output("oddToEvenHarmonicEnergyRatio").set(algorithm(ODD_TO_EVEN)->realValue);
-    
-    vectorAlgorithm(TRISTIMULUS)->algorithm->input("frequencies").set(harmonicPeaks->frequencies);
-    vectorAlgorithm(TRISTIMULUS)->algorithm->input("magnitudes").set(harmonicPeaks->magnitudes);
-    vectorAlgorithm(TRISTIMULUS)->algorithm->output("tristimulus").set(vectorAlgorithm(TRISTIMULUS)->realValues);
-}
-
 //--------------------------------------------------------------
 void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
     
-    if(inBuffer.size() != _framesize){
-        ofLogWarning()<<"ofxAudioAnalyzerUnit: buffer requested to analyze size(" <<inBuffer.size()<<")doesnt match the buffer size already set: "<<_framesize;
+    if(inBuffer.size() != framesize){
+        ofLogWarning()<<"ofxAudioAnalyzerUnit: buffer requested to analyze size(" <<inBuffer.size()<<")doesnt match the buffer size already set: "<<framesize;
     }
     
     //Cast of incoming audio buffer to Real
@@ -236,127 +50,36 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
         audioBuffer[i] = (Real) inBuffer[i];
     }
     
-    #pragma mark -Compute Algorithms
-    
-    vectorAlgorithm(DC_REMOVAL)->compute();
-    algorithm(RMS)->compute();
-    algorithm(ENERGY)->compute();
-    algorithm(POWER)->compute();
-    vectorAlgorithm(WINDOW)->compute();
-    
-    if(onsets->getIsActive()){
-        fft->compute();
-        cartesian2polar->compute();
-        onsets->compute();
-    }
-    
-    //spectrum must always be computed as it is neede for other algorithms
-    vectorAlgorithm(SPECTRUM)->algorithm->compute();
-    
-    algorithm(HFC)->compute();
-    algorithm(PITCH_SALIENCE)->compute();
-    pitchDetect->compute();
-    algorithm(CENTROID)->compute();
-    algorithm(SPECTRAL_COMPLEXITY)->compute();
-    if(vectorAlgorithm(MEL_BANDS)->getIsActive()){
-        vectorAlgorithm(MEL_BANDS)->algorithm->compute();
-        if(vectorAlgorithm(DCT)->getIsActive()){
-            vectorAlgorithm(MEL_BANDS)->updateLogRealValues();
-            vectorAlgorithm(DCT)->compute();
-        }
-    }else{
-        vectorAlgorithm(DCT)->setActive(false);//dct needs melBands to be active
-    }
-    spectralPeaks->compute();
-    vectorAlgorithm(HPCP)->compute();
-    
-    if (algorithm(INHARMONICITY)->getIsActive()){
-        harmonicPeaks->compute();
-        algorithm(INHARMONICITY)->algorithm->compute();
-    }
-
-    algorithm(DISSONANCE)->compute();
-    vectorAlgorithm(PITCH_SALIENCE_FUNC)->compute();
-    pitchSalienceFunctionPeaks->compute();
-    
-    ///multiPitchKlapuri.compute();
-    
-    algorithm(ROLL_OFF)->compute();
-    algorithm(ODD_TO_EVEN)->compute();
-    algorithm(STRONG_PEAK)->compute();
-    
-    vectorAlgorithm(TRISTIMULUS)->compute();
-    if(vectorAlgorithm(DC_REMOVAL)->realValues[0] != 0.0){
-        //the strong decay is not defined for a zero signal
-        algorithm(STRONG_DECAY)->compute();
-    }
-    
-    
-    #pragma mark -Cast results to float
-    
-    vectorAlgorithm(SPECTRUM)->castValuesToFloat(true);
-    vectorAlgorithm(MEL_BANDS)->castValuesToFloat(true);
-    vectorAlgorithm(DCT)->castValuesToFloat(false);
-    vectorAlgorithm(HPCP)->castValuesToFloat(false);
-    vectorAlgorithm(TRISTIMULUS)->castValuesToFloat(false);
-
-    for (auto a : algorithms){
-        a->castValueToFloat();
-    }
-    pitchSalienceFunctionPeaks->castValuesToFloat();
-    pitchDetect->castValuesToFloat();
-    onsets->castValuesToFloat();
-    
-    onsets->evaluate();
+    network->computeAlgorithms(audioBuffer);
 }
 
 //--------------------------------------------------------------
 void ofxAudioAnalyzerUnit::exit(){
-    for (auto a : algorithms){
-        a->deleteAlgorithm();
-    }
-    for (auto a :vectorAlgorithms){
-        a->deleteAlgorithm();
-    }
+    delete network;
 }
 
 //--------------------------------------------------------------
 #pragma mark - Activates
 //----------------------------------------------
 void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithmType algorithmType, bool state){
-    
-    switch (algorithmType) {
-        case SPECTRUM:
-            ofLogWarning()<<"ofxAudioAnalyzerUnit: Spectrum Algorithm cant be turned off.";
-            break;
-        case MEL_BANDS:
-            vectorAlgorithm(MEL_BANDS)->setActive(state);
-            if(state==false)vectorAlgorithm(DCT)->setActive(state);//dct needs melBands to be active.
-            break;
-        case DCT:
-            //dct needs melBands to be active.
-            vectorAlgorithm(MEL_BANDS)->setActive(state);
-            vectorAlgorithm(DCT)->setActive(state);
-            break;
-        case PITCH_SALIENCE_FUNC_PEAKS:
-            vectorAlgorithm(PITCH_SALIENCE_FUNC)->setActive(state);
-            pitchSalienceFunctionPeaks->setActive(state);
-            break;
-        default:
-            algorithm(algorithmType)->setActive(state);
-            break;
-    }
+    //TODO: !
+    ///network->setActive(algorithmType, state);
 }
 //----------------------------------------------
 bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithmType algorithmType){
-    return  algorithm(algorithmType)->getIsActive();
+    //TODO: !
+    ///return  network->getIsActive(algorithmType)
+    return true;
 }
 //----------------------------------------------
 #pragma mark - Get values
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithmType algorithmType, float smooth, bool normalized){
-   
-    //TODO: Check this exception cases...
+    return network->getValue(algorithmType, smooth, normalized);
+    
+    //TODO: !
+    /*
+     
     switch (algorithmType) {
         case PITCH_YIN_FREQ:
             if (normalized){
@@ -386,11 +109,15 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithmType algorithmType, float smo
             }
             break;
     }
+    */
 }
 
 //----------------------------------------------
 vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithmType algorithmType, float smooth){
-    
+    auto values = network->getValues(algorithmType, algorithmType);
+    return values;
+    //TODO: !
+    /*
     ofxAAOneVectorOutputAlgorithm* algorithm = vectorAlgorithm(algorithmType);
     
     if (!ofxaa::algorithmHasVectorOutput(algorithm)){
@@ -400,9 +127,14 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithmType algorithmType,
     }
     
     return smooth ? algorithm->getSmoothedValues(smooth) : algorithm->getValues();
+    */
 }
 //----------------------------------------------
 int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithmType algorithmType){
+    auto size = network->getValues(algorithmType, 0.0).size();
+    return size;
+    //TODO: !
+    /*
     ofxAAOneVectorOutputAlgorithm* algorithm = vectorAlgorithm(algorithmType);
     
     if (!ofxaa::algorithmHasVectorOutput(algorithm)){
@@ -411,10 +143,14 @@ int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithmType algorithmType){
     }
     
     return algorithm->getBinsNum();
+    */
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithmType algorithmType){
-    ofxAABaseAlgorithm* baseAlgorithm = algorithm(algorithmType);
+    return 1.0;
+    //TODO: !
+    /*
+     ofxAABaseAlgorithm* baseAlgorithm = algorithm(algorithmType);
     
     if (ofxaa::algorithmHasVectorOutput(baseAlgorithm)){
         ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for Getting max estimated value. This is algorithm outputs a vector" << baseAlgorithm->algorithm->name();
@@ -425,10 +161,13 @@ float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithmType algorithmTyp
     }
     
     return baseAlgorithm->getMaxEstimatedValue();
+    */
 }
 //----------------------------------------------
 void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithmType algorithmType, float value){
-    ofxAABaseAlgorithm* baseAlgorithm = algorithm(algorithmType);
+    //TODO: !
+    /*
+     ofxAABaseAlgorithm* baseAlgorithm = algorithm(algorithmType);
     
     if (ofxaa::algorithmHasVectorOutput(baseAlgorithm)){
          ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for Setting max estimated value. This is algorithm outputs a vector" << baseAlgorithm->algorithm->name();
@@ -439,49 +178,14 @@ void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithmType algorithmType
     }
     
     baseAlgorithm->setMaxEstimatedValue(value);
+    */
 }
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setSalienceFunctionPeaksParameters(int maxPeaks){
-    pitchSalienceFunctionPeaks->setMaxPeaksNum(maxPeaks);
-}
-//----------------------------------------------
-ofxAABaseAlgorithm* ofxAudioAnalyzerUnit::algorithm(ofxAAAlgorithmType type){
-    for (int i=0; i<algorithms.size(); i++){
-        if (type == algorithms[i]->getType()){
-            return algorithms[i];
-        }
-    }
-     ofLogError()<<"ofxAudioAnalyzerUnit: algorithm type is NOT a Base Algorithm.";
-}
-//----------------------------------------------
-ofxAAOneVectorOutputAlgorithm* ofxAudioAnalyzerUnit::vectorAlgorithm(ofxAAAlgorithmType type){
-    for (int i=0; i<vectorAlgorithms.size(); i++){
-        if (type == vectorAlgorithms[i]->getType()){
-            return vectorAlgorithms[i];
-        }
-    }
-}
-//----------------------------------------------
-#pragma mark - Onsets
 //----------------------------------------------
 bool ofxAudioAnalyzerUnit::getOnsetValue(){
-    return onsets->getValue();
+     return network->getOnsetValue();
 }
 //----------------------------------------------
 void ofxAudioAnalyzerUnit::resetOnsets(){
-    onsets->reset();
+    network->resetOnsets();
 }
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh){
-    onsets->setOnsetAlpha(alpha);
-    onsets->setOnsetSilenceThreshold(silenceTresh);
-    onsets->setOnsetTimeThreshold(timeTresh);
-    onsets->setUseTimeThreshold(useTimeTresh);
-}
-//----------------------------------------------
-vector<SalienceFunctionPeak>& ofxAudioAnalyzerUnit::getPitchSaliencePeaksRef(float smooth){
-    return smooth ? pitchSalienceFunctionPeaks->getSmoothedPeaks(smooth) : pitchSalienceFunctionPeaks->getPeaks();
-}
-//----------------------------------------------
-
 

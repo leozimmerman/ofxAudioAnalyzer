@@ -23,47 +23,63 @@
  */
 
 #pragma once
+//TODO: Differentiate algorithm types (will match essentia algorithms) and getValue types (may be more than one for each alg type)
 
 enum ofxAAAlgorithmType {
-    DC_REMOVAL,
-    WINDOW,
-    FFT,
-    
-    RMS,
-    ENERGY,
-    POWER,
-    
-    PITCH_YIN_FREQ,
-    PITCH_YIN_CONFIDENCE,
-    
-    PITCH_SALIENCE,
-    INHARMONICITY,
-    HFC,
-    CENTROID,
-    SPECTRAL_COMPLEXITY,
-    DISSONANCE,
-    ROLL_OFF,
-    ODD_TO_EVEN,
-    STRONG_PEAK,
+    ///Envelope/SFX
     STRONG_DECAY,
     
+    ///Filters
+    DC_REMOVAL,
+    
+    ///Standard
+    FFT,
+    WINDOWING,
+    
+    ///SPECTRAL
+    HFC,
+    DCT,
+    MEL_BANDS,
+    ROLL_OFF,
+    SPECTRAL_COMPLEXITY,
+    SPECTRAL_PEAKS,
+    SPECTRUM,
+    STRONG_PEAK,
+    
+    ///RHYTHM
     ONSETS,
     ONSETS_DETECTION_HFC,
     ONSETS_DETECTION_COMPLEX,
     ONSETS_DETECTION_FLUX,
     
-    SPECTRUM,
-    MEL_BANDS,
-    //MFCC,
+    ///MATH
+    CART_TO_POLAR,
+    
+    ///STATISTICS
+    CENTROID,
+    ENERGY,
+    POWER,
+    RMS,
+    
+    ///TONAL
+    DISSONANCE,
     HPCP,
+    HARMONIC_PEAKS,
+    INHARMONICITY,
+    ODD_TO_EVEN,
+    PITCH_SALIENCE,
+    TRISTIMULUS,
+    
+    ///LOUDNESS / DYNAMICS
+    
+    ///PITCH
+    PITCH_YIN_FREQ,
+    PITCH_YIN_CONFIDENCE,
     MULTI_PITCHES,
     PITCH_SALIENCE_FUNC_PEAKS,
     PITCH_SALIENCE_FUNC,
-    TRISTIMULUS,
-    
     MULTI_PITCH_KLAPURI,
-    CART_TO_POLAR,
-    SPECTRAL_PEAKS,
-    HARMONIC_PEAKS,
-    DCT
+    
 };
+
+

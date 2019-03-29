@@ -133,9 +133,10 @@ vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int cha
         static vector<SalienceFunctionPeak> r(1, SalienceFunctionPeak());
         return r;
     }
-    
-     return channelAnalyzerUnits[channel]->getPitchSaliencePeaksRef(smooth);
-
+    //TODO: !
+    /// return channelAnalyzerUnits[channel]->network->getPitchSaliencePeaksRef(smooth);
+    static vector<SalienceFunctionPeak> r(1, SalienceFunctionPeak());
+    return r;
 }
 //-------------------------------------------------------
 bool ofxAudioAnalyzer::getOnsetValue(int channel){
@@ -198,7 +199,7 @@ void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silen
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return;
     }
-    channelAnalyzerUnits[channel]->setOnsetsParameters(alpha, silenceTresh, timeTresh, useTimeTresh);
+    channelAnalyzerUnits[channel]->network->setOnsetsParameters(alpha, silenceTresh, timeTresh, useTimeTresh);
 
 }
 //-------------------------------------------------------
@@ -208,8 +209,8 @@ void ofxAudioAnalyzer::setSalienceFunctionPeaksParameters(int channel, int maxPe
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return;
     }
-    
-    channelAnalyzerUnits[channel]->setSalienceFunctionPeaksParameters(maxPeaks);
+    //TODO: !
+    ///channelAnalyzerUnits[channel]->network->setSalienceFunctionPeaksParameters(maxPeaks);
 
 }
 

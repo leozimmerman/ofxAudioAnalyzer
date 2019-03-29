@@ -36,7 +36,7 @@
 //using namespace standard;
 
 #include "ofxAudioAnalyzerAlgorithms.h"
-
+#include "ofxAANetwork.h"
 
 
 //for scaling values:
@@ -60,55 +60,34 @@ public:
     void exit();
     
     void resetOnsets();
+    bool getOnsetValue();
     
-    int getSampleRate() {return _samplerate;}
-    int getBufferSize() {return _framesize;}
+    int getSampleRate() {return samplerate;}
+    int getBufferSize() {return framesize;}
     
     void setActive(ofxAAAlgorithmType algorithmType, bool state);
     void setMaxEstimatedValue(ofxAAAlgorithmType algorithmType, float value);
-    void setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
-    void setSalienceFunctionPeaksParameters(int maxPeaks);
+    
     
     float getValue(ofxAAAlgorithmType algorithmType, float smooth=0.0, bool normalized=false);
     vector<float>& getValues(ofxAAAlgorithmType algorithmType, float smooth=0.0);
-    vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef(float smooth=0.0);
+   
     bool getIsActive(ofxAAAlgorithmType algorithmType);
-    bool getOnsetValue();
+    
     
     int getBinsNum(ofxAAAlgorithmType algorithmType);
     float getMaxEstimatedValue(ofxAAAlgorithmType algorithmType);
     
-    int   getPitchFreqAsMidiNote(float smooth=0.0);
-    string getPitchFreqAsNoteName(float smooth=0.0);
     
-    
-    
-    
+    ofxaa::Network* network; //TODO: Make private
 private:
     
-    void createAlgorithms();
-    void connectAlgorithms();
-    void setDefaultMaxEstimatedValues();
     
-    ofxAABaseAlgorithm* algorithm(ofxAAAlgorithmType type);
-    ofxAAOneVectorOutputAlgorithm* vectorAlgorithm(ofxAAAlgorithmType type);
-    vector<ofxAABaseAlgorithm*> algorithms;
-    vector<ofxAAOneVectorOutputAlgorithm*> vectorAlgorithms;
     
     vector<Real> audioBuffer;
-
-    ofxAAFftAlgorithm* fft;
-    ofxAACartToPolAlgorithm* cartesian2polar;
-    ofxAAPeaksAlgorithm* spectralPeaks;
-    ofxAAPeaksAlgorithm* harmonicPeaks;
-    ofxAAPitchDetectAlgorithm* pitchDetect;
-    ofxAAOnsetsAlgorithm* onsets;
-    ofxAAPitchSalienceFunctionPeaksAlgorithm* pitchSalienceFunctionPeaks;
     
-    int _samplerate;
-    int _framesize;
-    
-    int _hopsize;
+    int samplerate;
+    int framesize;
     
 };
 

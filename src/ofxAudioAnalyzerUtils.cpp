@@ -49,7 +49,7 @@ namespace ofxaa {
                 return factory.create("InstantPower");
             case DC_REMOVAL:
                 return factory.create("DCRemoval", "sampleRate", samplerate);
-            case WINDOW:
+            case WINDOWING:
                 return factory.create("Windowing");
             case FFT:
                 return factory.create("FFT", "size", framesize);
