@@ -24,28 +24,28 @@
 
 #include "ofxAAOneVectorOutputAlgorithm.h"
 
-ofxAAOneVectorOutputAlgorithm::ofxAAOneVectorOutputAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize, int binsSize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){
+ofxAAOneVectorOutputAlgorithm::ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int binsSize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){
     
     assignFloatValuesSize(binsSize, 0.0);
 }
 //-------------------------------------------
 void ofxAAOneVectorOutputAlgorithm::assignFloatValuesSize(int size, int val){
+    realValues.assign(size, val);
     floatValues.assign(size, val);
     smoothedFloatValues.assign(size, val);
 }
 //-------------------------------------------
 void ofxAAOneVectorOutputAlgorithm::castValuesToFloat(bool logarithmic){
+    if (floatValues.size() != realValues.size()) { return; }
     
     for (int i=0; i<realValues.size(); i++){
         if(getIsActive()){
             if(logarithmic){
-                
                 if(realValues[i] == 0.0){
                     floatValues[i] = log10(0.000001);//DB_MIN
                 }else{
                     floatValues[i] = log10((float) realValues[i]);
                 }
-                
             }else{
                 floatValues[i] = (float) realValues[i];
             }

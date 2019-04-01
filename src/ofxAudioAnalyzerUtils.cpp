@@ -37,18 +37,56 @@ namespace ofxaa {
         factory.shutdown();
     }
     //----------------------------------------------
-    Algorithm* createAlgorithmWithType(ofxAAAlgorithmType algorithmType, int samplerate, int framesize){
+    Algorithm* createAlgorithmWithType(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize){
+        Real thresholds_dB[] = { -20, -30, -60 };
+        vector<Real> silenceRateThresholds(ARRAY_SIZE(thresholds_dB));
+        for (int i=0; i<(int)silenceRateThresholds.size(); i++) {
+            silenceRateThresholds[i] = db2lin(thresholds_dB[i]/2.0);
+        }
+        
         AlgorithmFactory& factory = AlgorithmFactory::instance();
         
         switch (algorithmType) {
-            case RMS:
+            case DCRemoval:
+                return factory.create("DCRemoval", "sampleRate", samplerate);
+            case Rms:
                 return factory.create("RMS");
+            case InstantPower:
+                return factory.create("InstantPower");
+            case StrongDecay:
+                return factory.create("StrongDecay", "sampleRate", samplerate);
+            case ZeroCrossingRate:
+                return factory.create("ZeroCrossingRate");
+            case LoudnessVickers:
+                return factory.create("LoudnessVickers", "sampleRate", samplerate);
+            case Loudness:
+                return factory.create("Loudness");
+            case SilenceRate:
+                return factory.create("SilenceRate", "thresholds", silenceRateThresholds);
+            case CentralMoments:
+                return factory.create("CentralMoments");
+            case Centroid:
+                return factory.create("Centroid");
+            case Decrease:
+                return factory.create("Decrease");
+            case DistributionShape:
+                return factory.create("DistributionShape");
+            case DerivativeSFX:
+                return factory.create("DerivativeSFX");
+            case Envelope:
+                return factory.create("Envelope", "sampleRate", samplerate);
+            case FlatnessSFX:
+                return factory.create("FlatnessSFX");
+            case LogAttackTime:
+                return factory.create("LogAttackTime", "sampleRate", samplerate);
+            case MaxToTotal:
+                return factory.create("MaxToTotal");
+            case TCToTotal:
+                return factory.create("TCToTotal");
+                
+            ///*********
             case ENERGY:
                 return factory.create("Energy");;
-            case POWER:
-                return factory.create("InstantPower");
-            case DC_REMOVAL:
-                return factory.create("DCRemoval", "sampleRate", samplerate);
             case WINDOWING:
                 return factory.create("Windowing");
             case FFT:
@@ -67,8 +105,7 @@ namespace ofxaa {
                 return factory.create("HFC", "sampleRate", samplerate);
             case PITCH_SALIENCE:
                 return factory.create("PitchSalience", "sampleRate", samplerate);
-            case CENTROID:
-                return factory.create("Centroid");
+            
             case SPECTRAL_COMPLEXITY:
                 return factory.create("SpectralComplexity", "sampleRate", samplerate);
             case DISSONANCE:
@@ -79,8 +116,7 @@ namespace ofxaa {
                 return factory.create("OddToEvenHarmonicEnergyRatio");
             case STRONG_PEAK:
                 return factory.create("StrongPeak");
-            case STRONG_DECAY:
-                return factory.create("StrongDecay", "sampleRate", samplerate);
+            
             case SPECTRAL_PEAKS:
                 return factory.create("SpectralPeaks", "minFrequency", 1.0);
             case MEL_BANDS:

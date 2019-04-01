@@ -86,4 +86,28 @@ namespace ofxaa {
         algorithm->configure("interpolate", interpolate, "maxFrequency", maxFrequency, "minFrequency", minFrequency);
     }
     
+    void configureZeroCrossingRate(Algorithm* algorithm, Real threshold){
+        algorithm->configure("threshold", threshold);
+    }
+    
+    void configureSilenceRate(Algorithm* algorithm, vector<Real>& thresholds){
+        algorithm->configure("thresholds", thresholds);
+    }
+    
+    void configureEnvelope(Algorithm* algorithm, bool applyRectification, Real attackTime, Real releaseTime){
+        algorithm->configure("applyRectification", applyRectification, "attackTime", attackTime, "releaseTime", releaseTime);
+    }
+    
+    void configureLogAttackTime(Algorithm* algorithm, Real startAttackThreshold, Real stopAttackThreshold){
+           algorithm->configure("startAttackThreshold", startAttackThreshold, "stopAttackThreshold", stopAttackThreshold);
+    }
+    
+    void configureCentralMoments(Algorithm* algorithm, string mode, Real range){
+        algorithm->configure("mode", mode, "range", range);
+    }
+    
+    void configureDecrease(Algorithm* algorithm, Real range){
+        algorithm->configure("range", range);
+    }
+    
 }

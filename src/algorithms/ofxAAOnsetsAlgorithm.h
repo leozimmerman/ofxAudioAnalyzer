@@ -36,7 +36,7 @@ class ofxAAOnsetsAlgorithm : public ofxAABaseAlgorithm{
 
 public:
     
-    ofxAAOnsetsAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize);
+    ofxAAOnsetsAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize);
     
     void deleteAlgorithm() override;
     

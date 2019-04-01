@@ -36,16 +36,18 @@ using namespace std;
 using namespace essentia;
 using namespace standard;
 
+#define DB_MIN -6
+#define DB_MAX 0
 
 namespace ofxaa {
     
-    Algorithm* createAlgorithmWithType(ofxAAAlgorithmType algorithmType, int samplerate, int framesize);
+    Algorithm* createAlgorithmWithType(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize);
     
     void initializeEssentia();
     void shutEssentiaFactoryDown();
     
-    static const vector<ofxAAAlgorithmType> algorithmsWithNoNormalizedSingleOutput = { ENERGY, PITCH_YIN_FREQ, HFC, SPECTRAL_COMPLEXITY, ROLL_OFF, ODD_TO_EVEN, STRONG_PEAK, STRONG_DECAY };
-    static const vector<ofxAAAlgorithmType> algorithmsWithOutputInDbs = { RMS, POWER };
+    static const vector<ofxaa::AlgorithmType> algorithmsWithNoNormalizedSingleOutput = { ENERGY, PITCH_YIN_FREQ, HFC, SPECTRAL_COMPLEXITY, ROLL_OFF, ODD_TO_EVEN, STRONG_PEAK, StrongDecay };
+    static const vector<ofxaa::AlgorithmType> algorithmsWithOutputInDbs = { Rms, InstantPower };
 
     bool algorithmHasVectorOutput(ofxAABaseAlgorithm* algorithm);
     bool algorithmHasNormalizedSingleOutputByDefault(ofxAABaseAlgorithm* algorithm);

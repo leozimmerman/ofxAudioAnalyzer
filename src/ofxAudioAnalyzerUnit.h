@@ -39,10 +39,7 @@
 #include "ofxAANetwork.h"
 
 
-//for scaling values:
-#define DB_MIN -6
-#define DB_MAX 0
-#define MFCC_MAX_ESTIMATED_VALUE 300.0
+
 
 
 class ofxAudioAnalyzerUnit
@@ -65,18 +62,18 @@ public:
     int getSampleRate() {return samplerate;}
     int getBufferSize() {return framesize;}
     
-    void setActive(ofxAAAlgorithmType algorithmType, bool state);
-    void setMaxEstimatedValue(ofxAAAlgorithmType algorithmType, float value);
+    void setActive(ofxaa::AlgorithmType algorithmType, bool state);
+    void setMaxEstimatedValue(ofxaa::AlgorithmType algorithmType, float value);
     
     
-    float getValue(ofxAAAlgorithmType algorithmType, float smooth=0.0, bool normalized=false);
-    vector<float>& getValues(ofxAAAlgorithmType algorithmType, float smooth=0.0);
+    float getValue(ofxAAValueType valueType, float smooth=0.0, bool normalized=false);
+    vector<float>& getValues(ofxaa::AlgorithmType algorithmType, float smooth=0.0);
    
-    bool getIsActive(ofxAAAlgorithmType algorithmType);
+    bool getIsActive(ofxaa::AlgorithmType algorithmType);
     
     
-    int getBinsNum(ofxAAAlgorithmType algorithmType);
-    float getMaxEstimatedValue(ofxAAAlgorithmType algorithmType);
+    int getBinsNum(ofxaa::AlgorithmType algorithmType);
+    float getMaxEstimatedValue(ofxaa::AlgorithmType algorithmType);
     
     
     ofxaa::Network* network; //TODO: Make private
@@ -85,6 +82,7 @@ private:
     
     
     vector<Real> audioBuffer;
+    vector<Real> accumulatedAudioBuffer;
     
     int samplerate;
     int framesize;

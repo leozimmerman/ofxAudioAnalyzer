@@ -25,7 +25,7 @@
 #include "ofxAAOnsetsAlgorithm.h"
 
 
-ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize), onsetHfc(ONSETS_DETECTION_HFC, samplerate, framesize), onsetComplex(ONSETS_DETECTION_COMPLEX, samplerate, framesize), onsetFlux(ONSETS_DETECTION_FLUX, samplerate, framesize) {
+ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize), onsetHfc(ofxaa::ONSETS_DETECTION_HFC, samplerate, framesize), onsetComplex(ofxaa::ONSETS_DETECTION_COMPLEX, samplerate, framesize), onsetFlux(ofxaa::ONSETS_DETECTION_FLUX, samplerate, framesize) {
     
     /*
      at 44100:

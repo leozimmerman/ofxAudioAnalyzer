@@ -40,7 +40,7 @@ struct SalienceFunctionPeak{
 class ofxAAPitchSalienceFunctionPeaksAlgorithm : public ofxAABaseAlgorithm{
 public:
     
-    ofxAAPitchSalienceFunctionPeaksAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){
+    ofxAAPitchSalienceFunctionPeaksAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){
         
         limitPeaksNum = TRUE;
         maxPeaksNum = 4;

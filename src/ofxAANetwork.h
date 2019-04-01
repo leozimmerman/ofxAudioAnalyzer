@@ -34,13 +34,13 @@ namespace ofxaa {
         Network(int sampleRate, int bufferSize);
         ~Network();
         
-        void computeAlgorithms(vector<Real>& signal);
+        void computeAlgorithms(vector<Real>& signal, vector<Real>& accumulatedSignal);
         
-        float getValue(ofxAAAlgorithmType algorithmType, float smooth, bool normalized);
+        float getValue(ofxAAValueType valueType, float smooth, bool normalized);
         
-        vector<float>& getValues(ofxAAAlgorithmType algorithmType, float smooth);
+        vector<float>& getValues(ofxaa::AlgorithmType algorithmType, float smooth);
         
-        int getBinsNum(ofxAAAlgorithmType algorithmType);
+        int getBinsNum(ofxaa::AlgorithmType algorithmType);
         
         void resetOnsets();
         bool getOnsetValue();
@@ -59,8 +59,28 @@ namespace ofxaa {
         vector<ofxAAOneVectorOutputAlgorithm*> vectorAlgorithms;
         
         ofxAABaseAlgorithm* rms;
-        ofxAABaseAlgorithm* energy;
         ofxAABaseAlgorithm* power;
+        ofxAABaseAlgorithm* strongDecay;
+        ofxAABaseAlgorithm* zeroCrossingRate;
+        ofxAABaseAlgorithm* loudness;
+        ofxAABaseAlgorithm* loudnessVickers;
+        ofxAAOneVectorOutputAlgorithm* silenceRate;
+        
+        ofxAAOneVectorOutputAlgorithm* centralMoments;
+        ofxAABaseAlgorithm* decrease;
+        ofxAAOneVectorOutputAlgorithm* distributionShape;
+        ofxAAOneVectorOutputAlgorithm* derivativeSFX;
+        ofxAAOneVectorOutputAlgorithm* envelope;
+        ofxAAOneVectorOutputAlgorithm* envelope_acummulated;
+        ofxAABaseAlgorithm* flatnessSFX;
+        ofxAAOneVectorOutputAlgorithm* logAttackTime;
+        ofxAABaseAlgorithm* maxToTotal;
+        ofxAABaseAlgorithm* tcToTotal;
+        
+        ///*****
+        
+        ofxAABaseAlgorithm* energy;
+        
         ofxAAPitchDetectAlgorithm* pitchDetect;
         ofxAABaseAlgorithm* pitchSalience;
         //ofxAATuningFrequencyAlgorithm tuning;
@@ -72,7 +92,7 @@ namespace ofxaa {
         ofxAABaseAlgorithm* rollOff;
         ofxAABaseAlgorithm* oddToEven;
         ofxAABaseAlgorithm* strongPeak;
-        ofxAABaseAlgorithm* strongDecay;
+        
         
         ofxAAOneVectorOutputAlgorithm* spectrum;
         ofxAAOneVectorOutputAlgorithm* melBands;
@@ -93,10 +113,11 @@ namespace ofxaa {
         ofxAAOneVectorOutputAlgorithm* pitchSalienceFunction;
         ofxAAOnsetsAlgorithm* onsets;
         
-        int _samplerate;
-        int _framesize;
+        int samplerate;
+        int framesize;
         
         vector<Real> _audioSignal;
+        vector<Real> _accumulatedAudioSignal;
         
     };
 }

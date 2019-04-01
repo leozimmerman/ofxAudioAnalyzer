@@ -106,15 +106,15 @@ void ofxAudioAnalyzer::exit(){
     }
 }
 //-------------------------------------------------------
-float ofxAudioAnalyzer::getValue(ofxAAAlgorithmType algorithm, int channel, float smooth, bool normalized){
+float ofxAudioAnalyzer::getValue(ofxAAValueType valueType, int channel, float smooth, bool normalized){
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return 0.0;
     }
-    return channelAnalyzerUnits[channel]->getValue(algorithm, smooth, normalized);
+    return channelAnalyzerUnits[channel]->getValue(valueType, smooth, normalized);
 }
 //-------------------------------------------------------
-vector<float>& ofxAudioAnalyzer::getValues(ofxAAAlgorithmType algorithm, int channel, float smooth){
+vector<float>& ofxAudioAnalyzer::getValues(ofxaa::AlgorithmType algorithm, int channel, float smooth){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
@@ -150,7 +150,7 @@ bool ofxAudioAnalyzer::getOnsetValue(int channel){
     
 }
 //-------------------------------------------------------
-bool ofxAudioAnalyzer::getIsActive(int channel, ofxAAAlgorithmType algorithm){
+bool ofxAudioAnalyzer::getIsActive(int channel, ofxaa::AlgorithmType algorithm){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting if its active is incorrect.";
@@ -171,7 +171,7 @@ void ofxAudioAnalyzer::resetOnsets(int channel){
     channelAnalyzerUnits[channel]->resetOnsets();
 }
 //-------------------------------------------------------
-void ofxAudioAnalyzer::setActive(int channel, ofxAAAlgorithmType algorithm, bool state){
+void ofxAudioAnalyzer::setActive(int channel, ofxaa::AlgorithmType algorithm, bool state){
 
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for setting active is incorrect.";
@@ -182,7 +182,7 @@ void ofxAudioAnalyzer::setActive(int channel, ofxAAAlgorithmType algorithm, bool
     
 }
 //-------------------------------------------------------
-void ofxAudioAnalyzer::setMaxEstimatedValue(int channel, ofxAAAlgorithmType algorithm, float value){
+void ofxAudioAnalyzer::setMaxEstimatedValue(int channel, ofxaa::AlgorithmType algorithm, float value){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for setting max estimated value is incorrect.";

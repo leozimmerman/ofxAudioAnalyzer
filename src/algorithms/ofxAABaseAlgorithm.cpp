@@ -25,7 +25,7 @@
 #include "ofxAABaseAlgorithm.h"
 #include "ofxAudioAnalyzerUtils.h"
 
-ofxAABaseAlgorithm::ofxAABaseAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize){
+ofxAABaseAlgorithm::ofxAABaseAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize){
     type = algorithmType;
     
     algorithm = ofxaa::createAlgorithmWithType(type, samplerate, framesize);
@@ -88,7 +88,7 @@ bool ofxAABaseAlgorithm::getIsActive(){
     return isActivated;
 }
 //-------------------------------------------
-ofxAAAlgorithmType ofxAABaseAlgorithm::getType(){
+ofxaa::AlgorithmType ofxAABaseAlgorithm::getType(){
     return type;
 }
 //-------------------------------------------

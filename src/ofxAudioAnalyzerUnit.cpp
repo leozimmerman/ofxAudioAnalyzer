@@ -35,6 +35,7 @@ ofxAudioAnalyzerUnit::ofxAudioAnalyzerUnit(int sampleRate, int bufferSize) {
     framesize = bufferSize;
     
     audioBuffer.resize(bufferSize);
+    accumulatedAudioBuffer.resize(bufferSize * 87, 0.0); //almost a second
     
     network = new ofxaa::Network(samplerate, framesize);
 }
@@ -50,7 +51,10 @@ void ofxAudioAnalyzerUnit::analyze(const vector<float> & inBuffer){
         audioBuffer[i] = (Real) inBuffer[i];
     }
     
-    network->computeAlgorithms(audioBuffer);
+    accumulatedAudioBuffer.erase(accumulatedAudioBuffer.begin(), accumulatedAudioBuffer.begin()+framesize);
+    accumulatedAudioBuffer.insert(accumulatedAudioBuffer.end(), audioBuffer.begin(), audioBuffer.end());
+    
+    network->computeAlgorithms(audioBuffer, accumulatedAudioBuffer);
 }
 
 //--------------------------------------------------------------
@@ -61,12 +65,12 @@ void ofxAudioAnalyzerUnit::exit(){
 //--------------------------------------------------------------
 #pragma mark - Activates
 //----------------------------------------------
-void ofxAudioAnalyzerUnit::setActive(ofxAAAlgorithmType algorithmType, bool state){
+void ofxAudioAnalyzerUnit::setActive(ofxaa::AlgorithmType algorithmType, bool state){
     //TODO: !
     ///network->setActive(algorithmType, state);
 }
 //----------------------------------------------
-bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithmType algorithmType){
+bool ofxAudioAnalyzerUnit::getIsActive(ofxaa::AlgorithmType algorithmType){
     //TODO: !
     ///return  network->getIsActive(algorithmType)
     return true;
@@ -74,8 +78,10 @@ bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithmType algorithmType){
 //----------------------------------------------
 #pragma mark - Get values
 //----------------------------------------------
-float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithmType algorithmType, float smooth, bool normalized){
-    return network->getValue(algorithmType, smooth, normalized);
+float ofxAudioAnalyzerUnit::getValue(ofxAAValueType valueType, float smooth, bool normalized){
+    auto value = network->getValue(valueType , smooth, normalized);
+   // cout<<value<<endl;
+    return value;
     
     //TODO: !
     /*
@@ -113,7 +119,7 @@ float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithmType algorithmType, float smo
 }
 
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithmType algorithmType, float smooth){
+vector<float>& ofxAudioAnalyzerUnit::getValues(ofxaa::AlgorithmType algorithmType, float smooth){
     auto values = network->getValues(algorithmType, algorithmType);
     return values;
     //TODO: !
@@ -130,7 +136,7 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithmType algorithmType,
     */
 }
 //----------------------------------------------
-int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithmType algorithmType){
+int ofxAudioAnalyzerUnit::getBinsNum(ofxaa::AlgorithmType algorithmType){
     auto size = network->getValues(algorithmType, 0.0).size();
     return size;
     //TODO: !
@@ -146,7 +152,7 @@ int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithmType algorithmType){
     */
 }
 //----------------------------------------------
-float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithmType algorithmType){
+float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxaa::AlgorithmType algorithmType){
     return 1.0;
     //TODO: !
     /*
@@ -164,7 +170,7 @@ float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithmType algorithmTyp
     */
 }
 //----------------------------------------------
-void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAAlgorithmType algorithmType, float value){
+void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxaa::AlgorithmType algorithmType, float value){
     //TODO: !
     /*
      ofxAABaseAlgorithm* baseAlgorithm = algorithm(algorithmType);

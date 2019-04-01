@@ -44,13 +44,13 @@ class ofxAudioAnalyzer{
     ///\param algorithm
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
-    float getValue(ofxAAAlgorithmType algorithm, int channel, float smooth=0.0, bool normalized=false);
+    float getValue(ofxAAValueType valueType, int channel, float smooth=0.0, bool normalized=false);
     
     ///Gets values of vector output Algorithms.
     ///\param algorithm
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
-    vector<float>& getValues(ofxAAAlgorithmType algorithm, int channel, float smooth=0.0);
+    vector<float>& getValues(ofxaa::AlgorithmType algorithm, int channel, float smooth=0.0);
     
     ///Gets the array of pitch salience function peaks: bin/cents & value
     vector<SalienceFunctionPeak>& getSalienceFunctionPeaks(int channel, float smooth=0.0);
@@ -59,7 +59,7 @@ class ofxAudioAnalyzer{
     bool getOnsetValue(int channel);
     
     ///Gets the state of an algorithm
-    bool getIsActive(int channel, ofxAAAlgorithmType algorithm);
+    bool getIsActive(int channel, ofxaa::AlgorithmType algorithm);
 
     ///Pointers for the audio analyzing units.
     ///Use very carefully!
@@ -69,10 +69,10 @@ class ofxAudioAnalyzer{
     void resetOnsets(int channel);
     
     ///Activates and deactives algorithms.
-    void setActive(int channel, ofxAAAlgorithmType algorithm, bool state);
+    void setActive(int channel, ofxaa::AlgorithmType algorithm, bool state);
     
     ///Set max estimated values for algorithms that are not normalized
-    void setMaxEstimatedValue(int channel, ofxAAAlgorithmType algorithm, float value);
+    void setMaxEstimatedValue(int channel, ofxaa::AlgorithmType algorithm, float value);
     
     ///Sets onsets detection parameters
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)

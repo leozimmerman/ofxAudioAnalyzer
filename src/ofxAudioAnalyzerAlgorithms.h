@@ -37,7 +37,7 @@
 class ofxAACartToPolAlgorithm : public ofxAABaseAlgorithm{
 public:
     
-    ofxAACartToPolAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
+    ofxAACartToPolAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
     
     vector<Real> magnitudes;
     vector<Real> phases;
@@ -46,7 +46,7 @@ public:
 //class used for SpectralPeaks & HarmonicPeaks
 class ofxAAPeaksAlgorithm : public ofxAABaseAlgorithm{
 public:
-    ofxAAPeaksAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
+    ofxAAPeaksAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
     
     vector<Real> frequencies;
     vector<Real> magnitudes;
@@ -54,7 +54,7 @@ public:
 //---------------------------------------------------------------------
 class ofxAAFftAlgorithm : public ofxAAOneVectorOutputAlgorithm{
     public:
-    ofxAAFftAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize) : ofxAAOneVectorOutputAlgorithm(algorithmType, samplerate, framesize){}
+    ofxAAFftAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAAOneVectorOutputAlgorithm(algorithmType, samplerate, framesize){}
     
     vector<complex<Real> > fftRealValues;
 };

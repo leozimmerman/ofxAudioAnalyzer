@@ -24,7 +24,7 @@
 
 #include "ofxAAPitchDetectAlgorithm.h"
 
-ofxAAPitchDetectAlgorithm::ofxAAPitchDetectAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize) {
+ofxAAPitchDetectAlgorithm::ofxAAPitchDetectAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize) {
     
     pitchFloatVal = 0.0;
     confidenceFloatVal = 0.0;

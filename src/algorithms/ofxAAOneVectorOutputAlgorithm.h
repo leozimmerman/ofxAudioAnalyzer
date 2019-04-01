@@ -30,9 +30,9 @@ class ofxAAOneVectorOutputAlgorithm : public ofxAABaseAlgorithm{
     
 public:
     
-    ofxAAOneVectorOutputAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
+    ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
     
-    ofxAAOneVectorOutputAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize, int binsSize);
+    ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int binsSize);
     
     void assignFloatValuesSize(int size, int val);
     

@@ -25,61 +25,104 @@
 #pragma once
 //TODO: Differentiate algorithm types (will match essentia algorithms) and getValue types (may be more than one for each alg type)
 
-enum ofxAAAlgorithmType {
-    ///Envelope/SFX
-    STRONG_DECAY,
-    
-    ///Filters
-    DC_REMOVAL,
-    
-    ///Standard
-    FFT,
-    WINDOWING,
-    
-    ///SPECTRAL
-    HFC,
-    DCT,
-    MEL_BANDS,
-    ROLL_OFF,
-    SPECTRAL_COMPLEXITY,
-    SPECTRAL_PEAKS,
-    SPECTRUM,
-    STRONG_PEAK,
-    
-    ///RHYTHM
-    ONSETS,
-    ONSETS_DETECTION_HFC,
-    ONSETS_DETECTION_COMPLEX,
-    ONSETS_DETECTION_FLUX,
-    
-    ///MATH
-    CART_TO_POLAR,
-    
-    ///STATISTICS
-    CENTROID,
-    ENERGY,
-    POWER,
+enum ofxAAValueType {
+    //TEMPORAL
     RMS,
-    
-    ///TONAL
-    DISSONANCE,
-    HPCP,
-    HARMONIC_PEAKS,
-    INHARMONICITY,
-    ODD_TO_EVEN,
-    PITCH_SALIENCE,
-    TRISTIMULUS,
-    
-    ///LOUDNESS / DYNAMICS
-    
-    ///PITCH
-    PITCH_YIN_FREQ,
-    PITCH_YIN_CONFIDENCE,
-    MULTI_PITCHES,
-    PITCH_SALIENCE_FUNC_PEAKS,
-    PITCH_SALIENCE_FUNC,
-    MULTI_PITCH_KLAPURI,
-    
+    POWER,
+    ZERO_CROSSING_RATE,
+    LOUDNESS,
+    LOUDNESS_VICKERS,
+    SILENCE_RATE_20dB,
+    SILENCE_RATE_30dB,
+    SILENCE_RATE_60dB,
+    //SFX
+    DECREASE,
+    DISTRIBUTION_SHAPE_KURTOSIS,
+    DISTRIBUTION_SHAPE_SPREAD,
+    DISTRIBUTION_SHAPE_SKEWNESS,
+    LOG_ATTACK_TIME,
+    STRONG_DECAY,
+    FLATNESS_SFX,
+    MAX_TO_TOTAL,
+    TC_TO_TOTAL,
+    DERIVATIVE_SFX_AFTER_MAX,
+    DERIVATIVE_SFX_BEFORE_MAX
 };
+
+namespace ofxaa {
+    enum AlgorithmType {
+        ///Envelope/SFX
+        DerivativeSFX,
+        Envelope,
+        FlatnessSFX,
+        LogAttackTime,
+        MaxToTotal,
+        TCToTotal,
+        StrongDecay,
+        
+        ///Filters
+        DCRemoval,
+        
+        ///Standard
+        FFT,
+        WINDOWING,
+        ZeroCrossingRate,
+        
+        ///SPECTRAL
+        HFC,
+        DCT,
+        MEL_BANDS,
+        ROLL_OFF,
+        SPECTRAL_COMPLEXITY,
+        SPECTRAL_PEAKS,
+        SPECTRUM,
+        STRONG_PEAK,
+        
+        ///RHYTHM
+        ONSETS,
+        ONSETS_DETECTION_HFC,
+        ONSETS_DETECTION_COMPLEX,
+        ONSETS_DETECTION_FLUX,
+        
+        ///MATH
+        CART_TO_POLAR,
+        
+        ///STATISTICS
+        CentralMoments,
+        Centroid,
+        ENERGY,
+        Decrease,
+        DistributionShape,
+        InstantPower,
+        Rms,
+        
+        ///TONAL
+        DISSONANCE,
+        HPCP,
+        HARMONIC_PEAKS,
+        INHARMONICITY,
+        ODD_TO_EVEN,
+        PITCH_SALIENCE,
+        TRISTIMULUS,
+        
+        ///DURATION / SILENCE
+        SilenceRate,
+        
+        ///LOUDNESS / DYNAMICS
+        LoudnessVickers,
+        Loudness,
+        
+        ///PITCH
+        PITCH_YIN_FREQ,
+        PITCH_YIN_CONFIDENCE,
+        MULTI_PITCHES,
+        PITCH_SALIENCE_FUNC_PEAKS,
+        PITCH_SALIENCE_FUNC,
+        MULTI_PITCH_KLAPURI,
+        
+    };
+}
+
+
 
 

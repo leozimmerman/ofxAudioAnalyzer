@@ -39,7 +39,7 @@ class ofxAABaseAlgorithm{
     
 public:
     
-    ofxAABaseAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize);
+    ofxAABaseAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize);
     
     virtual ~ofxAABaseAlgorithm() = default;
     
@@ -61,7 +61,7 @@ public:
     
     virtual float getMaxEstimatedValue();
     bool getIsActive();
-    ofxAAAlgorithmType getType();
+    ofxaa::AlgorithmType getType();
     
     void setActive(bool state);
     void setValueZero();
@@ -79,7 +79,7 @@ public:
 protected:
     
     bool isActivated;
-    ofxAAAlgorithmType type;
+    ofxaa::AlgorithmType type;
     
 private:
     

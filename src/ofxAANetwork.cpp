@@ -25,6 +25,7 @@
 
 #include "ofxAANetwork.h"
 
+#define DEFAULT_SILENCE_RATE_SIZE 3
 #define DEFAULT_MELBANDS_BANDS_NUM 24
 #define DEFAULT_DCT_COEFF_NUM 10
 #define DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES 10
@@ -39,13 +40,17 @@
 #define DEFAULT_MAX_VALUE_STRONG_DECAY 100.0
 #define DEFAULT_MAX_VALUE_PITCH_FREQ 4186.0 //C8
 
+//for scaling values:
+#define MFCC_MAX_ESTIMATED_VALUE 300.0 //???
+
 namespace ofxaa {
     
     Network::Network(int sampleRate, int bufferSize){
-        _framesize = bufferSize;
-        _samplerate = sampleRate;
+        framesize = bufferSize;
+        samplerate = sampleRate;
         
         _audioSignal.resize(bufferSize);
+        _accumulatedAudioSignal.resize(bufferSize * 87, 0.0); //TODO: Remove duplicated calculation
         
         createAlgorithms();
         setDefaultMaxEstimatedValues();
@@ -56,64 +61,107 @@ namespace ofxaa {
     }
     
     void Network::createAlgorithms(){
-        fft = new ofxAAFftAlgorithm(FFT, _samplerate, _framesize);
+        dcRemoval = new ofxAAOneVectorOutputAlgorithm(DCRemoval, samplerate, framesize);
+        vectorAlgorithms.push_back(dcRemoval);
+        
+        //MARK: Temporal
+        rms = new ofxAABaseAlgorithm(Rms, samplerate, framesize);
+        algorithms.push_back(rms);
+        power = new ofxAABaseAlgorithm(InstantPower, samplerate, framesize);
+        algorithms.push_back(power);
+        strongDecay = new ofxAABaseAlgorithm(StrongDecay, samplerate, framesize);
+        algorithms.push_back(strongDecay);
+        zeroCrossingRate = new ofxAABaseAlgorithm(ZeroCrossingRate, samplerate, framesize);
+        algorithms.push_back(zeroCrossingRate);
+        loudness = new ofxAABaseAlgorithm(Loudness, samplerate, framesize);
+        algorithms.push_back(loudness);
+        loudnessVickers = new ofxAABaseAlgorithm(LoudnessVickers, samplerate, framesize);
+        algorithms.push_back(loudnessVickers);
+        silenceRate = new ofxAAOneVectorOutputAlgorithm(SilenceRate, samplerate, framesize, DEFAULT_SILENCE_RATE_SIZE);
+        vectorAlgorithms.push_back(silenceRate);
+        
+        //MARK: SFX
+        centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
+        vectorAlgorithms.push_back(centralMoments);
+        decrease = new ofxAABaseAlgorithm(Decrease, samplerate, framesize);
+        algorithms.push_back(decrease);
+        distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
+        vectorAlgorithms.push_back(distributionShape);
+        derivativeSFX = new ofxAAOneVectorOutputAlgorithm(DerivativeSFX, samplerate, framesize, 2);
+        vectorAlgorithms.push_back(derivativeSFX);
+        envelope = new ofxAAOneVectorOutputAlgorithm(Envelope, samplerate, framesize);
+        vectorAlgorithms.push_back(envelope);
+        envelope_acummulated = new ofxAAOneVectorOutputAlgorithm(Envelope, samplerate, framesize);
+        vectorAlgorithms.push_back(envelope_acummulated);
+        flatnessSFX = new ofxAABaseAlgorithm(FlatnessSFX, samplerate, framesize);
+        algorithms.push_back(flatnessSFX);
+        logAttackTime = new ofxAAOneVectorOutputAlgorithm(LogAttackTime, samplerate, framesize, 3);
+        vectorAlgorithms.push_back(logAttackTime);
+        maxToTotal = new ofxAABaseAlgorithm(MaxToTotal, samplerate, framesize);
+        algorithms.push_back(maxToTotal);
+        tcToTotal = new ofxAABaseAlgorithm(TCToTotal, samplerate, framesize);
+        algorithms.push_back(tcToTotal);
+        
+        
+        ///********************************
+        windowing = new ofxAAOneVectorOutputAlgorithm(WINDOWING, samplerate, framesize);
+        vectorAlgorithms.push_back(windowing);
+        
+        fft = new ofxAAFftAlgorithm(FFT, samplerate, framesize);
         vectorAlgorithms.push_back(fft);
-        pitchDetect = new ofxAAPitchDetectAlgorithm(PITCH_YIN_FREQ, _samplerate, _framesize);
+        
+        pitchDetect = new ofxAAPitchDetectAlgorithm(PITCH_YIN_FREQ, samplerate, framesize);
         algorithms.push_back(pitchDetect);
-        onsets = new ofxAAOnsetsAlgorithm(ONSETS, _samplerate, _framesize);
+        
+        onsets = new ofxAAOnsetsAlgorithm(ONSETS, samplerate, framesize);
         algorithms.push_back(onsets);
-        cartesian2polar = new ofxAACartToPolAlgorithm(CART_TO_POLAR, _samplerate, _framesize);
+        
+        cartesian2polar = new ofxAACartToPolAlgorithm(CART_TO_POLAR, samplerate, framesize);
         algorithms.push_back(cartesian2polar);
-        spectralPeaks = new ofxAAPeaksAlgorithm(SPECTRAL_PEAKS, _samplerate, _framesize);
+        spectralPeaks = new ofxAAPeaksAlgorithm(SPECTRAL_PEAKS, samplerate, framesize);
         algorithms.push_back(spectralPeaks);
-        harmonicPeaks = new ofxAAPeaksAlgorithm(HARMONIC_PEAKS, _samplerate, _framesize);
+        harmonicPeaks = new ofxAAPeaksAlgorithm(HARMONIC_PEAKS, samplerate, framesize);
         algorithms.push_back(harmonicPeaks);
-        pitchSalienceFunctionPeaks = new ofxAAPitchSalienceFunctionPeaksAlgorithm(PITCH_SALIENCE_FUNC_PEAKS, _samplerate, _framesize);
+        pitchSalienceFunctionPeaks = new ofxAAPitchSalienceFunctionPeaksAlgorithm(PITCH_SALIENCE_FUNC_PEAKS, samplerate, framesize);
         algorithms.push_back(pitchSalienceFunctionPeaks);
         
-        rms = new ofxAABaseAlgorithm(RMS, _samplerate, _framesize);
-        algorithms.push_back(rms);
-        energy = new ofxAABaseAlgorithm(ENERGY, _samplerate, _framesize);
-        algorithms.push_back(energy);
-        power = new ofxAABaseAlgorithm(POWER, _samplerate, _framesize);
-        algorithms.push_back(power);
-        pitchSalience = new ofxAABaseAlgorithm(PITCH_SALIENCE, _samplerate, _framesize);
-        algorithms.push_back(pitchSalience);
-        inharmonicity = new ofxAABaseAlgorithm(INHARMONICITY, _samplerate, _framesize);
-        algorithms.push_back(inharmonicity);
-        hfc = new ofxAABaseAlgorithm(HFC, _samplerate, _framesize);
-        algorithms.push_back(hfc);
-        centroid = new ofxAABaseAlgorithm(CENTROID, _samplerate, _framesize);
-        algorithms.push_back(centroid);
-        spectralComplexity = new ofxAABaseAlgorithm(SPECTRAL_COMPLEXITY, _samplerate, _framesize);
-        algorithms.push_back(spectralComplexity);
-        dissonance = new ofxAABaseAlgorithm(DISSONANCE, _samplerate, _framesize);
-        algorithms.push_back(dissonance);
-        rollOff = new ofxAABaseAlgorithm(ROLL_OFF, _samplerate, _framesize);
-        algorithms.push_back(rollOff);
-        oddToEven = new ofxAABaseAlgorithm(ODD_TO_EVEN, _samplerate, _framesize);
-        algorithms.push_back(oddToEven);
-        strongPeak = new ofxAABaseAlgorithm(STRONG_PEAK, _samplerate, _framesize);
-        algorithms.push_back(strongPeak);
-        strongDecay = new ofxAABaseAlgorithm(STRONG_DECAY, _samplerate, _framesize);
-        algorithms.push_back(strongDecay);
         
-        spectrum = new ofxAAOneVectorOutputAlgorithm(SPECTRUM, _samplerate, _framesize, (_framesize/2)+1);
+        energy = new ofxAABaseAlgorithm(ENERGY, samplerate, framesize);
+        algorithms.push_back(energy);
+        
+        pitchSalience = new ofxAABaseAlgorithm(PITCH_SALIENCE, samplerate, framesize);
+        algorithms.push_back(pitchSalience);
+        inharmonicity = new ofxAABaseAlgorithm(INHARMONICITY, samplerate, framesize);
+        algorithms.push_back(inharmonicity);
+        hfc = new ofxAABaseAlgorithm(HFC, samplerate, framesize);
+        algorithms.push_back(hfc);
+        centroid = new ofxAABaseAlgorithm(Centroid, samplerate, framesize);
+        algorithms.push_back(centroid);
+        spectralComplexity = new ofxAABaseAlgorithm(SPECTRAL_COMPLEXITY, samplerate, framesize);
+        algorithms.push_back(spectralComplexity);
+        dissonance = new ofxAABaseAlgorithm(DISSONANCE, samplerate, framesize);
+        algorithms.push_back(dissonance);
+        rollOff = new ofxAABaseAlgorithm(ROLL_OFF, samplerate, framesize);
+        algorithms.push_back(rollOff);
+        oddToEven = new ofxAABaseAlgorithm(ODD_TO_EVEN, samplerate, framesize);
+        algorithms.push_back(oddToEven);
+        strongPeak = new ofxAABaseAlgorithm(STRONG_PEAK, samplerate, framesize);
+        algorithms.push_back(strongPeak);
+        
+        
+        spectrum = new ofxAAOneVectorOutputAlgorithm(SPECTRUM, samplerate, framesize, (framesize/2)+1);
         vectorAlgorithms.push_back(spectrum);
-        melBands = new ofxAAOneVectorOutputAlgorithm(MEL_BANDS, _samplerate, _framesize, DEFAULT_MELBANDS_BANDS_NUM);
+        melBands = new ofxAAOneVectorOutputAlgorithm(MEL_BANDS, samplerate, framesize, DEFAULT_MELBANDS_BANDS_NUM);
         vectorAlgorithms.push_back(melBands);
-        dct = new ofxAAOneVectorOutputAlgorithm(DCT, _samplerate, _framesize, DEFAULT_DCT_COEFF_NUM);
+        dct = new ofxAAOneVectorOutputAlgorithm(DCT, samplerate, framesize, DEFAULT_DCT_COEFF_NUM);
         vectorAlgorithms.push_back(dct);
-        hpcp = new ofxAAOneVectorOutputAlgorithm(HPCP, _samplerate, _framesize, DEFAULT_HPCP_SIZE);
+        hpcp = new ofxAAOneVectorOutputAlgorithm(HPCP, samplerate, framesize, DEFAULT_HPCP_SIZE);
         vectorAlgorithms.push_back(hpcp);
-        pitchSalienceFunction = new ofxAAOneVectorOutputAlgorithm(PITCH_SALIENCE_FUNC, _samplerate, _framesize, DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES);
+        pitchSalienceFunction = new ofxAAOneVectorOutputAlgorithm(PITCH_SALIENCE_FUNC, samplerate, framesize, DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES);
         vectorAlgorithms.push_back(pitchSalienceFunction);
-        tristimulus = new ofxAAOneVectorOutputAlgorithm(TRISTIMULUS, _samplerate, _framesize, DEFAULT_TRISTIMULUS_BANDS_NUM);
+        tristimulus = new ofxAAOneVectorOutputAlgorithm(TRISTIMULUS, samplerate, framesize, DEFAULT_TRISTIMULUS_BANDS_NUM);
         vectorAlgorithms.push_back(tristimulus);
-        dcRemoval = new ofxAAOneVectorOutputAlgorithm(DC_REMOVAL, _samplerate, _framesize);
-        vectorAlgorithms.push_back(dcRemoval);
-        windowing = new ofxAAOneVectorOutputAlgorithm(WINDOWING, _samplerate, _framesize);
-        vectorAlgorithms.push_back(windowing);
+        
     }
     
     void Network::setDefaultMaxEstimatedValues(){
@@ -121,7 +169,7 @@ namespace ofxaa {
         energy->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ENERGY);
         hfc->setMaxEstimatedValue(DEFAULT_MAX_VALUE_HFC);
         spectralComplexity->setMaxEstimatedValue(DEFAULT_MAX_VALUE_SPECTRAL_COMPLEXITY);
-        rollOff->setMaxEstimatedValue(_samplerate/2);
+        rollOff->setMaxEstimatedValue(samplerate/2);
         oddToEven->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ODD_TO_EVEN);
         strongPeak->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_PEAK);
         strongDecay->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_DECAY);
@@ -129,21 +177,83 @@ namespace ofxaa {
     }
     
     void Network::connectAlgorithms(){
-        //DCRemoval
+        
         dcRemoval->algorithm->input("signal").set(_audioSignal);
         dcRemoval->algorithm->output("signal").set(dcRemoval->realValues);
-        //RMS
+        
+        //MARK: Temporal
         rms->algorithm->input("array").set(dcRemoval->realValues);
         rms->algorithm->output("rms").set(rms->realValue);
+        
+        power->algorithm->input("array").set(dcRemoval->realValues);
+        power->algorithm->output("power").set(power->realValue);
+        
+        zeroCrossingRate->algorithm->input("signal").set(dcRemoval->realValues);
+        zeroCrossingRate->algorithm->output("zeroCrossingRate").set(zeroCrossingRate->realValue);
+        
+        loudness->algorithm->input("signal").set(dcRemoval->realValues);
+        loudness->algorithm->output("loudness").set(loudness->realValue);
+        
+        loudnessVickers->algorithm->input("signal").set(dcRemoval->realValues);
+        loudnessVickers->algorithm->output("loudness").set(loudnessVickers->realValue);
+        
+        silenceRate->algorithm->input("frame").set(dcRemoval->realValues);
+        silenceRate->algorithm->output("threshold_0").set(silenceRate->realValues[0]);
+        silenceRate->algorithm->output("threshold_1").set(silenceRate->realValues[1]);
+        silenceRate->algorithm->output("threshold_2").set(silenceRate->realValues[2]);
+        
+        //MARK: SFX
+        //Essentia source: FreesoundSfxDescriptors.cpp
+        envelope->algorithm->input("signal").set(dcRemoval->realValues);
+        envelope->algorithm->output("signal").set(envelope->realValues);
+        
+        envelope_acummulated->algorithm->input("signal").set(_accumulatedAudioSignal);
+        envelope_acummulated->algorithm->output("signal").set(envelope_acummulated->realValues);
+        
+        decrease->algorithm->input("array").set(envelope_acummulated->realValues);
+        decrease->algorithm->output("decrease").set(decrease->realValue);
+        
+        centralMoments->algorithm->input("array").set(envelope_acummulated->realValues);
+        centralMoments->algorithm->output("centralMoments").set(centralMoments->realValues);
+        
+        distributionShape->algorithm->input("centralMoments").set(centralMoments->realValues);
+        distributionShape->algorithm->output("kurtosis").set(distributionShape->realValues[0]);
+        distributionShape->algorithm->output("spread").set(distributionShape->realValues[1]);
+        distributionShape->algorithm->output("skewness").set(distributionShape->realValues[2]);
+        
+        logAttackTime->algorithm->input("signal").set(envelope_acummulated->realValues);
+        logAttackTime->algorithm->output("logAttackTime").set(logAttackTime->realValues[0]);
+        logAttackTime->algorithm->output("attackStart").set(logAttackTime->realValues[1]);
+        logAttackTime->algorithm->output("attackStop").set(logAttackTime->realValues[2]);
+        
+        //TODO: Should this also be connected to envelop_accumulated?
+        strongDecay->algorithm->input("signal").set(envelope->realValues);
+        strongDecay->algorithm->output("strongDecay").set(strongDecay->realValue);
+        
+        flatnessSFX->algorithm->input("envelope").set(envelope->realValues);
+        flatnessSFX->algorithm->output("flatness").set(flatnessSFX->realValue);
+        
+        maxToTotal->algorithm->input("envelope").set(envelope->realValues);
+        maxToTotal->algorithm->output("maxToTotal").set(maxToTotal->realValue);
+        
+        tcToTotal->algorithm->input("envelope").set(envelope->realValues);
+        tcToTotal->algorithm->output("TCToTotal").set(tcToTotal->realValue);
+        
+        derivativeSFX->algorithm->input("envelope").set(envelope_acummulated->realValues);
+        derivativeSFX->algorithm->output("derAvAfterMax").set(derivativeSFX->realValues[0]);
+        derivativeSFX->algorithm->output("maxDerBeforeMax").set(derivativeSFX->realValues[1]);
+        
+        
+        
+        
+        ///*************************************
+        ///*************************************
+        
         //Energy
         energy->algorithm->input("array").set(dcRemoval->realValues);
         energy->algorithm->output("energy").set(energy->realValue);
-        //Power
-        power->algorithm->input("array").set(dcRemoval->realValues);
-        power->algorithm->output("power").set(dcRemoval->realValue);
-        //StrongDecay
-        strongDecay->algorithm->input("signal").set(dcRemoval->realValues);
-        strongDecay->algorithm->output("strongDecay").set(strongDecay->realValue);
+       
+        
         //Window
         windowing->algorithm->input("frame").set(dcRemoval->realValues);
         windowing->algorithm->output("frame").set(windowing->realValues);
@@ -240,14 +350,41 @@ namespace ofxaa {
         //MultiPitch Kalpuri:
         ///multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, _samplerate);
     }
-    void Network::computeAlgorithms(vector<Real>& signal){
+    void Network::computeAlgorithms(vector<Real>& signal, vector<Real>& accumulatedSignal){
         _audioSignal = signal;
+        _accumulatedAudioSignal = accumulatedSignal;
         
         // MARK: Compute Algorithms
         dcRemoval->compute();
         rms->compute();
-        energy->compute();
         power->compute();
+        zeroCrossingRate->compute();
+        loudness->compute();
+        loudnessVickers->compute();
+        silenceRate->compute();
+        
+        envelope->compute();
+        envelope_acummulated->compute();
+        decrease->compute();
+        centralMoments->compute();
+        distributionShape->compute();
+        logAttackTime->compute();
+        
+        flatnessSFX->compute();
+        maxToTotal->compute();
+        
+        derivativeSFX->compute();
+        
+        if(envelope->realValues[0] != 0.0){
+            //the strong decay is not defined for a zero signal
+            tcToTotal->compute();
+            strongDecay->compute();
+        }
+        
+        ///***
+        
+        energy->compute();
+        
         
         windowing->compute();
         
@@ -294,24 +431,24 @@ namespace ofxaa {
         strongPeak->compute();
         
         tristimulus->compute();
-        if(dcRemoval->realValues[0] != 0.0){
-            //the strong decay is not defined for a zero signal
-            strongDecay->compute();
-        }
+     
         
         // MARK: Cast Values
-        rms->castValueToFloat();
-        power->castValueToFloat();
-
-        spectrum->castValuesToFloat(true);
-        melBands->castValuesToFloat(true);
-        dct->castValuesToFloat(false);
-        hpcp->castValuesToFloat(false);
-        tristimulus->castValuesToFloat(false);
-
+        
         for (auto a : algorithms){
             a->castValueToFloat();
         }
+        for (auto va: vectorAlgorithms){
+            va->castValuesToFloat(false);
+        }
+        
+//        silenceRate->castValuesToFloat(false);
+//        spectrum->castValuesToFloat(true);
+//        melBands->castValuesToFloat(true);
+//        dct->castValuesToFloat(false);
+//        hpcp->castValuesToFloat(false);
+//        tristimulus->castValuesToFloat(false);
+
         pitchSalienceFunctionPeaks->castValuesToFloat();
         pitchDetect->castValuesToFloat();
         onsets->castValuesToFloat();
@@ -330,15 +467,62 @@ namespace ofxaa {
         }
     }
  
-    float Network::getValue(ofxAAAlgorithmType algorithmType, float smooth, bool normalized){
-        ///TEST
-        float val = smooth ? hfc->getSmoothedValueNormalized(smooth) : hfc->getValueNormalized();
-       // cout << val << endl;
-        return val;
-        ///*
+    float Network::getValue(ofxAAValueType valueType, float smooth, bool normalized){
+      
+        switch (valueType) {
+            case RMS:
+                return smooth ? rms->getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX) : rms->getValueDbNormalized(DB_MIN, DB_MAX);
+            case POWER:
+                return smooth ? power->getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX) : power->getValueDbNormalized(DB_MIN, DB_MAX);
+            case ZERO_CROSSING_RATE:
+                return smooth ? zeroCrossingRate->getSmoothedValue(smooth) : zeroCrossingRate->getValue();
+            case LOUDNESS:
+                return smooth ? loudness->getSmoothedValue(smooth) : loudness->getValue();
+            case LOUDNESS_VICKERS:
+                return smooth ? loudnessVickers->getSmoothedValueNormalized(smooth, -90, 0) : loudnessVickers->getValueNormalized(-90, 0);
+            case SILENCE_RATE_20dB:
+                return smooth ? silenceRate->getSmoothedValues(smooth)[0] : silenceRate->getValues()[0];
+            case SILENCE_RATE_30dB:
+                return smooth ? silenceRate->getSmoothedValues(smooth)[1] : silenceRate->getValues()[1];
+            case SILENCE_RATE_60dB:
+                return smooth ? silenceRate->getSmoothedValues(smooth)[2] : silenceRate->getValues()[2];
+            case DECREASE:
+                return smooth ? decrease->getSmoothedValue(smooth) : decrease->getValue();
+            case DISTRIBUTION_SHAPE_KURTOSIS:
+                return smooth ? distributionShape->getSmoothedValues(smooth)[0] : distributionShape->getValues()[0];
+            case DISTRIBUTION_SHAPE_SPREAD:
+                return smooth ? distributionShape->getSmoothedValues(smooth)[1] : distributionShape->getValues()[1];
+            case DISTRIBUTION_SHAPE_SKEWNESS:
+                return smooth ? distributionShape->getSmoothedValues(smooth)[2] : distributionShape->getValues()[2];
+            case LOG_ATTACK_TIME:
+                return smooth ? logAttackTime->getSmoothedValues(smooth)[0] : logAttackTime->getValues()[0];
+            case STRONG_DECAY:
+                if (normalized){
+                    return smooth ? strongDecay->getSmoothedValueNormalized(smooth) : strongDecay->getValueNormalized();
+                }else{
+                    return smooth ? strongDecay->getSmoothedValue(smooth) : strongDecay->getValue();
+                }
+            case FLATNESS_SFX:
+                return smooth ? flatnessSFX->getSmoothedValue(smooth) : flatnessSFX->getValue();
+            case MAX_TO_TOTAL:
+                return smooth ? maxToTotal->getSmoothedValue(smooth) : maxToTotal->getValue();
+            case TC_TO_TOTAL:
+                return smooth ? tcToTotal->getSmoothedValue(smooth) : tcToTotal->getValue();
+            case DERIVATIVE_SFX_AFTER_MAX:
+                 return smooth ? derivativeSFX->getSmoothedValues(smooth)[0] : derivativeSFX->getValues()[0];
+            case DERIVATIVE_SFX_BEFORE_MAX:
+                return smooth ? derivativeSFX->getSmoothedValues(smooth)[1] : derivativeSFX->getValues()[1];
+                
+                
+            default:
+                return 3737.3737;
+                break;
+        }
+        
+        
     }
     
-    vector<float>& Network::getValues(ofxAAAlgorithmType algorithmType, float smooth){
+    vector<float>& Network::getValues(ofxaa::AlgorithmType algorithmType, float smooth){
          return smooth ? hpcp->getSmoothedValues(smooth) : hpcp->getValues();
     }
     
@@ -358,7 +542,7 @@ namespace ofxaa {
     }
     
     /*
-    ofxAABaseAlgorithm* Network::algorithm(ofxAAAlgorithmType type){
+    ofxAABaseAlgorithm* Network::algorithm(ofxaa::AlgorithmType type){
         for (int i=0; i<algorithms.size(); i++){
             if (type == algorithms[i]->getType()){
                 return algorithms[i];
@@ -367,7 +551,7 @@ namespace ofxaa {
         ofLogError()<<"ofxAudioAnalyzerUnit: algorithm type is NOT a Base Algorithm.";
     }
     
-    ofxAAOneVectorOutputAlgorithm* Network::vectorAlgorithm(ofxAAAlgorithmType type){
+    ofxAAOneVectorOutputAlgorithm* Network::vectorAlgorithm(ofxaa::AlgorithmType type){
         for (int i=0; i<vectorAlgorithms.size(); i++){
             if (type == vectorAlgorithms[i]->getType()){
                 return vectorAlgorithms[i];
@@ -388,3 +572,137 @@ namespace ofxaa {
 
     
 }
+
+
+/*
+ 
+ switch (algorithmType) {
+ 
+ case RMS:
+ r = smooth ?
+ rms.getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX):
+ rms.getValueDbNormalized(DB_MIN, DB_MAX);
+ break;
+ 
+ case ENERGY:
+ r = smooth ?
+ energy.getSmoothedValueNormalized(smooth):
+ energy.getValueNormalized();
+ break;
+ 
+ case POWER:
+ r = smooth ?
+ power.getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX):
+ power.getValueDbNormalized(DB_MIN, DB_MAX);
+ break;
+ 
+ case PITCH_FREQ:
+ if (normalized){
+ r = smooth ?
+ pitchDetect.getSmoothedPitchValueNormalized(smooth):
+ pitchDetect.getPitchValueNormalized();
+ }else{
+ r = smooth ?
+ pitchDetect.getSmoothedPitchValue(smooth):
+ pitchDetect.getPitchValue();
+ }
+ break;
+ 
+ case PITCH_CONFIDENCE:
+ r = smooth ?
+ pitchDetect.getSmoothedConfidenceValue(smooth):
+ pitchDetect.getConfidenceValue();
+ break;
+ 
+ case PITCH_SALIENCE:
+ r = smooth ?
+ pitchSalience.getSmoothedValue(smooth):
+ pitchSalience.getValue();
+ break;
+ 
+ case INHARMONICITY:
+ r =  smooth ?
+ inharmonicity.getSmoothedValue(smooth):
+ inharmonicity.getValue();
+ break;
+ 
+ case HFC:
+ if (normalized){
+ r = smooth ?
+ hfc.getSmoothedValueNormalized(smooth):
+ hfc.getValueNormalized();
+ }else{
+ r = smooth ?
+ hfc.getSmoothedValue(smooth):
+ hfc.getValue();
+ }
+ break;
+ 
+ case SPECTRAL_COMPLEXITY:
+ if (normalized){
+ r = smooth ?
+ spectralComplex.getSmoothedValueNormalized(smooth):
+ spectralComplex.getValueNormalized();
+ }else{
+ r = smooth ?
+ spectralComplex.getSmoothedValue(smooth):
+ spectralComplex.getValue();
+ }
+ break;
+ 
+ case CENTROID:
+ if (normalized){
+ r = smooth ?
+ centroid.getSmoothedValueNormalized(smooth):
+ centroid.getValueNormalized();
+ }else{
+ r = smooth ?
+ centroid.getSmoothedValue(smooth):
+ centroid.getValue();
+ }
+ break;
+ 
+ case DISSONANCE:
+ r = smooth ?
+ dissonance.getSmoothedValue(smooth):
+ dissonance.getValue();
+ break;
+ 
+ case ROLL_OFF:
+ if (normalized){
+ r = smooth ?
+ rollOff.getSmoothedValueNormalized(smooth):
+ rollOff.getValueNormalized();
+ }else{
+ r = smooth ?
+ rollOff.getSmoothedValue(smooth):
+ rollOff.getValue();
+ }
+ break;
+ case ODD_TO_EVEN:
+ if (normalized){
+ r = smooth ?
+ oddToEven.getSmoothedValueNormalized(smooth):
+ oddToEven.getValueNormalized();
+ }else{
+ r = smooth ?
+ oddToEven.getSmoothedValue(smooth):
+ oddToEven.getValue();
+ //limit value, because this algorithm reaches huge values (eg: 3.40282e+38)
+ r = ofClamp(r, 0.0, oddToEven.getMaxEstimatedValue());
+ }
+ break;
+ case STRONG_PEAK:
+ if (normalized){
+ r = smooth ?
+ strongPeak.getSmoothedValueNormalized(smooth):
+ strongPeak.getValueNormalized();
+ }else{
+ r = smooth ?
+ strongPeak.getSmoothedValue(smooth):
+ strongPeak.getValue();
+ }
+ break;
+
+ 
+ */

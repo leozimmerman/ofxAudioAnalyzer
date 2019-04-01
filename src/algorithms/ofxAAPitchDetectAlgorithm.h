@@ -30,7 +30,7 @@ class ofxAAPitchDetectAlgorithm : public ofxAABaseAlgorithm{
     
 public:
     
-    ofxAAPitchDetectAlgorithm(ofxAAAlgorithmType algorithmType, int samplerate, int framesize);
+    ofxAAPitchDetectAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize);
     
     void castValuesToFloat();
     
