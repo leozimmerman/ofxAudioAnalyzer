@@ -23,7 +23,8 @@
  */
 
 #pragma once
-//TODO: Differentiate algorithm types (will match essentia algorithms) and getValue types (may be more than one for each alg type)
+
+
 
 enum ofxAAValueType {
     //TEMPORAL
@@ -46,10 +47,63 @@ enum ofxAAValueType {
     MAX_TO_TOTAL,
     TC_TO_TOTAL,
     DERIVATIVE_SFX_AFTER_MAX,
-    DERIVATIVE_SFX_BEFORE_MAX
+    DERIVATIVE_SFX_BEFORE_MAX,
+    
+    DYNAMIC_COMPLEXITY,
+    
+    //SPECTRAL
+    SPECTRUM,
+    MFCC_MEL_BANDS,
+    MFCC_COEFFICIENTS,
+    MEL_BANDS_KURTOSIS,
+    MEL_BANDS_SPREAD,
+    MEL_BANDS_SKEWNESS,
+    MEL_BANDS_FLATNESS_DB,
+    MEL_BANDS_CREST,
+    
+    GFCC_ERB_BANDS,
+    GFCC_COEFFICIENTS,
+    ERB_BANDS_KURTOSIS,
+    ERB_BANDS_SPREAD,
+    ERB_BANDS_SKEWNESS,
+    ERB_BANDS_FLATNESS_DB,
+    ERB_BANDS_CREST,
+    
+    BARK_BANDS,
+    BARK_BANDS_KURTOSIS,
+    BARK_BANDS_SPREAD,
+    BARK_BANDS_SKEWNESS,
+    BARK_BANDS_FLATNESS_DB,
+    BARK_BANDS_CREST,
+    
+    ENERGY_BAND_LOW,
+    ENERGY_BAND_MID_LOW,
+    ENERGY_BAND_MID_HI,
+    ENERGY_BAND_HI,
+    
+    SPECTRAL_KURTOSIS,
+    SPECTRAL_SPREAD,
+    SPECTRAL_SKEWNESS,
+    SPECTRAL_DECREASE,
+    SPECTRAL_ROLLOFF,
+    SPECTRAL_ENERGY,
+    SPECTRAL_ENTROPY,
+    SPECTRAL_CENTROID,
+    SPECTRAL_COMPLEXITY,
+    DISSONANCE,
+    HFC,
+    
+    TRISTIMULUS,
+    INHARMONICITY,
+    ODD_TO_EVEN,
+    
+    PITCH_SALIENCE,
+    PITCH_FREQUENCY,
+    PITCH_CONFIDENCE
 };
 
 namespace ofxaa {
+    //TODO: Move to BaseAlgorithm class?
     enum AlgorithmType {
         ///Envelope/SFX
         DerivativeSFX,
@@ -62,63 +116,74 @@ namespace ofxaa {
         
         ///Filters
         DCRemoval,
+        EqualLoudness,
         
         ///Standard
-        FFT,
-        WINDOWING,
+        UnaryOperator,
+        Fft,
+        Windowing,
         ZeroCrossingRate,
         
         ///SPECTRAL
-        HFC,
-        DCT,
-        MEL_BANDS,
-        ROLL_OFF,
-        SPECTRAL_COMPLEXITY,
-        SPECTRAL_PEAKS,
-        SPECTRUM,
-        STRONG_PEAK,
+        BarkBands,
+        EnergyBand,
+
+        FlatnessDB,
+        Flux,
+        MelBands,
+        Mfcc,
+        Gfcc,
+        Hfc,
+        RollOff,
+        SpectralComplexity,
+        SpectralPeaks,
+        Spectrum,
+        SpectrumCQ,
+        StrongPeak,
         
         ///RHYTHM
-        ONSETS,
-        ONSETS_DETECTION_HFC,
-        ONSETS_DETECTION_COMPLEX,
-        ONSETS_DETECTION_FLUX,
+        Onsets,
+        OnsetDetection,
         
         ///MATH
-        CART_TO_POLAR,
+        CartesianToPolar,
         
         ///STATISTICS
         CentralMoments,
         Centroid,
-        ENERGY,
+        Crest,
+        Energy,
+        Entropy,
         Decrease,
         DistributionShape,
         InstantPower,
         Rms,
         
         ///TONAL
-        DISSONANCE,
-        HPCP,
-        HARMONIC_PEAKS,
-        INHARMONICITY,
-        ODD_TO_EVEN,
-        PITCH_SALIENCE,
-        TRISTIMULUS,
+        Dissonance,
+        HarmonicPeaks,
+        Inharmonicity,
+        OddToEven,
+        PitchSalience,
+        Tristimulus,
+        Hpcp,
+        ChordsDetection,
         
         ///DURATION / SILENCE
         SilenceRate,
         
         ///LOUDNESS / DYNAMICS
+        DynamicComplexity,
         LoudnessVickers,
         Loudness,
         
         ///PITCH
-        PITCH_YIN_FREQ,
-        PITCH_YIN_CONFIDENCE,
-        MULTI_PITCHES,
-        PITCH_SALIENCE_FUNC_PEAKS,
-        PITCH_SALIENCE_FUNC,
-        MULTI_PITCH_KLAPURI,
+        PitchYinFFT,
+        PitchMelodia,
+        MultiPitchKlapuri,
+        MultiPitchMelodia,
+        PredominantPitchMelodia
+        
         
     };
 }

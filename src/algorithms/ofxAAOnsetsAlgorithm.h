@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "ofxAudioAnalyzerAlgorithms.h"
-
+#include "ofxAAFftAlgorithm.h"
+#include "ofxAATwoVectorsOutputAlgorithm.h"
 
 enum OnsetsTimeThresholdMode{
     TIME_BASED,
@@ -36,7 +36,7 @@ class ofxAAOnsetsAlgorithm : public ofxAABaseAlgorithm{
 
 public:
     
-    ofxAAOnsetsAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize);
+    ofxAAOnsetsAlgorithm(ofxAAOneVectorOutputAlgorithm* windowingAlgorithm, int samplerate, int framesize);
     
     void deleteAlgorithm() override;
     
@@ -57,12 +57,17 @@ public:
     void setOnsetBufferNumThreshold(int buffersNum){bufferNumThreshold = buffersNum;}
     void setUseTimeThreshold(bool doUse){usingTimeThreshold = doUse;}
     void setOnsetTimeThresholdsMode(OnsetsTimeThresholdMode mode){onsetsMode = mode;}
-
-    ofxAABaseAlgorithm onsetHfc;
-    ofxAABaseAlgorithm onsetComplex;
-    ofxAABaseAlgorithm onsetFlux;
+    
+    ofxAAOneVectorOutputAlgorithm* windowing;
+    ofxAAFftAlgorithm* fft;
+    ofxAATwoVectorsOutputAlgorithm* cartesianToPolar;
+    ofxAABaseAlgorithm* onsetHfc;
+    ofxAABaseAlgorithm* onsetComplex;
+    ofxAABaseAlgorithm* onsetFlux;
     
 private:
+    
+    void connectAlgorithms();
     
     bool _value;//isOnset
     

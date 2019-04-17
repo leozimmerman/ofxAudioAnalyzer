@@ -47,6 +47,8 @@ namespace ofxaa {
         AlgorithmFactory& factory = AlgorithmFactory::instance();
         
         switch (algorithmType) {
+            case Windowing:
+                return factory.create("Windowing");
             case DCRemoval:
                 return factory.create("DCRemoval", "sampleRate", samplerate);
             case Rms:
@@ -84,70 +86,84 @@ namespace ofxaa {
             case TCToTotal:
                 return factory.create("TCToTotal");
                 
-            ///*********
-            case ENERGY:
-                return factory.create("Energy");;
-            case WINDOWING:
-                return factory.create("Windowing");
-            case FFT:
-                return factory.create("FFT", "size", framesize);
-            case CART_TO_POLAR:
-                return factory.create("CartesianToPolar");
-            case ONSETS_DETECTION_HFC:
-                return factory.create("OnsetDetection", "method", "hfc", "sampleRate", samplerate);
-            case ONSETS_DETECTION_COMPLEX:
-                return factory.create("OnsetDetection", "method", "complex", "sampleRate", samplerate);
-            case ONSETS_DETECTION_FLUX:
-                return factory.create("OnsetDetection", "method", "flux", "sampleRate", samplerate);
-            case SPECTRUM:
+            case Spectrum:
                 return factory.create("Spectrum", "size", framesize);
-            case HFC:
+            case SpectrumCQ:
+                return factory.create("SpectrumCQ",  "sampleRate", samplerate);
+            case SpectralComplexity:
+                return factory.create("SpectralComplexity", "sampleRate", samplerate);
+            case StrongPeak:
+                return factory.create("StrongPeak");
+            case MelBands:
+                return factory.create("MelBands", "sampleRate", samplerate, "inputSize", (framesize/2)+1, "highFrequencyBound", samplerate/2);
+            case Hfc:
                 return factory.create("HFC", "sampleRate", samplerate);
-            case PITCH_SALIENCE:
+            case RollOff:
+                return factory.create("RollOff", "sampleRate", samplerate);
+            case Energy:
+                return factory.create("Energy");
+            case Dissonance:
+                return factory.create("Dissonance");
+            case PitchSalience:
                 return factory.create("PitchSalience", "sampleRate", samplerate);
             
-            case SPECTRAL_COMPLEXITY:
-                return factory.create("SpectralComplexity", "sampleRate", samplerate);
-            case DISSONANCE:
-                return factory.create("Dissonance");
-            case ROLL_OFF:
-                return factory.create("RollOff", "sampleRate", samplerate);
-            case ODD_TO_EVEN:
-                return factory.create("OddToEvenHarmonicEnergyRatio");
-            case STRONG_PEAK:
-                return factory.create("StrongPeak");
-            
-            case SPECTRAL_PEAKS:
-                return factory.create("SpectralPeaks", "minFrequency", 1.0);
-            case MEL_BANDS:
-                return factory.create("MelBands", "inputSize", framesize+1, "sampleRate", samplerate, "highFrequencyBound", samplerate/2);
-            case INHARMONICITY:
-                return factory.create("Inharmonicity");
-            case DCT:
-                return factory.create("DCT");
-            case HPCP:
-                return factory.create("HPCP");
-            case PITCH_SALIENCE_FUNC:
-                return factory.create("PitchSalienceFunction");
-            case PITCH_SALIENCE_FUNC_PEAKS:
-                return factory.create("PitchSalienceFunctionPeaks");
-            case TRISTIMULUS:
-                return factory.create("Tristimulus");
-            case HARMONIC_PEAKS:
-                return factory.create("HarmonicPeaks");
-            case PITCH_YIN_FREQ:
-                return factory.create("PitchYinFFT", "frameSize", framesize, "sampleRate", samplerate);
-            case PITCH_YIN_CONFIDENCE://Duplicate
-                return factory.create("PitchYinFFT", "frameSize", framesize, "sampleRate", samplerate);
-
-            case MULTI_PITCHES:
-                ///???
-                break;
-            case MULTI_PITCH_KLAPURI:
-                ///???
-                break;
-            
+            case UnaryOperator:
+                return factory.create("UnaryOperator", "type", "square");
+            case BarkBands:
+                return factory.create("BarkBands", "sampleRate", samplerate);
+            case EnergyBand:
+                return factory.create("EnergyBand", "sampleRate", samplerate);
+            case FlatnessDB:
+                return factory.create("FlatnessDB");
+            case Flux:
+                return factory.create("Flux");
+            case Mfcc:
+                return factory.create("MFCC", "sampleRate", samplerate, "inputSize", (framesize/2)+1, "highFrequencyBound", samplerate/4);
+            case Gfcc:
                 
+                return factory.create("GFCC", "sampleRate", samplerate, "inputSize", (framesize/2)+1, "highFrequencyBound", samplerate/2);
+            case Crest:
+                return factory.create("Crest");
+            case Entropy:
+                return factory.create("Entropy");
+            case DynamicComplexity:
+                return factory.create("DynamicComplexity", "sampleRate", samplerate);
+            case SpectralPeaks:
+                return factory.create("SpectralPeaks", "sampleRate", samplerate, "minFrequency", 1.0);
+            case HarmonicPeaks:
+                return factory.create("HarmonicPeaks");
+            case OddToEven:
+                return factory.create("OddToEvenHarmonicEnergyRatio");
+            case Inharmonicity:
+                return factory.create("Inharmonicity");
+            case Tristimulus:
+                return factory.create("Tristimulus");
+            
+            case PitchYinFFT:
+                return factory.create("PitchYinFFT", "sampleRate", samplerate, "frameSize", framesize);
+            case PitchMelodia:
+                return factory.create("PitchMelodia", "sampleRate", samplerate, "frameSize", framesize, "hopSize", framesize/16);
+            case MultiPitchKlapuri:
+                return factory.create("MultiPitchKlapuri", "sampleRate", samplerate, "frameSize", framesize, "hopSize", framesize/16);
+            case MultiPitchMelodia:
+                return factory.create("MultiPitchMelodia", "sampleRate", samplerate, "frameSize", framesize, "hopSize", framesize/16);
+            case PredominantPitchMelodia:
+                return factory.create("PredominantPitchMelodia", "sampleRate", samplerate, "frameSize", framesize, "hopSize", framesize/16);
+            case EqualLoudness:
+                return factory.create("EqualLoudness", "sampleRate", samplerate);
+            case Hpcp:
+                return factory.create("HPCP", "sampleRate", samplerate, "bandPreset", false, "size", 36);
+            case ChordsDetection:
+                return factory.create("ChordsDetection", "sampleRate", samplerate);
+            
+            case CartesianToPolar:
+                return factory.create("CartesianToPolar");
+                
+            case Fft:
+                return factory.create("FFT", "size", framesize);
+            case OnsetDetection:
+                return factory.create("OnsetDetection", "sampleRate", samplerate);
+            
             default:
                 return NULL;
                 break;

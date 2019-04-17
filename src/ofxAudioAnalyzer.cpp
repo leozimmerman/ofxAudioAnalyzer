@@ -126,19 +126,6 @@ vector<float>& ofxAudioAnalyzer::getValues(ofxaa::AlgorithmType algorithm, int c
     
 }
 //-------------------------------------------------------
-vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int channel, float smooth){
-    if (channel >= _channels){
-        ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        //SalienceFunctionPeak peak = SalienceFunctionPeak();
-        static vector<SalienceFunctionPeak> r(1, SalienceFunctionPeak());
-        return r;
-    }
-    //TODO: !
-    /// return channelAnalyzerUnits[channel]->network->getPitchSaliencePeaksRef(smooth);
-    static vector<SalienceFunctionPeak> r(1, SalienceFunctionPeak());
-    return r;
-}
-//-------------------------------------------------------
 bool ofxAudioAnalyzer::getOnsetValue(int channel){
     
     if (channel >= _channels){
@@ -202,17 +189,7 @@ void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silen
     channelAnalyzerUnits[channel]->network->setOnsetsParameters(alpha, silenceTresh, timeTresh, useTimeTresh);
 
 }
-//-------------------------------------------------------
-void ofxAudioAnalyzer::setSalienceFunctionPeaksParameters(int channel, int maxPeaks){
-    
-    if (channel >= _channels){
-        ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        return;
-    }
-    //TODO: !
-    ///channelAnalyzerUnits[channel]->network->setSalienceFunctionPeaksParameters(maxPeaks);
 
-}
 
 
 

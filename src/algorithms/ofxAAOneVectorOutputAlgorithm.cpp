@@ -24,39 +24,42 @@
 
 #include "ofxAAOneVectorOutputAlgorithm.h"
 
-ofxAAOneVectorOutputAlgorithm::ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int binsSize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){
+ofxAAOneVectorOutputAlgorithm::ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){
     
-    assignFloatValuesSize(binsSize, 0.0);
+    assignOutputValuesSize(outputSize, 0.0);
 }
 //-------------------------------------------
-void ofxAAOneVectorOutputAlgorithm::assignFloatValuesSize(int size, int val){
+void ofxAAOneVectorOutputAlgorithm::assignOutputValuesSize(int size, int val){
     realValues.assign(size, val);
     floatValues.assign(size, val);
     smoothedFloatValues.assign(size, val);
 }
 //-------------------------------------------
 void ofxAAOneVectorOutputAlgorithm::castValuesToFloat(bool logarithmic){
-    if (floatValues.size() != realValues.size()) { return; }
+    castValues(logarithmic, realValues, floatValues);
+}
+//-------------------------------------------
+void ofxAAOneVectorOutputAlgorithm::castValues(bool logarithmic, vector<Real>& reals, vector<float>& floats){
+    if (floats.size() != reals.size()) { return; }
     
-    for (int i=0; i<realValues.size(); i++){
+    for (int i=0; i<reals.size(); i++){
         if(getIsActive()){
             if(logarithmic){
-                if(realValues[i] == 0.0){
-                    floatValues[i] = log10(0.000001);//DB_MIN
+                if(reals[i] == 0.0){
+                    floats[i] = log10(0.000001);//DB_MIN
                 }else{
-                    floatValues[i] = log10((float) realValues[i]);
+                    floats[i] = log10((float) reals[i]);
                 }
             }else{
-                floatValues[i] = (float) realValues[i];
+                floats[i] = (float) reals[i];
             }
         }else{
             if(logarithmic){
-                floatValues[i] = log10(0.000001);//DB_MIN
+                floats[i] = log10(0.000001);//DB_MIN
             }else{
-                floatValues[i] = 0.0;
+                floats[i] = 0.0;
             }
         }
-        
     }
     
 }

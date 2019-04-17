@@ -58,6 +58,11 @@ namespace ofxaa {
         vector<ofxAABaseAlgorithm*> algorithms;
         vector<ofxAAOneVectorOutputAlgorithm*> vectorAlgorithms;
         
+        ofxAAOneVectorOutputAlgorithm* dcRemoval;
+        ofxAAOneVectorOutputAlgorithm* windowing;
+        
+        ofxAAOneVectorOutputAlgorithm* equalLoudness;
+        
         ofxAABaseAlgorithm* rms;
         ofxAABaseAlgorithm* power;
         ofxAABaseAlgorithm* strongDecay;
@@ -67,7 +72,7 @@ namespace ofxaa {
         ofxAAOneVectorOutputAlgorithm* silenceRate;
         
         ofxAAOneVectorOutputAlgorithm* centralMoments;
-        ofxAABaseAlgorithm* decrease;
+        ofxAABaseAlgorithm* sfx_decrease;
         ofxAAOneVectorOutputAlgorithm* distributionShape;
         ofxAAOneVectorOutputAlgorithm* derivativeSFX;
         ofxAAOneVectorOutputAlgorithm* envelope;
@@ -77,40 +82,73 @@ namespace ofxaa {
         ofxAABaseAlgorithm* maxToTotal;
         ofxAABaseAlgorithm* tcToTotal;
         
-        ///*****
-        
-        ofxAABaseAlgorithm* energy;
-        
-        ofxAAPitchDetectAlgorithm* pitchDetect;
-        ofxAABaseAlgorithm* pitchSalience;
-        //ofxAATuningFrequencyAlgorithm tuning;
-        ofxAABaseAlgorithm* inharmonicity;
-        ofxAABaseAlgorithm* hfc;
-        ofxAABaseAlgorithm* centroid;
-        ofxAABaseAlgorithm* spectralComplexity;
-        ofxAABaseAlgorithm* dissonance;
-        ofxAABaseAlgorithm* rollOff;
-        ofxAABaseAlgorithm* oddToEven;
-        ofxAABaseAlgorithm* strongPeak;
-        
-        
         ofxAAOneVectorOutputAlgorithm* spectrum;
-        ofxAAOneVectorOutputAlgorithm* melBands;
-        ofxAAOneVectorOutputAlgorithm* dct;//MFCC
-        ofxAAOneVectorOutputAlgorithm* hpcp;
-        ofxAAOneVectorOutputAlgorithm* tristimulus;
-        //MultiPitch
-        ofxAAPitchSalienceFunctionPeaksAlgorithm* pitchSalienceFunctionPeaks;
-        ofxAAMultiPitchKlapuriAlgorithm* multiPitchKlapuri;
+        ofxAAOneVectorOutputAlgorithm* spectrumCQ;
+        ofxAATwoVectorsOutputAlgorithm* mfcc;
+        ofxAAOneVectorOutputAlgorithm* melBands_centralMoments;
+        ofxAAOneVectorOutputAlgorithm* melBands_distributionShape;
+        ofxAABaseAlgorithm* melBands_flatnessDb;
+        ofxAABaseAlgorithm* melBands_crest;
         
-        //Algorithms for internal functionality:
-        ofxAAOneVectorOutputAlgorithm* dcRemoval;
-        ofxAAOneVectorOutputAlgorithm* windowing;
-        ofxAAFftAlgorithm* fft;
-        ofxAACartToPolAlgorithm* cartesian2polar;
-        ofxAAPeaksAlgorithm* spectralPeaks;
-        ofxAAPeaksAlgorithm* harmonicPeaks;
-        ofxAAOneVectorOutputAlgorithm* pitchSalienceFunction;
+        
+        ofxAATwoVectorsOutputAlgorithm* gfcc;
+        ofxAAOneVectorOutputAlgorithm* erbBands_centralMoments;
+        ofxAAOneVectorOutputAlgorithm* erbBands_distributionShape;
+        ofxAABaseAlgorithm* erbBands_flatnessDb;
+        ofxAABaseAlgorithm* erbBands_crest;
+        
+        ofxAAOneVectorOutputAlgorithm* barkBands;
+        ofxAAOneVectorOutputAlgorithm* barkBands_centralMoments;
+        ofxAAOneVectorOutputAlgorithm* barkBands_distributionShape;
+        ofxAABaseAlgorithm* barkBands_flatnessDb;
+        ofxAABaseAlgorithm* barkBands_crest;
+        
+        ofxAAOneVectorOutputAlgorithm* unaryOperator_square;
+        ofxAABaseAlgorithm* spectral_decrease;
+        
+        ofxAABaseAlgorithm* rollOff;
+        ofxAABaseAlgorithm* spectral_energy;
+        
+        ofxAABaseAlgorithm* ebr_low;
+        ofxAABaseAlgorithm* ebr_mid_low;
+        ofxAABaseAlgorithm* ebr_mid_hi;
+        ofxAABaseAlgorithm* ebr_hi;
+        
+        ofxAABaseAlgorithm* hfc;
+        ofxAABaseAlgorithm* spectral_flux;
+        ofxAABaseAlgorithm* strongPeak;
+        ofxAABaseAlgorithm* spectralComplexity;
+        ofxAABaseAlgorithm* pitchSalience;
+        ofxAATwoVectorsOutputAlgorithm* spectralPeaks;
+        ofxAABaseAlgorithm* dissonance;
+        ofxAABaseAlgorithm* spectral_entropy;
+        ofxAABaseAlgorithm* spectral_centroid;
+        
+        ofxAAOneVectorOutputAlgorithm* spectral_centralMoments;
+        ofxAAOneVectorOutputAlgorithm* spectral_distributionShape;
+        
+        ofxAAOneVectorOutputAlgorithm* dynamicComplexity;
+        
+        ofxAATwoVectorsOutputAlgorithm* harmonicPeaks;
+        ofxAABaseAlgorithm* oddToEven;
+        ofxAABaseAlgorithm* inharmonicity;
+        ofxAAOneVectorOutputAlgorithm* tristimulus;
+        
+        ofxAAOneVectorOutputAlgorithm* pitchYinFFT;
+        ofxAATwoVectorsOutputAlgorithm* pitchMelodia;
+        ofxAATwoVectorsOutputAlgorithm* predominantPitchMelodia;
+        ofxAAOneVectorOutputAlgorithm* multiPitchMelodia;
+        ofxAAOneVectorOutputAlgorithm* multiPitchKlapuri;
+        
+        
+        
+        
+        ofxAATwoVectorsOutputAlgorithm* spectralPeaks_hpcp;
+        ofxAAOneVectorOutputAlgorithm* hpcp;
+        ofxAABaseAlgorithm* hpcp_entropy;
+        ofxAABaseAlgorithm* hpcp_crest;
+        ofxAATwoTypesVectorOutputAlgorithm* chordsDetection;
+        
         ofxAAOnsetsAlgorithm* onsets;
         
         int samplerate;

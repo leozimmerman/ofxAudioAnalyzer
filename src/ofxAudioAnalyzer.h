@@ -52,9 +52,6 @@ class ofxAudioAnalyzer{
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
     vector<float>& getValues(ofxaa::AlgorithmType algorithm, int channel, float smooth=0.0);
     
-    ///Gets the array of pitch salience function peaks: bin/cents & value
-    vector<SalienceFunctionPeak>& getSalienceFunctionPeaks(int channel, float smooth=0.0);
-    
     ///Returns if there is an onset in the speciefied channel.
     bool getOnsetValue(int channel);
     
@@ -81,9 +78,6 @@ class ofxAudioAnalyzer{
     ///\param timeThreshold: time threshold in ms.
     ///\param useTimeThreshold: use or note the time threshold.
     void setOnsetsParameters(int channel, float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
-    
-    void setSalienceFunctionPeaksParameters(int channel, int maxPeaks);
-    
     
 
  private:

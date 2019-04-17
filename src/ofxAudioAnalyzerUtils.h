@@ -46,7 +46,7 @@ namespace ofxaa {
     void initializeEssentia();
     void shutEssentiaFactoryDown();
     
-    static const vector<ofxaa::AlgorithmType> algorithmsWithNoNormalizedSingleOutput = { ENERGY, PITCH_YIN_FREQ, HFC, SPECTRAL_COMPLEXITY, ROLL_OFF, ODD_TO_EVEN, STRONG_PEAK, StrongDecay };
+    static const vector<ofxaa::AlgorithmType> algorithmsWithNoNormalizedSingleOutput = { Energy, PitchYinFFT, Hfc, SpectralComplexity, RollOff, OddToEven, StrongPeak, StrongDecay };
     static const vector<ofxaa::AlgorithmType> algorithmsWithOutputInDbs = { Rms, InstantPower };
 
     bool algorithmHasVectorOutput(ofxAABaseAlgorithm* algorithm);

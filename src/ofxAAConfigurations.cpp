@@ -110,4 +110,60 @@ namespace ofxaa {
         algorithm->configure("range", range);
     }
     
+    void configureUnaryOperator(Algorithm* algorithm, Real scale, Real shift, string type){
+        algorithm->configure("scale", scale, "shift", shift, "type", type);
+    }
+    
+    void configureBarkBands(Algorithm* algorithm, int numberBands){
+        algorithm->configure("numberBands", numberBands);
+    }
+    
+    void configureEnergyBand(Algorithm* algorithm, Real startCutoffFrequency, Real stopCutoffFrequency){
+        algorithm->configure("startCutoffFrequency", startCutoffFrequency, "stopCutoffFrequency", stopCutoffFrequency);
+    }
+    
+    void configureFlux(Algorithm* algorithm, bool halfRectify, string norm){
+        algorithm->configure("halfRectify", halfRectify, "norm", norm);
+    }
+    
+    void configureMFCC(Algorithm* algorithm, int dctType, Real highFrequencyBound, int inputSize, int liftering, string logType, Real lowFrequencyBound, string normalize, int numberBands, int numberCoefficients, string type, string warpingFormula, string weighting){
+        algorithm->configure("dctType", dctType, "highFrequencyBound", highFrequencyBound, "inputSize", inputSize, "liftering", liftering, "logType", logType, "lowFrequencyBound", lowFrequencyBound, "normalize", normalize, "numberBands", numberBands, "numberCoefficients", numberCoefficients, "type", type, "warpingFormula", warpingFormula, "weighting", weighting);
+    }
+    
+    void configureGFCC(Algorithm* algorithm, int dctType, Real highFrequencyBound, int inputSize, string logType, Real lowFrequencyBound, int numberBands, int numberCoefficients, string type){
+              algorithm->configure("dctType", dctType, "highFrequencyBound", highFrequencyBound, "inputSize", inputSize, "logType", logType, "lowFrequencyBound", lowFrequencyBound, "numberBands", numberBands, "numberCoefficients", numberCoefficients, "type", type);
+    }
+    
+    void configureDynamicComplexity(Algorithm* algorithm, Real frameSize){
+        algorithm->configure("frameSize", frameSize);
+    }
+    
+    void configurePitchMelodia(Algorithm* algorithm, Real binResolution, int filterIterations, bool guessUnvoiced, Real harmonicWeight, int hopSize, Real magnitudeCompression, int magnitudeThreshold, Real maxFrequency, int minDuration, Real minFrequency, int numberHarmonics, Real peakDistributionThreshold, Real peakFrameThreshold, Real pitchContinuity, Real referenceFrequency, int timeContinuity){
+        algorithm->configure("binResolution", binResolution, "filterIterations", filterIterations, "guessUnvoiced", guessUnvoiced, "harmonicWeight", harmonicWeight, "hopSize", hopSize, "magnitudeCompression", magnitudeCompression, "magnitudeThreshold", magnitudeThreshold, "maxFrequency", maxFrequency, "minDuration", minDuration, "minFrequency", minFrequency, "numberHarmonics", numberHarmonics, "peakDistributionThreshold", peakDistributionThreshold, "peakFrameThreshold", peakFrameThreshold, "pitchContinuity", pitchContinuity, "referenceFrequency", referenceFrequency, "timeContinuity", timeContinuity);
+    }
+    
+    void configureMultiPitchMelodia(Algorithm* algorithm, Real binResolution, int filterIterations, bool guessUnvoiced, Real harmonicWeight, int hopSize, Real magnitudeCompression, int magnitudeThreshold, Real maxFrequency, int minDuration, Real minFrequency, int numberHarmonics, Real peakDistributionThreshold, Real peakFrameThreshold, Real pitchContinuity, Real referenceFrequency, int timeContinuity){
+        algorithm->configure("binResolution", binResolution, "filterIterations", filterIterations, "guessUnvoiced", guessUnvoiced, "harmonicWeight", harmonicWeight, "hopSize", hopSize, "magnitudeCompression", magnitudeCompression, "magnitudeThreshold", magnitudeThreshold, "maxFrequency", maxFrequency, "minDuration", minDuration, "minFrequency", minFrequency, "numberHarmonics", numberHarmonics, "peakDistributionThreshold", peakDistributionThreshold, "peakFrameThreshold", peakFrameThreshold, "pitchContinuity", pitchContinuity, "referenceFrequency", referenceFrequency, "timeContinuity", timeContinuity);
+    }
+    
+    void configurePredominantPitchMelodia(Algorithm* algorithm, Real binResolution, int filterIterations, bool guessUnvoiced, Real harmonicWeight, int hopSize, Real magnitudeCompression, int magnitudeThreshold, Real maxFrequency, int minDuration, Real minFrequency, int numberHarmonics, Real peakDistributionThreshold, Real peakFrameThreshold, Real pitchContinuity, Real referenceFrequency, int timeContinuity, bool voiceVibrato, Real voicingTolerance){
+         algorithm->configure("binResolution", binResolution, "filterIterations", filterIterations, "guessUnvoiced", guessUnvoiced, "harmonicWeight", harmonicWeight, "hopSize", hopSize, "magnitudeCompression", magnitudeCompression, "magnitudeThreshold", magnitudeThreshold, "maxFrequency", maxFrequency, "minDuration", minDuration, "minFrequency", minFrequency, "numberHarmonics", numberHarmonics, "peakDistributionThreshold", peakDistributionThreshold, "peakFrameThreshold", peakFrameThreshold, "pitchContinuity", pitchContinuity, "referenceFrequency", referenceFrequency, "timeContinuity", timeContinuity);
+        algorithm->configure("voiceVibrato", voiceVibrato, "voicingTolerance", voicingTolerance);
+    }
+   
+    void configureMultiPitchKlapuri(Algorithm* algorithm, Real binResolution, Real harmonicWeight, int hopSize, Real magnitudeCompression, int magnitudeThreshold, Real maxFrequency, Real minFrequency, int numberHarmonics, Real referenceFrequency){
+         algorithm->configure("binResolution", binResolution, "harmonicWeight", harmonicWeight, "hopSize", hopSize, "magnitudeCompression", magnitudeCompression, "magnitudeThreshold", magnitudeThreshold, "maxFrequency", maxFrequency, "minFrequency", minFrequency, "numberHarmonics", numberHarmonics, "referenceFrequency", referenceFrequency);
+    }
+    
+    void configureSpectrumCQ(Algorithm* algorithm, int binsPerOctave, Real maxFrequency, Real minFrequency, Real threshold){
+         algorithm->configure("binsPerOctave", binsPerOctave, "maxFrequency", maxFrequency, "minFrequency", minFrequency, "threshold", threshold);
+    }
+    
+    void configureChordsDetection(Algorithm* algorithm, int hopSize, Real windowSize){
+        algorithm->configure("hopSize", hopSize, "windowSize", windowSize);
+    }
+    
+    void configureOnsetDetection(Algorithm* algorithm, string method){
+        algorithm->configure("method", method);
+    }
 }

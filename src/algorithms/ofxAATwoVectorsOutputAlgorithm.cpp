@@ -22,40 +22,19 @@
  *
  */
 
-#pragma once
+#include "ofxAATwoVectorsOutputAlgorithm.h"
 
-#include "ofxAABaseAlgorithm.h"
+ofxAATwoVectorsOutputAlgorithm::ofxAATwoVectorsOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize_1, int outputSize_2) :  ofxAAOneVectorOutputAlgorithm(algorithmType, samplerate, framesize, outputSize_1) {
+    assignSecondOutpuValuesSize(outputSize_2, 0.0);
+}
 
-class ofxAAPitchDetectAlgorithm : public ofxAABaseAlgorithm{
-    
-public:
-    
-    ofxAAPitchDetectAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize);
-    
-    void castValuesToFloat();
-    
-    float getPitchValue();
-    float getPitchValueNormalized();
-    float getConfidenceValue();
-    
-    float getSmoothedPitchValue(float smthAmnt);
-    float getSmoothedPitchValueNormalized(float smthAmnt);
-    float getSmoothedConfidenceValue(float smthAmnt);
-    
-    float getMaxEstimatedValue() override {return pitchMaxEstimatedValue;}
-    
-    void setMaxEstimatedValue(float value) override;
-    
-    Real pitchRealVal, confidenceRealVal;
-    
-private:
-    
-    float pitchFloatVal, confidenceFloatVal;
-    
-    float smoothedPitchFloatValue;
-    float smoothedNormPitchFloatValue;
-    float smoothedConfidenceFloatValue;
-    
-    float pitchMaxEstimatedValue;
-    
-};
+void ofxAATwoVectorsOutputAlgorithm::castValuesToFloat(bool logarithmic){
+    ofxAAOneVectorOutputAlgorithm::castValuesToFloat(logarithmic);
+    castValues(logarithmic, realValues_2, floatValues_2);
+}
+
+void ofxAATwoVectorsOutputAlgorithm::assignSecondOutpuValuesSize(int size, int val){
+    realValues_2.assign(size, val);
+    floatValues_2.assign(size, val);
+    smoothedFloatValues_2.assign(size, val);
+}

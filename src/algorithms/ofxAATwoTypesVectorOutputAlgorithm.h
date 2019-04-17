@@ -24,44 +24,19 @@
 
 #pragma once
 
-#include "ofxAABaseAlgorithm.h"
+#include "ofxAAOneVectorOutputAlgorithm.h"
 
-//---------------------------------------------------------------------
-struct SalienceFunctionPeak{
-    float bin;//cents
-    float value;
-    
-    SalienceFunctionPeak(){
-        bin = 0.0;
-        value = 0.0;
-    }
-};
-
-class ofxAAPitchSalienceFunctionPeaksAlgorithm : public ofxAABaseAlgorithm{
+class ofxAATwoTypesVectorOutputAlgorithm:  public ofxAAOneVectorOutputAlgorithm{
 public:
     
-    ofxAAPitchSalienceFunctionPeaksAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){
-        
-        limitPeaksNum = TRUE;
-        maxPeaksNum = 4;
-    }
+    ofxAATwoTypesVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAAOneVectorOutputAlgorithm(algorithmType, samplerate, framesize){}
     
-    void castValuesToFloat();
+    ofxAATwoTypesVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize_1, int outputSize_2);
     
-    vector<SalienceFunctionPeak>& getPeaks();
-    vector<SalienceFunctionPeak>& getSmoothedPeaks(float smthAmnt);
     
-    ///change to maxPeaks!!!!
-    void setMaxPeaksNum(int maxBins){maxPeaksNum = maxBins;}
     
-    vector<Real> realSalienceBins;
-    vector<Real> realSalienceValues;
+    void assignSecondOutpuValuesSize(int size, string val);
     
-private:
-    vector<SalienceFunctionPeak> peaks;
-    vector<SalienceFunctionPeak> smoothedPeaks;
-    
-    bool limitPeaksNum;
-    
-    int maxPeaksNum;
+    vector<string> stringValues;
+
 };

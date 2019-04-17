@@ -125,12 +125,6 @@ namespace ofxaa {
     ///\param tolerance (real ∈ (0, 0.5), default = 0.2) : the allowed ratio deviation from ideal harmonics
     void configureHarmonicPeaks(Algorithm* algorithm, int maxHarmonics, Real tolerance);
     
-    ///https://essentia.upf.edu/documentation/reference/std_PitchYinFFT.html
-    ///\param interpolate (bool ∈ {true, false}, default = true) : boolean flag to enable interpolation
-    ///\param maxFrequency (real ∈ (0, ∞), default = 22050) : the maximum allowed frequency [Hz]
-    ///\param minFrequency (real ∈ (0, ∞), default = 20) : the minimum allowed frequency [Hz]
-    void configurePitchYinFFT(Algorithm* algorithm, bool interpolate, Real maxFrequency, Real minFrequency);
-    
     ///https://essentia.upf.edu/documentation/reference/std_ZeroCrossingRate.html
     ///\param threshold (real ∈ [0, ∞], default = 0) : the threshold which will be taken as the zero axis in both positive and negative sign
     void configureZeroCrossingRate(Algorithm* algorithm, Real threshold);
@@ -159,7 +153,149 @@ namespace ofxaa {
     ///\param range (real ∈ (-∞, ∞), default = 1) : the range of the input array, used for normalizing the results
     void configureDecrease(Algorithm* algorithm, Real range);
     
+    ///https://essentia.upf.edu/documentation/reference/std_UnaryOperator.html
+    ///\param scale (real ∈ (-∞, ∞), default = 1) : multiply result by factor
+    ///\param shift (real ∈ (-∞, ∞), default = 0) : shift result by value (add value)
+    ///\param type (string ∈ {identity, abs, log10, log, ln, lin2db, db2lin, sin, cos, sqrt, square}, default = identity) : the type of the unary operator to apply to input array
+    void configureUnaryOperator(Algorithm* algorithm, Real scale, Real shift, string type);
     
+    ///https://essentia.upf.edu/documentation/reference/std_BarkBands.html
+    ///\param numberBands (integer ∈ [1, 28], default = 27) : the number of desired barkbands
+    void configureBarkBands(Algorithm* algorithm, int numberBands);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_EnergyBand.html
+    ///\param startCutoffFrequency (real ∈ [0, ∞), default = 0) : the start frequency from which to sum the energy [Hz]
+    ///\param stopCutoffFrequency (real ∈ (0, ∞), default = 100) : the stop frequency to which to sum the energy [Hz]
+    void configureEnergyBand(Algorithm* algorithm, Real startCutoffFrequency, Real stopCutoffFrequency);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_Flux.html
+    ///\param halfRectify (bool ∈ {true, false}, default = false) : half-rectify the differences in each spectrum bin
+    ///\param norm (string ∈ {L1, L2}, default = L2) : the norm to use for difference computation
+    void configureFlux(Algorithm* algorithm, bool halfRectify, string norm);
+
+    ///https://essentia.upf.edu/documentation/reference/std_MFCC.html
+    ///\param dctType (integer ∈ [2, 3], default = 2) : the DCT type
+    ///\param highFrequencyBound (real ∈ (0, ∞), default = 11000) : the upper bound of the frequency range [Hz]
+    ///\param inputSize (integer ∈ (1, ∞), default = 1025) : the size of input spectrum
+    ///\param liftering (integer ∈ [0, ∞), default = 0) : the liftering coefficient. Use '0' to bypass it
+    ///\param logType (string ∈ {natural, dbpow, dbamp, log}, default = dbamp) : logarithmic compression type. Use 'dbpow' if working with power and 'dbamp' if working with magnitudes
+    ///\param lowFrequencyBound (real ∈ [0, ∞), default = 0) : the lower bound of the frequency range [Hz]
+    ///\param normalize (string ∈ {unit_sum, unit_max}, default = unit_sum) : 'unit_max' makes the vertex of all the triangles equal to 1, 'unit_sum' makes the area of all the triangles equal to 1
+    ///\param numberBands (integer ∈ [1, ∞), default = 40) : the number of mel-bands in the filter
+    ///\param numberCoefficients (integer ∈ [1, ∞), default = 13) : the number of output mel coefficients
+    ///\param type (string ∈ {magnitude, power}, default = power) : use magnitude or power spectrum
+    ///\param warpingFormula (string ∈ {slaneyMel, htkMel}, default = slaneyMel) : The scale implementation type. use 'htkMel' to emulate its behaviour. Default slaneyMel.
+    ///\param weighting (string ∈ {warping, linear}, default = warping) : type of weighting function for determining triangle area
+    void configureMFCC(Algorithm* algorithm, int dctType, Real highFrequencyBound, int inputSize, int liftering, string logType, Real lowFrequencyBound, string normalize, int numberBands, int numberCoefficients, string type, string warpingFormula, string weighting);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_GFCC.html
+    ///\param dctType (integer ∈ [2, 3], default = 2) : the DCT type
+    ///\param highFrequencyBound (real ∈ (0, ∞), default = 22050) : the upper bound of the frequency range [Hz]
+    ///\param inputSize (integer ∈ (1, ∞), default = 1025) : the size of input spectrum
+    ///\param logType (string ∈ {natural, dbpow, dbamp, log}, default = dbamp) : logarithmic compression type. Use 'dbpow' if working with power and 'dbamp' if working with magnitudes
+    ///\param lowFrequencyBound (real ∈ [0, ∞), default = 40) : the lower bound of the frequency range [Hz]
+    ///\param numberBands (integer ∈ [1, ∞), default = 40) : the number of bands in the filter
+    ///\param numberCoefficients (integer ∈ [1, ∞), default = 13) : the number of output cepstrum coefficients
+    ///\param type (string ∈ {magnitude, power}, default = power) : use magnitude or power spectrum
+    void configureGFCC(Algorithm* algorithm, int dctType, Real highFrequencyBound, int inputSize, string logType, Real lowFrequencyBound, int numberBands, int numberCoefficients, string type);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_DynamicComplexity.html
+    ///\param frameSize (real ∈ (0, ∞), default = 0.2) : the frame size [s]
+    void configureDynamicComplexity(Algorithm* algorithm, Real frameSize);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_PitchYinFFT.html
+    ///\param interpolate (bool ∈ {true, false}, default = true) : boolean flag to enable interpolation
+    ///\param maxFrequency (real ∈ (0, ∞), default = 22050) : the maximum allowed frequency [Hz]
+    ///\param minFrequency (real ∈ (0, ∞), default = 20) : the minimum allowed frequency [Hz]
+    void configurePitchYinFFT(Algorithm* algorithm, bool interpolate, Real maxFrequency, Real minFrequency);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_PitchMelodia.html
+    ///\param binResolution (real ∈ (0, ∞), default = 10) : salience function bin resolution [cents]
+    ///\param filterIterations (integer ∈ [1, ∞), default = 3) : number of iterations for the octave errors / pitch outlier filtering process
+    ///\param guessUnvoiced (bool ∈ {false, true}, default = false) : estimate pitch for non-voiced segments by using non-salient contours when no salient ones are present in a frame
+    ///\param harmonicWeight (real ∈ (0, 1), default = 0.8) : harmonic weighting parameter (weight decay ratio between two consequent harmonics, =1 for no decay)
+    ///\param hopSize (integer ∈ (0, ∞), default = 128) : the hop size with which the pitch salience function was computed
+    ///\param magnitudeCompression (real ∈ (0, 1], default = 1) : magnitude compression parameter for the salience function (=0 for maximum compression, =1 for no compression)
+    ///\param magnitudeThreshold (integer ∈ [0, ∞), default = 40) : spectral peak magnitude threshold (maximum allowed difference from the highest peak in dBs)
+    ///\param maxFrequency (real ∈ [0, ∞), default = 20000) : the minimum allowed frequency for salience function peaks (ignore contours with peaks above) [Hz]
+    ///\param minDuration (integer ∈ (0, ∞), default = 100) : the minimum allowed contour duration [ms]
+    ///\param minFrequency (real ∈ [0, ∞), default = 40) : the minimum allowed frequency for salience function peaks (ignore contours with peaks below) [Hz]
+    ///\param numberHarmonics (integer ∈ [1, ∞), default = 20) : number of considered harmonics
+    ///\param peakDistributionThreshold (real ∈ [0, 2], default = 0.9) : allowed deviation below the peak salience mean over all frames (fraction of the standard deviation)
+    ///\param peakFrameThreshold (real ∈ [0, 1], default = 0.9) : per-frame salience threshold factor (fraction of the highest peak salience in a frame)
+    ///\param pitchContinuity (real ∈ [0, ∞), default = 27.5625) : pitch continuity cue (maximum allowed pitch change during 1 ms time period) [cents]
+    ///\param referenceFrequency (real ∈ (0, ∞), default = 55) : the reference frequency for Hertz to cent convertion [Hz], corresponding to the 0th cent bin
+    ///\param timeContinuity (integer ∈ (0, ∞), default = 100) : time continuity cue (the maximum allowed gap duration for a pitch contour) [ms]
+    void configurePitchMelodia(Algorithm* algorithm, Real binResolution, int filterIterations, bool guessUnvoiced, Real harmonicWeight, int hopSize, Real magnitudeCompression, int magnitudeThreshold, Real maxFrequency, int minDuration, Real minFrequency, int numberHarmonics, Real peakDistributionThreshold, Real peakFrameThreshold, Real pitchContinuity, Real referenceFrequency, int timeContinuity);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_MultiPitchMelodia.html
+    ///\param binResolution (real ∈ (0, ∞), default = 10) : salience function bin resolution [cents]
+    ///\param filterIterations (integer ∈ [1, ∞), default = 3) : number of iterations for the octave errors / pitch outlier filtering process
+    ///\param guessUnvoiced (bool ∈ {false, true}, default = false) : estimate pitch for non-voiced segments by using non-salient contours when no salient ones are present in a frame
+    ///\param harmonicWeight (real ∈ (0, 1), default = 0.8) : harmonic weighting parameter (weight decay ratio between two consequent harmonics, =1 for no decay)
+    ///\param hopSize (integer ∈ (0, ∞), default = 128) : the hop size with which the pitch salience function was computed
+    ///\param magnitudeCompression (real ∈ (0, 1], default = 1) : magnitude compression parameter for the salience function (=0 for maximum compression, =1 for no compression)
+    ///\param magnitudeThreshold (integer ∈ [0, ∞), default = 40) : spectral peak magnitude threshold (maximum allowed difference from the highest peak in dBs)
+    ///\param maxFrequency (real ∈ [0, ∞), default = 20000) : the minimum allowed frequency for salience function peaks (ignore contours with peaks above) [Hz]
+    ///\param minDuration (integer ∈ (0, ∞), default = 100) : the minimum allowed contour duration [ms]
+    ///\param minFrequency (real ∈ [0, ∞), default = 40) : the minimum allowed frequency for salience function peaks (ignore contours with peaks below) [Hz]
+    ///\param numberHarmonics (integer ∈ [1, ∞), default = 20) : number of considered harmonics
+    ///\param peakDistributionThreshold (real ∈ [0, 2], default = 0.9) : allowed deviation below the peak salience mean over all frames (fraction of the standard deviation)
+    ///\param peakFrameThreshold (real ∈ [0, 1], default = 0.9) : per-frame salience threshold factor (fraction of the highest peak salience in a frame)
+    ///\param pitchContinuity (real ∈ [0, ∞), default = 27.5625) : pitch continuity cue (maximum allowed pitch change during 1 ms time period) [cents]
+    ///\param referenceFrequency (real ∈ (0, ∞), default = 55) : the reference frequency for Hertz to cent convertion [Hz], corresponding to the 0th cent bin
+    ///\param timeContinuity (integer ∈ (0, ∞), default = 100) : time continuity cue (the maximum allowed gap duration for a pitch contour) [ms]
+    void configureMultiPitchMelodia(Algorithm* algorithm, Real binResolution, int filterIterations, bool guessUnvoiced, Real harmonicWeight, int hopSize, Real magnitudeCompression, int magnitudeThreshold, Real maxFrequency, int minDuration, Real minFrequency, int numberHarmonics, Real peakDistributionThreshold, Real peakFrameThreshold, Real pitchContinuity, Real referenceFrequency, int timeContinuity);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_PredominantPitchMelodia.html
+    ///\param binResolution (real ∈ (0, ∞), default = 10) : salience function bin resolution [cents]
+    ///\param filterIterations (integer ∈ [1, ∞), default = 3) : number of iterations for the octave errors / pitch outlier filtering process
+    ///\param guessUnvoiced (bool ∈ {false, true}, default = false) : estimate pitch for non-voiced segments by using non-salient contours when no salient ones are present in a frame
+    ///\param harmonicWeight (real ∈ (0, 1), default = 0.8) : harmonic weighting parameter (weight decay ratio between two consequent harmonics, =1 for no decay)
+    ///\param hopSize (integer ∈ (0, ∞), default = 128) : the hop size with which the pitch salience function was computed
+    ///\param magnitudeCompression (real ∈ (0, 1], default = 1) : magnitude compression parameter for the salience function (=0 for maximum compression, =1 for no compression)
+    ///\param magnitudeThreshold (integer ∈ [0, ∞), default = 40) : spectral peak magnitude threshold (maximum allowed difference from the highest peak in dBs)
+    ///\param maxFrequency (real ∈ [0, ∞), default = 20000) : the minimum allowed frequency for salience function peaks (ignore contours with peaks above) [Hz]
+    ///\param minDuration (integer ∈ (0, ∞), default = 100) : the minimum allowed contour duration [ms]
+    ///\param minFrequency (real ∈ [0, ∞), default = 40) : the minimum allowed frequency for salience function peaks (ignore contours with peaks below) [Hz]
+    ///\param numberHarmonics (integer ∈ [1, ∞), default = 20) : number of considered harmonics
+    ///\param peakDistributionThreshold (real ∈ [0, 2], default = 0.9) : allowed deviation below the peak salience mean over all frames (fraction of the standard deviation)
+    ///\param peakFrameThreshold (real ∈ [0, 1], default = 0.9) : per-frame salience threshold factor (fraction of the highest peak salience in a frame)
+    ///\param pitchContinuity (real ∈ [0, ∞), default = 27.5625) : pitch continuity cue (maximum allowed pitch change during 1 ms time period) [cents]
+    ///\param referenceFrequency (real ∈ (0, ∞), default = 55) : the reference frequency for Hertz to cent convertion [Hz], corresponding to the 0th cent bin
+    ///\param timeContinuity (integer ∈ (0, ∞), default = 100) : time continuity cue (the maximum allowed gap duration for a pitch contour) [ms]
+    ///\param voiceVibrato (bool ∈ {true, false}, default = false) : detect voice vibrato
+    ///\param voicingTolerance (real ∈ [-1.0, 1.4], default = 0.2) : allowed deviation below the average contour mean salience of all contours (fraction of the standard deviation)
+    void configurePredominantPitchMelodia(Algorithm* algorithm, Real binResolution, int filterIterations, bool guessUnvoiced, Real harmonicWeight, int hopSize, Real magnitudeCompression, int magnitudeThreshold, Real maxFrequency, int minDuration, Real minFrequency, int numberHarmonics, Real peakDistributionThreshold, Real peakFrameThreshold, Real pitchContinuity, Real referenceFrequency, int timeContinuity, bool voiceVibrato, Real voicingTolerance);
+    
+    
+    ///https://essentia.upf.edu/documentation/reference/std_MultiPitchKlapuri.html
+    ///\param binResolution (real ∈ (0, ∞), default = 10) : salience function bin resolution [cents]
+    ///\param harmonicWeight (real ∈ (0, 1), default = 0.8) : harmonic weighting parameter (weight decay ratio between two consequent harmonics, =1 for no decay)
+    ///\param hopSize (integer ∈ (0, ∞), default = 128) : the hop size with which the pitch salience function was computed
+    ///\param magnitudeCompression (real ∈ (0, 1], default = 1) : magnitude compression parameter for the salience function (=0 for maximum compression, =1 for no compression)
+    ///\param magnitudeThreshold (integer ∈ [0, ∞), default = 40) : spectral peak magnitude threshold (maximum allowed difference from the highest peak in dBs)
+    ///\param maxFrequency (real ∈ [0, ∞), default = 1760) : the maximum allowed frequency for salience function peaks (ignore peaks above) [Hz]
+    ///\param minFrequency (real ∈ [0, ∞), default = 80) : the minimum allowed frequency for salience function peaks (ignore peaks below) [Hz]
+    ///\param numberHarmonics (integer ∈ [1, ∞), default = 10) : number of considered harmonics
+    ///\param referenceFrequency (real ∈ (0, ∞), default = 55) : the reference frequency for Hertz to cent convertion [Hz], corresponding to the 0th cent bin
+    void configureMultiPitchKlapuri(Algorithm* algorithm, Real binResolution, Real harmonicWeight, int hopSize, Real magnitudeCompression, int magnitudeThreshold, Real maxFrequency, Real minFrequency, int numberHarmonics, Real referenceFrequency);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_SpectrumCQ.html
+    ///\param binsPerOctave (integer ∈ [1, ∞), default = 24) : the number of bins per octave
+    ///\param maxFrequency (real ∈ [1, ∞), default = 7040) : the maximum frequency
+    ///\param minFrequency (real ∈ [1, ∞), default = 55) : the minimum frequency
+    ///\param threshold (real ∈ [0, ∞), default = 0.0005) : threshold value
+    void configureSpectrumCQ(Algorithm* algorithm, int binsPerOctave, Real maxFrequency, Real minFrequency, Real threshold);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_ChordsDetection.html
+    ///\param hopSize (integer ∈ (0, ∞), default = 2048) : the hop size with which the input PCPs were computed
+    ///\param windowSize (real ∈ (0, ∞), default = 2) : the size of the window on which to estimate the chords [s]
+    void configureChordsDetection(Algorithm* algorithm, int hopSize, Real windowSize);
+    
+    ///https://essentia.upf.edu/documentation/reference/std_OnsetDetection.html
+    ///\param method (string ∈ {hfc, complex, complex_phase, flux, melflux, rms}, default = hfc) : the method used for onset detection
+    void configureOnsetDetection(Algorithm* algorithm, string method);
     
     
 }

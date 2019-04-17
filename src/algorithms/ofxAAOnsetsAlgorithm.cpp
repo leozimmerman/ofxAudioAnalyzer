@@ -23,12 +23,30 @@
  */
 
 #include "ofxAAOnsetsAlgorithm.h"
+#include "ofxAAConfigurations.h"
 
-
-ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize), onsetHfc(ofxaa::ONSETS_DETECTION_HFC, samplerate, framesize), onsetComplex(ofxaa::ONSETS_DETECTION_COMPLEX, samplerate, framesize), onsetFlux(ofxaa::ONSETS_DETECTION_FLUX, samplerate, framesize) {
+ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAOneVectorOutputAlgorithm* windowingAlgorithm, int samplerate, int framesize) : ofxAABaseAlgorithm(ofxaa::Onsets, samplerate, framesize) {
+    
+    windowing = windowingAlgorithm;
+    
+    fft = new ofxAAFftAlgorithm(ofxaa::Fft, samplerate, framesize);
+    
+    cartesianToPolar = new ofxAATwoVectorsOutputAlgorithm(ofxaa::CartesianToPolar, samplerate, framesize);
+    
+    onsetHfc = new ofxAABaseAlgorithm(ofxaa::OnsetDetection, samplerate, framesize);
+    ofxaa::configureOnsetDetection(onsetHfc->algorithm, "hfc");
+    
+    onsetComplex = new ofxAABaseAlgorithm(ofxaa::OnsetDetection, samplerate, framesize);
+    ofxaa::configureOnsetDetection(onsetComplex->algorithm, "complex");
+    
+    onsetFlux = new ofxAABaseAlgorithm(ofxaa::OnsetDetection, samplerate, framesize);
+    ofxaa::configureOnsetDetection(onsetFlux->algorithm, "flux");
+    
+    
+    connectAlgorithms();
     
     /*
-     at 44100:
+     at 44100:x
      512 samples = 11.6 ms
      
      detetctBufferSize: 1 detection x buffers.
@@ -55,25 +73,43 @@ ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxaa::AlgorithmType algorithmType, i
     _value = false;
     
 }
-
+void ofxAAOnsetsAlgorithm::connectAlgorithms(){
+    fft->algorithm->input("frame").set(windowing->realValues);
+    fft->algorithm->output("fft").set(fft->fftRealValues);
+    cartesianToPolar->algorithm->input("complex").set(fft->fftRealValues);
+    cartesianToPolar->algorithm->output("magnitude").set(cartesianToPolar->realValues);
+    cartesianToPolar->algorithm->output("phase").set(cartesianToPolar->realValues_2);
+    
+    onsetHfc->algorithm->input("spectrum").set(cartesianToPolar->realValues);
+    onsetHfc->algorithm->input("phase").set(cartesianToPolar->realValues_2);
+    onsetHfc->algorithm->output("onsetDetection").set(onsetHfc->realValue);
+    
+    onsetComplex->algorithm->input("spectrum").set(cartesianToPolar->realValues);
+    onsetComplex->algorithm->input("phase").set(cartesianToPolar->realValues_2);
+    onsetComplex->algorithm->output("onsetDetection").set(onsetComplex->realValue);
+    
+    onsetFlux->algorithm->input("spectrum").set(cartesianToPolar->realValues);
+    onsetFlux->algorithm->input("phase").set(cartesianToPolar->realValues_2);
+    onsetFlux->algorithm->output("onsetDetection").set(onsetFlux->realValue);
+}
 
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::compute(){
-    onsetHfc.compute();
-    onsetComplex.compute();
-    onsetFlux.compute();
+    onsetHfc->compute();
+    onsetComplex->compute();
+    onsetFlux->compute();
 }
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::castValuesToFloat(){
     
     if(isActivated){
-        onsetHfc.castValueToFloat();
-        onsetComplex.castValueToFloat();
-        onsetFlux.castValueToFloat();
+        onsetHfc->castValueToFloat();
+        onsetComplex->castValueToFloat();
+        onsetFlux->castValueToFloat();
     }else{
-        onsetHfc.setValueZero();
-        onsetFlux.setValueZero();
-        onsetComplex.setValueZero();
+        onsetHfc->setValueZero();
+        onsetFlux->setValueZero();
+        onsetComplex->setValueZero();
     }
 
 }
@@ -81,7 +117,7 @@ void ofxAAOnsetsAlgorithm::castValuesToFloat(){
 void ofxAAOnsetsAlgorithm::evaluate(){
     
     //is current buffer an Onset?
-    bool isCurrentBufferOnset = onsetBufferEvaluation(onsetHfc.getValue(), onsetComplex.getValue(), onsetFlux.getValue());
+    bool isCurrentBufferOnset = onsetBufferEvaluation(onsetHfc->getValue(), onsetComplex->getValue(), onsetFlux->getValue());
     
     //if current buffer is onset, check for timeThreshold evaluation
     if (usingTimeThreshold && isCurrentBufferOnset){
@@ -215,17 +251,17 @@ void ofxAAOnsetsAlgorithm::reset(){
     }
     
     //necessary?
-    onsetHfc.algorithm->reset();
-    onsetComplex.algorithm->reset();
-    onsetFlux.algorithm->reset();
+    onsetHfc->algorithm->reset();
+    onsetComplex->algorithm->reset();
+    onsetFlux->algorithm->reset();
     bufferCounter = 0;
 }
 
 //----------------------------------------------
 void ofxAAOnsetsAlgorithm::deleteAlgorithm(){
-    delete onsetHfc.algorithm;
-    delete onsetComplex.algorithm;
-    delete onsetFlux.algorithm;
+    delete onsetHfc->algorithm;
+    delete onsetComplex->algorithm;
+    delete onsetFlux->algorithm;
 }
 
 

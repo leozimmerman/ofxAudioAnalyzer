@@ -24,13 +24,20 @@
 
 
 #include "ofxAANetwork.h"
+#include "ofxAAConfigurations.h"
 
 #define DEFAULT_SILENCE_RATE_SIZE 3
+#define DEFAULT_SPECTRUM_CQ_BINS 24
 #define DEFAULT_MELBANDS_BANDS_NUM 24
-#define DEFAULT_DCT_COEFF_NUM 10
+#define DEFAULT_MFCC_BANDS_NUM 40
+#define DEFAULT_MFCC_COEFF_NUM 13
+#define DEFAULT_GFCC_ERB_BANDS_NUM 40
+#define DEFAULT_GFCC_COEFF 13
+#define DEFAULT_BARKBANDS_NUM 27
+//#define DEFAULT_DCT_COEFF_NUM 10
 #define DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES 10
 #define DEFAULT_TRISTIMULUS_BANDS_NUM 3
-#define DEFAULT_HPCP_SIZE 12
+#define DEFAULT_HPCP_SIZE 36
 
 #define DEFAULT_MAX_VALUE_ENERGY 100.0
 #define DEFAULT_MAX_VALUE_HFC 2000.0
@@ -64,7 +71,7 @@ namespace ofxaa {
         dcRemoval = new ofxAAOneVectorOutputAlgorithm(DCRemoval, samplerate, framesize);
         vectorAlgorithms.push_back(dcRemoval);
         
-        //MARK: Temporal
+        //MARK: TEMPORAL
         rms = new ofxAABaseAlgorithm(Rms, samplerate, framesize);
         algorithms.push_back(rms);
         power = new ofxAABaseAlgorithm(InstantPower, samplerate, framesize);
@@ -83,8 +90,8 @@ namespace ofxaa {
         //MARK: SFX
         centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
         vectorAlgorithms.push_back(centralMoments);
-        decrease = new ofxAABaseAlgorithm(Decrease, samplerate, framesize);
-        algorithms.push_back(decrease);
+        sfx_decrease = new ofxAABaseAlgorithm(Decrease, samplerate, framesize);
+        algorithms.push_back(sfx_decrease);
         distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
         vectorAlgorithms.push_back(distributionShape);
         derivativeSFX = new ofxAAOneVectorOutputAlgorithm(DerivativeSFX, samplerate, framesize, 2);
@@ -102,78 +109,187 @@ namespace ofxaa {
         tcToTotal = new ofxAABaseAlgorithm(TCToTotal, samplerate, framesize);
         algorithms.push_back(tcToTotal);
         
-        
-        ///********************************
-        windowing = new ofxAAOneVectorOutputAlgorithm(WINDOWING, samplerate, framesize);
+        //MARK: SPECTRAL
+        windowing = new ofxAAOneVectorOutputAlgorithm(Windowing, samplerate, framesize);
         vectorAlgorithms.push_back(windowing);
+        spectrum = new ofxAAOneVectorOutputAlgorithm(Spectrum, samplerate, framesize, (framesize/2)+1);
+        vectorAlgorithms.push_back(spectrum);
         
-        fft = new ofxAAFftAlgorithm(FFT, samplerate, framesize);
-        vectorAlgorithms.push_back(fft);
+        spectrumCQ = new ofxAAOneVectorOutputAlgorithm(SpectrumCQ, samplerate, framesize, DEFAULT_SPECTRUM_CQ_BINS);
+        vectorAlgorithms.push_back(spectrumCQ);
         
-        pitchDetect = new ofxAAPitchDetectAlgorithm(PITCH_YIN_FREQ, samplerate, framesize);
-        algorithms.push_back(pitchDetect);
+        mfcc = new ofxAATwoVectorsOutputAlgorithm(Mfcc, samplerate, framesize, DEFAULT_MFCC_BANDS_NUM, DEFAULT_MFCC_COEFF_NUM);
+        vectorAlgorithms.push_back(mfcc);
         
-        onsets = new ofxAAOnsetsAlgorithm(ONSETS, samplerate, framesize);
-        algorithms.push_back(onsets);
+        melBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
+        ofxaa::configureCentralMoments(melBands_centralMoments->algorithm, "pdf", DEFAULT_MFCC_BANDS_NUM-1);
+        vectorAlgorithms.push_back(melBands_centralMoments);
+        melBands_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
+        vectorAlgorithms.push_back(melBands_distributionShape);
+        melBands_flatnessDb = new ofxAABaseAlgorithm(FlatnessDB, samplerate, framesize);
+        algorithms.push_back(melBands_flatnessDb);
+        melBands_crest = new ofxAABaseAlgorithm(Crest, samplerate, framesize);
+        algorithms.push_back(melBands_crest);
         
-        cartesian2polar = new ofxAACartToPolAlgorithm(CART_TO_POLAR, samplerate, framesize);
-        algorithms.push_back(cartesian2polar);
-        spectralPeaks = new ofxAAPeaksAlgorithm(SPECTRAL_PEAKS, samplerate, framesize);
-        algorithms.push_back(spectralPeaks);
-        harmonicPeaks = new ofxAAPeaksAlgorithm(HARMONIC_PEAKS, samplerate, framesize);
-        algorithms.push_back(harmonicPeaks);
-        pitchSalienceFunctionPeaks = new ofxAAPitchSalienceFunctionPeaksAlgorithm(PITCH_SALIENCE_FUNC_PEAKS, samplerate, framesize);
-        algorithms.push_back(pitchSalienceFunctionPeaks);
+        gfcc = new ofxAATwoVectorsOutputAlgorithm(Gfcc, samplerate, framesize, DEFAULT_GFCC_ERB_BANDS_NUM, DEFAULT_GFCC_COEFF);
+        vectorAlgorithms.push_back(gfcc);
+        erbBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
+        ofxaa::configureCentralMoments(erbBands_centralMoments->algorithm, "pdf", DEFAULT_GFCC_ERB_BANDS_NUM-1);
+        vectorAlgorithms.push_back(erbBands_centralMoments);
+        erbBands_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
+        vectorAlgorithms.push_back(erbBands_distributionShape);
+        erbBands_flatnessDb = new ofxAABaseAlgorithm(FlatnessDB, samplerate, framesize);
+        algorithms.push_back(erbBands_flatnessDb);
+        erbBands_crest = new ofxAABaseAlgorithm(Crest, samplerate, framesize);
+        algorithms.push_back(erbBands_crest);
         
+        barkBands = new ofxAAOneVectorOutputAlgorithm(BarkBands, samplerate, framesize, DEFAULT_BARKBANDS_NUM);
+        vectorAlgorithms.push_back(barkBands);
+        barkBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
+        ofxaa::configureCentralMoments(barkBands_centralMoments->algorithm, "pdf", DEFAULT_BARKBANDS_NUM-1);
+        vectorAlgorithms.push_back(barkBands_centralMoments);
+        barkBands_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
+        vectorAlgorithms.push_back(barkBands_distributionShape);
+        barkBands_flatnessDb = new ofxAABaseAlgorithm(FlatnessDB, samplerate, framesize);
+        algorithms.push_back(barkBands_flatnessDb);
+        barkBands_crest = new ofxAABaseAlgorithm(Crest, samplerate, framesize);
+        algorithms.push_back(barkBands_crest);
         
-        energy = new ofxAABaseAlgorithm(ENERGY, samplerate, framesize);
-        algorithms.push_back(energy);
+        unaryOperator_square = new ofxAAOneVectorOutputAlgorithm(UnaryOperator, samplerate, framesize);
+        vectorAlgorithms.push_back(unaryOperator_square);
+        spectral_decrease = new ofxAABaseAlgorithm(Decrease, samplerate, framesize);
+        ofxaa::configureDecrease(spectral_decrease->algorithm, samplerate/2);
+        algorithms.push_back(spectral_decrease);
         
-        pitchSalience = new ofxAABaseAlgorithm(PITCH_SALIENCE, samplerate, framesize);
-        algorithms.push_back(pitchSalience);
-        inharmonicity = new ofxAABaseAlgorithm(INHARMONICITY, samplerate, framesize);
-        algorithms.push_back(inharmonicity);
-        hfc = new ofxAABaseAlgorithm(HFC, samplerate, framesize);
-        algorithms.push_back(hfc);
-        centroid = new ofxAABaseAlgorithm(Centroid, samplerate, framesize);
-        algorithms.push_back(centroid);
-        spectralComplexity = new ofxAABaseAlgorithm(SPECTRAL_COMPLEXITY, samplerate, framesize);
-        algorithms.push_back(spectralComplexity);
-        dissonance = new ofxAABaseAlgorithm(DISSONANCE, samplerate, framesize);
-        algorithms.push_back(dissonance);
-        rollOff = new ofxAABaseAlgorithm(ROLL_OFF, samplerate, framesize);
+        rollOff = new ofxAABaseAlgorithm(RollOff, samplerate, framesize);
         algorithms.push_back(rollOff);
-        oddToEven = new ofxAABaseAlgorithm(ODD_TO_EVEN, samplerate, framesize);
-        algorithms.push_back(oddToEven);
-        strongPeak = new ofxAABaseAlgorithm(STRONG_PEAK, samplerate, framesize);
+        
+        spectral_energy = new ofxAABaseAlgorithm(Energy, samplerate, framesize);
+        algorithms.push_back(spectral_energy);
+        
+        ebr_low = new ofxAABaseAlgorithm(EnergyBand, samplerate, framesize);
+        ofxaa::configureEnergyBand(ebr_low->algorithm, 20.0, 150.0);
+        algorithms.push_back(ebr_low);
+        ebr_mid_low = new ofxAABaseAlgorithm(EnergyBand, samplerate, framesize);
+        ofxaa::configureEnergyBand(ebr_mid_low->algorithm, 150.0, 800.0);
+        algorithms.push_back(ebr_mid_low);
+        ebr_mid_hi = new ofxAABaseAlgorithm(EnergyBand, samplerate, framesize);
+        ofxaa::configureEnergyBand(ebr_mid_hi->algorithm, 800.0, 4000.0);
+        algorithms.push_back(ebr_mid_hi);
+        ebr_hi = new ofxAABaseAlgorithm(EnergyBand, samplerate, framesize);
+        ofxaa::configureEnergyBand(ebr_hi->algorithm, 4.000, 20.000);
+        algorithms.push_back(ebr_hi);
+        
+        
+        hfc = new ofxAABaseAlgorithm(Hfc, samplerate, framesize);
+        algorithms.push_back(hfc);
+        
+        spectral_flux = new ofxAABaseAlgorithm(Flux, samplerate, framesize);
+        algorithms.push_back(spectral_flux);
+       
+        strongPeak = new ofxAABaseAlgorithm(StrongPeak, samplerate, framesize);
         algorithms.push_back(strongPeak);
         
+        spectralComplexity = new ofxAABaseAlgorithm(SpectralComplexity, samplerate, framesize);
+        algorithms.push_back(spectralComplexity);
         
-        spectrum = new ofxAAOneVectorOutputAlgorithm(SPECTRUM, samplerate, framesize, (framesize/2)+1);
-        vectorAlgorithms.push_back(spectrum);
-        melBands = new ofxAAOneVectorOutputAlgorithm(MEL_BANDS, samplerate, framesize, DEFAULT_MELBANDS_BANDS_NUM);
-        vectorAlgorithms.push_back(melBands);
-        dct = new ofxAAOneVectorOutputAlgorithm(DCT, samplerate, framesize, DEFAULT_DCT_COEFF_NUM);
-        vectorAlgorithms.push_back(dct);
-        hpcp = new ofxAAOneVectorOutputAlgorithm(HPCP, samplerate, framesize, DEFAULT_HPCP_SIZE);
-        vectorAlgorithms.push_back(hpcp);
-        pitchSalienceFunction = new ofxAAOneVectorOutputAlgorithm(PITCH_SALIENCE_FUNC, samplerate, framesize, DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES);
-        vectorAlgorithms.push_back(pitchSalienceFunction);
-        tristimulus = new ofxAAOneVectorOutputAlgorithm(TRISTIMULUS, samplerate, framesize, DEFAULT_TRISTIMULUS_BANDS_NUM);
+        pitchSalience = new ofxAABaseAlgorithm(PitchSalience, samplerate, framesize);
+        algorithms.push_back(pitchSalience);
+        
+        spectralPeaks = new ofxAATwoVectorsOutputAlgorithm(SpectralPeaks, samplerate, framesize);
+        algorithms.push_back(spectralPeaks);
+        
+        dissonance = new ofxAABaseAlgorithm(Dissonance, samplerate, framesize);
+        algorithms.push_back(dissonance);
+        
+        spectral_entropy = new ofxAABaseAlgorithm(Entropy, samplerate, framesize);
+        algorithms.push_back(spectral_entropy);
+        
+        
+        
+        spectral_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
+        ofxaa::configureCentralMoments(spectral_centralMoments->algorithm, "pdf", samplerate/2);
+        spectral_centroid = new ofxAAOneVectorOutputAlgorithm(Centroid, samplerate, framesize);
+        ofxaa::configureCentroid(spectral_centroid->algorithm, samplerate/2);
+        vectorAlgorithms.push_back(spectral_centralMoments);
+        spectral_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
+        vectorAlgorithms.push_back(spectral_distributionShape);
+        
+        harmonicPeaks = new ofxAATwoVectorsOutputAlgorithm(HarmonicPeaks, samplerate, framesize);
+        algorithms.push_back(harmonicPeaks);
+        
+        inharmonicity = new ofxAABaseAlgorithm(Inharmonicity, samplerate, framesize);
+        algorithms.push_back(inharmonicity);
+        
+        oddToEven = new ofxAABaseAlgorithm(OddToEven, samplerate, framesize);
+        algorithms.push_back(oddToEven);
+        
+        tristimulus = new ofxAAOneVectorOutputAlgorithm(Tristimulus, samplerate, framesize, DEFAULT_TRISTIMULUS_BANDS_NUM);
         vectorAlgorithms.push_back(tristimulus);
+        
+        
+        //MARK: PITCH
+        pitchYinFFT = new ofxAAOneVectorOutputAlgorithm(PitchYinFFT, samplerate, framesize, 2);
+        algorithms.push_back(pitchYinFFT);
+        pitchMelodia = new ofxAATwoVectorsOutputAlgorithm(PitchMelodia, samplerate, framesize);
+        algorithms.push_back(pitchMelodia);
+        predominantPitchMelodia = new ofxAATwoVectorsOutputAlgorithm(PredominantPitchMelodia, samplerate, framesize);
+        algorithms.push_back(predominantPitchMelodia);
+        
+        multiPitchMelodia = new ofxAAOneVectorOutputAlgorithm(MultiPitchMelodia, samplerate, framesize);
+        algorithms.push_back(multiPitchMelodia);
+        multiPitchKlapuri = new ofxAAOneVectorOutputAlgorithm(MultiPitchKlapuri, samplerate, framesize);
+        algorithms.push_back(multiPitchKlapuri);
+        
+        equalLoudness = new ofxAAOneVectorOutputAlgorithm(EqualLoudness, samplerate, framesize);
+        algorithms.push_back(equalLoudness);
+        
+        
+        
+        //MARK: TONAL
+        //src: tonalextractor.cpp
+        spectralPeaks_hpcp = new ofxAATwoVectorsOutputAlgorithm(SpectralPeaks, samplerate, framesize);
+        ofxaa::configureSpectralPeaks(spectralPeaks_hpcp->algorithm, 0.00001, 5000.0, 10000, 40.0, "magnitude");
+        vectorAlgorithms.push_back(spectralPeaks_hpcp);
+        
+        hpcp = new ofxAAOneVectorOutputAlgorithm(Hpcp, samplerate, framesize, DEFAULT_HPCP_SIZE);
+        ofxaa::configureHPCP(hpcp->algorithm, true, 500.0, 8, 5000.0, false, 40.0, true, "unitMax", 440, 36, "cosine", 0.5);
+        vectorAlgorithms.push_back(hpcp);
+        
+        hpcp_entropy = new ofxAABaseAlgorithm(Entropy, samplerate, framesize);
+        algorithms.push_back(spectral_entropy);
+        
+        hpcp_crest = new ofxAABaseAlgorithm(Crest, samplerate, framesize);
+        algorithms.push_back(hpcp_crest);
+        
+        chordsDetection = new ofxAATwoTypesVectorOutputAlgorithm(ChordsDetection, samplerate, framesize);
+        algorithms.push_back(chordsDetection);
+        
+        ///*****************************************************
+        ///*****************************************************
+        
+        //MARK: ONSETS
+        
+        
+        
+        onsets = new ofxAAOnsetsAlgorithm(windowing, samplerate, framesize);
+        algorithms.push_back(onsets);
+        
+      
+        
         
     }
     
     void Network::setDefaultMaxEstimatedValues(){
         //default values set from testing with white noise.
-        energy->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ENERGY);
+        ///spectral_energy->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ENERGY);
         hfc->setMaxEstimatedValue(DEFAULT_MAX_VALUE_HFC);
         spectralComplexity->setMaxEstimatedValue(DEFAULT_MAX_VALUE_SPECTRAL_COMPLEXITY);
         rollOff->setMaxEstimatedValue(samplerate/2);
         oddToEven->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ODD_TO_EVEN);
         strongPeak->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_PEAK);
         strongDecay->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_DECAY);
-        pitchDetect->setMaxEstimatedValue(DEFAULT_MAX_VALUE_PITCH_FREQ);//C8
+        ///pitchYinFFT->setMaxEstimatedValue(DEFAULT_MAX_VALUE_PITCH_FREQ);//C8
     }
     
     void Network::connectAlgorithms(){
@@ -181,7 +297,7 @@ namespace ofxaa {
         dcRemoval->algorithm->input("signal").set(_audioSignal);
         dcRemoval->algorithm->output("signal").set(dcRemoval->realValues);
         
-        //MARK: Temporal
+        //MARK: TEMPORAL
         rms->algorithm->input("array").set(dcRemoval->realValues);
         rms->algorithm->output("rms").set(rms->realValue);
         
@@ -210,8 +326,8 @@ namespace ofxaa {
         envelope_acummulated->algorithm->input("signal").set(_accumulatedAudioSignal);
         envelope_acummulated->algorithm->output("signal").set(envelope_acummulated->realValues);
         
-        decrease->algorithm->input("array").set(envelope_acummulated->realValues);
-        decrease->algorithm->output("decrease").set(decrease->realValue);
+        sfx_decrease->algorithm->input("array").set(envelope_acummulated->realValues);
+        sfx_decrease->algorithm->output("decrease").set(sfx_decrease->realValue);
         
         centralMoments->algorithm->input("array").set(envelope_acummulated->realValues);
         centralMoments->algorithm->output("centralMoments").set(centralMoments->realValues);
@@ -244,112 +360,214 @@ namespace ofxaa {
         derivativeSFX->algorithm->output("maxDerBeforeMax").set(derivativeSFX->realValues[1]);
         
         
-        
-        
-        ///*************************************
-        ///*************************************
-        
-        //Energy
-        energy->algorithm->input("array").set(dcRemoval->realValues);
-        energy->algorithm->output("energy").set(energy->realValue);
-       
-        
-        //Window
+        //MARK: SPECTRAL
+        //Essentia source: FreesoundLowLevelDescriptors.cpp
         windowing->algorithm->input("frame").set(dcRemoval->realValues);
         windowing->algorithm->output("frame").set(windowing->realValues);
-        //Onsets
-        fft->algorithm->input("frame").set(windowing->realValues);
-        fft->algorithm->output("fft").set(fft->fftRealValues);
-        cartesian2polar->algorithm->input("complex").set(fft->fftRealValues);
-        cartesian2polar->algorithm->output("magnitude").set(cartesian2polar->magnitudes);
-        cartesian2polar->algorithm->output("phase").set(cartesian2polar->phases);
-        //-
-        onsets->onsetHfc.algorithm->input("spectrum").set(cartesian2polar->magnitudes);
-        onsets->onsetHfc.algorithm->input("phase").set(cartesian2polar->phases);
-        onsets->onsetHfc.algorithm->output("onsetDetection").set(onsets->onsetHfc.realValue);
-        //-
-        onsets->onsetComplex.algorithm->input("spectrum").set(cartesian2polar->magnitudes);
-        onsets->onsetComplex.algorithm->input("phase").set(cartesian2polar->phases);
-        onsets->onsetComplex.algorithm->output("onsetDetection").set(onsets->onsetComplex.realValue);
-        //-
-        onsets->onsetFlux.algorithm->input("spectrum").set(cartesian2polar->magnitudes);
-        onsets->onsetFlux.algorithm->input("phase").set(cartesian2polar->phases);
-        onsets->onsetFlux.algorithm->output("onsetDetection").set(onsets->onsetFlux.realValue);
-        //Spectrum
+        
         spectrum->algorithm->input("frame").set(windowing->realValues);
         spectrum->algorithm->output("spectrum").set(spectrum->realValues);
-        //HFC
-        hfc->algorithm->input("spectrum").set(spectrum->realValues);
-        hfc->algorithm->output("hfc").set(hfc->realValue);
-        //Pitch Salience
-        pitchSalience->algorithm->input("spectrum").set(spectrum->realValues);
-        pitchSalience->algorithm->output("pitchSalience").set(pitchSalience->realValue);
-        //Centroid
-        centroid->algorithm->input("array").set(spectrum->realValues);
-        centroid->algorithm->output("centroid").set(centroid->realValue);
-        //Spectral Complexity
-        spectralComplexity->algorithm->input("spectrum").set(spectrum->realValues);
-        spectralComplexity->algorithm->output("spectralComplexity").set(spectralComplexity->realValue);
-        //Peak detection
-        spectralPeaks->algorithm->input("spectrum").set(spectrum->realValues);
-        spectralPeaks->algorithm->output("frequencies").set(spectralPeaks->frequencies);
-        spectralPeaks->algorithm->output("magnitudes").set(spectralPeaks->magnitudes);
-        //HPCP
-        hpcp->algorithm->input("frequencies").set(spectralPeaks->frequencies);
-        hpcp->algorithm->input("magnitudes").set(spectralPeaks->magnitudes);
-        hpcp->algorithm->output("hpcp").set(hpcp->realValues);
-        //MelBands
-        melBands->algorithm->input("spectrum").set(spectrum->realValues);
-        melBands->algorithm->output("bands").set(melBands->realValues);
-        //DCT
-        dct->algorithm->input("array").set(melBands->logRealValues);
-        dct->algorithm->output("dct").set(dct->realValues);
-        //PitchDetection
-        pitchDetect->algorithm->input("spectrum").set(spectrum->realValues);
-        pitchDetect->algorithm->output("pitch").set(pitchDetect->pitchRealVal);
-        pitchDetect->algorithm->output("pitchConfidence").set(pitchDetect->confidenceRealVal);
-        //HarmonicPeaks
-        harmonicPeaks->algorithm->input("frequencies").set(spectralPeaks->frequencies);
-        harmonicPeaks->algorithm->input("magnitudes").set(spectralPeaks->magnitudes);
-        harmonicPeaks->algorithm->input("pitch").set(pitchDetect->pitchRealVal);
-        harmonicPeaks->algorithm->output("harmonicFrequencies").set(harmonicPeaks->frequencies);
-        harmonicPeaks->algorithm->output("harmonicMagnitudes").set(harmonicPeaks->magnitudes);
-        //Inharmonicity
-        inharmonicity->algorithm->input("frequencies").set(harmonicPeaks->frequencies);
-        inharmonicity->algorithm->input("magnitudes").set(harmonicPeaks->magnitudes);
-        inharmonicity->algorithm->output("inharmonicity").set(inharmonicity->realValue);
-        //Dissonance
-        dissonance->algorithm->input("frequencies").set(spectralPeaks->frequencies);
-        dissonance->algorithm->input("magnitudes").set(spectralPeaks->magnitudes);
-        dissonance->algorithm->output("dissonance").set(dissonance->realValue);
-        //Pitch Salience Function
-        pitchSalienceFunction->algorithm->input("frequencies").set(spectralPeaks->frequencies);
-        pitchSalienceFunction->algorithm->input("magnitudes").set(spectralPeaks->magnitudes);
-        pitchSalienceFunction->algorithm->output("salienceFunction").set(pitchSalienceFunction->realValues);
-        //Pitch Salience Function Peaks
-        pitchSalienceFunctionPeaks->algorithm->input("salienceFunction").set(pitchSalienceFunction->realValues);
-        pitchSalienceFunctionPeaks->algorithm->output("salienceBins").set(pitchSalienceFunctionPeaks->realSalienceBins);
-        pitchSalienceFunctionPeaks->algorithm->output("salienceValues").set(pitchSalienceFunctionPeaks->realSalienceValues);
         
-        //RollOff
+        spectrumCQ->algorithm->input("frame").set(windowing->realValues);
+        spectrumCQ->algorithm->output("spectrumCQ").set(spectrumCQ->realValues);
+        
+        //MEL BANDS
+        mfcc->algorithm->input("spectrum").set(spectrum->realValues);
+        mfcc->algorithm->output("bands").set(mfcc->realValues);
+        mfcc->algorithm->output("mfcc").set(mfcc->realValues_2);
+        
+        melBands_centralMoments->algorithm->input("array").set(mfcc->realValues);
+        melBands_centralMoments->algorithm->output("centralMoments").set(melBands_centralMoments->realValues);
+        
+        melBands_distributionShape->algorithm->input("centralMoments").set(melBands_centralMoments->realValues);
+        melBands_distributionShape->algorithm->output("kurtosis").set(melBands_distributionShape->realValues[0]);
+        melBands_distributionShape->algorithm->output("spread").set(melBands_distributionShape->realValues[1]);
+        melBands_distributionShape->algorithm->output("skewness").set(melBands_distributionShape->realValues[2]);
+        
+        melBands_flatnessDb->algorithm->input("array").set(mfcc->realValues);
+        melBands_flatnessDb->algorithm->output("flatnessDB").set(melBands_flatnessDb->realValue);
+        
+        melBands_crest->algorithm->input("array").set(mfcc->realValues);
+        melBands_crest->algorithm->output("crest").set(melBands_crest->realValue);
+        
+        //ERB Bands and GFCC
+        gfcc->algorithm->input("spectrum").set(spectrum->realValues);
+        gfcc->algorithm->output("bands").set(gfcc->realValues);
+        gfcc->algorithm->output("gfcc").set(gfcc->realValues_2);
+        
+        erbBands_centralMoments->algorithm->input("array").set(gfcc->realValues);
+        erbBands_centralMoments->algorithm->output("centralMoments").set(erbBands_centralMoments->realValues);
+        
+        erbBands_distributionShape->algorithm->input("centralMoments").set(erbBands_centralMoments->realValues);
+        erbBands_distributionShape->algorithm->output("kurtosis").set(erbBands_distributionShape->realValues[0]);
+        erbBands_distributionShape->algorithm->output("spread").set(erbBands_distributionShape->realValues[1]);
+        erbBands_distributionShape->algorithm->output("skewness").set(erbBands_distributionShape->realValues[2]);
+        
+        erbBands_flatnessDb->algorithm->input("array").set(gfcc->realValues);
+        erbBands_flatnessDb->algorithm->output("flatnessDB").set(erbBands_flatnessDb->realValue);
+        
+        erbBands_crest->algorithm->input("array").set(gfcc->realValues);
+        erbBands_crest->algorithm->output("crest").set(erbBands_crest->realValue);
+        
+        //BARK BANDS
+        barkBands->algorithm->input("spectrum").set(spectrum->realValues);
+        barkBands->algorithm->output("bands").set(barkBands->realValues);
+        
+        barkBands_centralMoments->algorithm->input("array").set(barkBands->realValues);
+        barkBands_centralMoments->algorithm->output("centralMoments").set(barkBands_centralMoments->realValues);
+        
+        barkBands_distributionShape->algorithm->input("centralMoments").set(barkBands_centralMoments->realValues);
+        barkBands_distributionShape->algorithm->output("kurtosis").set(barkBands_distributionShape->realValues[0]);
+        barkBands_distributionShape->algorithm->output("spread").set(barkBands_distributionShape->realValues[1]);
+        barkBands_distributionShape->algorithm->output("skewness").set(barkBands_distributionShape->realValues[2]);
+        
+        barkBands_flatnessDb->algorithm->input("array").set(barkBands->realValues);
+        barkBands_flatnessDb->algorithm->output("flatnessDB").set(barkBands_flatnessDb->realValue);
+        
+        barkBands_crest->algorithm->input("array").set(barkBands->realValues);
+        barkBands_crest->algorithm->output("crest").set(barkBands_crest->realValue);
+        
+        //Spectrals
+        unaryOperator_square->algorithm->input("array").set(spectrum->realValues);
+        unaryOperator_square->algorithm->output("array").set(unaryOperator_square->realValues);
+        
+        spectral_decrease->algorithm->input("array").set(unaryOperator_square->realValues);
+        spectral_decrease->algorithm->output("decrease").set(spectral_decrease->realValue);
+        
+        spectral_centroid->algorithm->input("array").set(unaryOperator_square->realValues);
+        spectral_centroid->algorithm->output("centroid").set(spectral_centroid->realValue);
+        
         rollOff->algorithm->input("spectrum").set(spectrum->realValues);
         rollOff->algorithm->output("rollOff").set(rollOff->realValue);
-        //StrongPeak
+        
+        spectral_entropy->algorithm->input("array").set(spectrum->realValues);
+        spectral_entropy->algorithm->output("entropy").set(spectral_entropy->realValue);
+        
+        spectral_energy->algorithm->input("array").set(spectrum->realValues);
+        spectral_energy->algorithm->output("energy").set(spectral_energy->realValue);
+        
+        ebr_low->algorithm->input("spectrum").set(spectrum->realValues);
+        ebr_low->algorithm->output("energyBand").set(ebr_low->realValue);
+        
+        ebr_mid_low->algorithm->input("spectrum").set(spectrum->realValues);
+        ebr_mid_low->algorithm->output("energyBand").set(ebr_mid_low->realValue);
+        
+        ebr_mid_hi->algorithm->input("spectrum").set(spectrum->realValues);
+        ebr_mid_hi->algorithm->output("energyBand").set(ebr_mid_hi->realValue);
+        
+        ebr_hi->algorithm->input("spectrum").set(spectrum->realValues);
+        ebr_hi->algorithm->output("energyBand").set(ebr_hi->realValue);
+        
+        hfc->algorithm->input("spectrum").set(spectrum->realValues);
+        hfc->algorithm->output("hfc").set(hfc->realValue);
+        
+        spectral_flux->algorithm->input("spectrum").set(spectrum->realValues);
+        spectral_flux->algorithm->output("flux").set(spectral_flux->realValue);
+        
         strongPeak->algorithm->input("spectrum").set(spectrum->realValues);
         strongPeak->algorithm->output("strongPeak").set(strongPeak->realValue);
         
-        //OddToEven
-        oddToEven->algorithm->input("frequencies").set(harmonicPeaks->frequencies);
-        oddToEven->algorithm->input("magnitudes").set(harmonicPeaks->magnitudes);
+        spectralComplexity->algorithm->input("spectrum").set(spectrum->realValues);
+        spectralComplexity->algorithm->output("spectralComplexity").set(spectralComplexity->realValue);
+        
+        pitchSalience->algorithm->input("spectrum").set(spectrum->realValues);
+        pitchSalience->algorithm->output("pitchSalience").set(pitchSalience->realValue);
+        
+        spectral_centralMoments->algorithm->input("array").set(spectrum->realValues);
+        spectral_centralMoments->algorithm->output("centralMoments").set(spectral_centralMoments->realValues);
+        
+        spectral_distributionShape->algorithm->input("centralMoments").set(spectral_centralMoments->realValues);
+        spectral_distributionShape->algorithm->output("kurtosis").set(spectral_distributionShape->realValues[0]);
+        spectral_distributionShape->algorithm->output("spread").set(spectral_distributionShape->realValues[1]);
+        spectral_distributionShape->algorithm->output("skewness").set(spectral_distributionShape->realValues[2]);
+        
+        spectralPeaks->algorithm->input("spectrum").set(spectrum->realValues);
+        spectralPeaks->algorithm->output("frequencies").set(spectralPeaks->realValues);
+        spectralPeaks->algorithm->output("magnitudes").set(spectralPeaks->realValues_2);
+        
+        dissonance->algorithm->input("frequencies").set(spectralPeaks->realValues);
+        dissonance->algorithm->input("magnitudes").set(spectralPeaks->realValues_2);
+        dissonance->algorithm->output("dissonance").set(dissonance->realValue);
+        
+        dynamicComplexity->algorithm->input("signal").set(_accumulatedAudioSignal);
+        spectral_centralMoments->algorithm->output("centralMoments").set(spectral_centralMoments->realValues);
+        spectral_centralMoments->algorithm->output("dynamicComplexity").set(spectral_centralMoments->realValues[0]);
+        spectral_centralMoments->algorithm->output("loudness").set(spectral_centralMoments->realValues[1]);
+        
+        harmonicPeaks->algorithm->input("frequencies").set(spectralPeaks->realValues);
+        harmonicPeaks->algorithm->input("magnitudes").set(spectralPeaks->realValues_2);
+        harmonicPeaks->algorithm->input("pitch").set(pitchYinFFT->realValues);
+        harmonicPeaks->algorithm->output("harmonicFrequencies").set(harmonicPeaks->realValues);
+        harmonicPeaks->algorithm->output("harmonicMagnitudes").set(harmonicPeaks->realValues_2);
+        
+        inharmonicity->algorithm->input("frequencies").set(harmonicPeaks->realValues);
+        inharmonicity->algorithm->input("magnitudes").set(harmonicPeaks->realValues_2);
+        inharmonicity->algorithm->output("inharmonicity").set(inharmonicity->realValue);
+        
+        oddToEven->algorithm->input("frequencies").set(harmonicPeaks->realValues);
+        oddToEven->algorithm->input("magnitudes").set(harmonicPeaks->realValues_2);
         oddToEven->algorithm->output("oddToEvenHarmonicEnergyRatio").set(oddToEven->realValue);
-        //Tristimulus
-        tristimulus->algorithm->input("frequencies").set(harmonicPeaks->frequencies);
-        tristimulus->algorithm->input("magnitudes").set(harmonicPeaks->magnitudes);
+        
+        tristimulus->algorithm->input("frequencies").set(harmonicPeaks->realValues);
+        tristimulus->algorithm->input("magnitudes").set(harmonicPeaks->realValues_2);
         tristimulus->algorithm->output("tristimulus").set(tristimulus->realValues);
         
-        //MultiPitch Kalpuri:
-        ///multiPitchKlapuri.setup(&pitchSalienceFunctionPeaks, &spectrum, _samplerate);
-    }
+        //MARK: PITCH
+        //source: standard_pitchdemo.cpp
+        pitchYinFFT->algorithm->input("spectrum").set(spectrum->realValues);
+        pitchYinFFT->algorithm->output("pitch").set(pitchYinFFT->realValues[0]);
+        pitchYinFFT->algorithm->output("pitchConfidence").set(pitchYinFFT->realValues[1]);
+        
+        pitchMelodia->algorithm->input("signal").set(dcRemoval->realValues);
+        pitchMelodia->algorithm->output("pitch").set(pitchMelodia->realValues);
+        pitchMelodia->algorithm->output("pitchConfidence").set(pitchMelodia->realValues_2);
+        
+        multiPitchKlapuri->algorithm->input("signal").set(dcRemoval->realValues);
+        multiPitchKlapuri->algorithm->output("pitch").set(multiPitchKlapuri->realValues);
+        
+        equalLoudness->algorithm->input("signal").set(dcRemoval->realValues);
+        equalLoudness->algorithm->output("signal").set(equalLoudness->realValues);
+        
+        multiPitchMelodia->algorithm->input("signal").set(equalLoudness->realValues);
+        multiPitchMelodia->algorithm->output("pitch").set(multiPitchMelodia->realValues);
+        
+        predominantPitchMelodia->algorithm->input("signal").set(dcRemoval->realValues);
+        predominantPitchMelodia->algorithm->output("pitch").set(predominantPitchMelodia->realValues);
+        predominantPitchMelodia->algorithm->output("pitchConfidence").set(predominantPitchMelodia->realValues_2);
+        
+        //MARK: TONAL
+        spectralPeaks_hpcp->algorithm->input("spectrum").set(spectrum->realValues);
+        spectralPeaks_hpcp->algorithm->output("frequencies").set(spectralPeaks_hpcp->realValues);
+        spectralPeaks_hpcp->algorithm->output("magnitudes").set(spectralPeaks_hpcp->realValues_2);
+        
+        
+        hpcp->algorithm->input("frequencies").set(spectralPeaks_hpcp->realValues);
+        hpcp->algorithm->input("magnitudes").set(spectralPeaks_hpcp->realValues_2);
+        hpcp->algorithm->output("hpcp").set(hpcp->realValues);
+        
+        hpcp_entropy->algorithm->input("array").set(hpcp->realValues);
+        hpcp_entropy->algorithm->output("entropy").set(hpcp_entropy->realValue);
+        
+        hpcp_crest->algorithm->input("array").set(hpcp->realValues);
+        hpcp_crest->algorithm->output("crest").set(hpcp_crest->realValue);
+   
+        
+        chordsDetection->algorithm->input("pcp").set(hpcp->realValues);
+        chordsDetection->algorithm->output("chords").set(chordsDetection->stringValues);
+        chordsDetection->algorithm->output("strength").set(chordsDetection->realValues);
+        
+        ///*************************************
+        ///*************************************
+
+        //Onsets
+       
+        
+        
+        //HPCP
+       
+        
+}
+    
     void Network::computeAlgorithms(vector<Real>& signal, vector<Real>& accumulatedSignal){
         _audioSignal = signal;
         _accumulatedAudioSignal = accumulatedSignal;
@@ -365,14 +583,13 @@ namespace ofxaa {
         
         envelope->compute();
         envelope_acummulated->compute();
-        decrease->compute();
+        sfx_decrease->compute();
         centralMoments->compute();
         distributionShape->compute();
         logAttackTime->compute();
         
         flatnessSFX->compute();
         maxToTotal->compute();
-        
         derivativeSFX->compute();
         
         if(envelope->realValues[0] != 0.0){
@@ -381,37 +598,32 @@ namespace ofxaa {
             strongDecay->compute();
         }
         
-        ///***
-        
-        energy->compute();
-        
         
         windowing->compute();
+        //spectrum must always be computed as it is neede for other algorithms
+        spectrum->algorithm->compute();
+        mfcc->compute();
+        
+        
+        ///**************************
+        
+        spectral_energy->compute();
+        
+        
         
         if(onsets->getIsActive()){
-            fft->compute();
-            cartesian2polar->compute();
             onsets->compute();
         }
         
-        //spectrum must always be computed as it is neede for other algorithms
-        spectrum->algorithm->compute();
+        
         
         hfc->compute();
         pitchSalience->compute();
-        pitchDetect->compute();
-        centroid->compute();
+        pitchYinFFT->compute();
+        
         spectralComplexity->compute();
         
-        if(melBands->getIsActive()){
-            melBands->algorithm->compute();
-            if(dct->getIsActive()){
-                melBands->updateLogRealValues();
-                dct->compute();
-            }
-        }else{
-            dct->setActive(false);//dct needs melBands to be active
-        }
+   
         spectralPeaks->compute();
         hpcp->compute();
         
@@ -421,8 +633,6 @@ namespace ofxaa {
         }
         
         dissonance->compute();
-        pitchSalienceFunction->compute();
-        pitchSalienceFunctionPeaks->compute();
         
         ///multiPitchKlapuri.compute();
         
@@ -449,8 +659,7 @@ namespace ofxaa {
 //        hpcp->castValuesToFloat(false);
 //        tristimulus->castValuesToFloat(false);
 
-        pitchSalienceFunctionPeaks->castValuesToFloat();
-        pitchDetect->castValuesToFloat();
+        pitchYinFFT->castValuesToFloat(false);
         onsets->castValuesToFloat();
 
         onsets->evaluate();
@@ -487,7 +696,7 @@ namespace ofxaa {
             case SILENCE_RATE_60dB:
                 return smooth ? silenceRate->getSmoothedValues(smooth)[2] : silenceRate->getValues()[2];
             case DECREASE:
-                return smooth ? decrease->getSmoothedValue(smooth) : decrease->getValue();
+                return smooth ? sfx_decrease->getSmoothedValue(smooth) : sfx_decrease->getValue();
             case DISTRIBUTION_SHAPE_KURTOSIS:
                 return smooth ? distributionShape->getSmoothedValues(smooth)[0] : distributionShape->getValues()[0];
             case DISTRIBUTION_SHAPE_SPREAD:

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Leo Zimmerman [http://www.leozimmerman.com.ar]
+ * Copyright (C) 2019 Leo Zimmerman [http://www.leozimmerman.com.ar]
  *
  * ofxAudioAnalyzer is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -22,12 +22,24 @@
  *
  */
 
-# pragma once
+#pragma once
 
-#include "ofxAABaseAlgorithm.h"
 #include "ofxAAOneVectorOutputAlgorithm.h"
-#include "ofxAATwoVectorsOutputAlgorithm.h"
-#include "ofxAATwoTypesVectorOutputAlgorithm.h"
-#include "ofxAAOnsetsAlgorithm.h"
 
-
+class ofxAATwoVectorsOutputAlgorithm : public ofxAAOneVectorOutputAlgorithm{
+public:
+    
+      ofxAATwoVectorsOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAAOneVectorOutputAlgorithm(algorithmType, samplerate, framesize){}
+    
+    ofxAATwoVectorsOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize_1, int outputSize_2);
+    
+    void castValuesToFloat(bool logarithmic) override;
+    
+    void assignSecondOutpuValuesSize(int size, int val);
+    
+    vector<Real> realValues_2;
+    
+protected:
+    vector<float> floatValues_2;
+    vector<float> smoothedFloatValues_2;
+};

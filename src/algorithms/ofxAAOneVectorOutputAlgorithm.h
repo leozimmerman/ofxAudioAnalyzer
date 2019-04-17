@@ -32,11 +32,11 @@ public:
     
     ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
     
-    ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int binsSize);
+    ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize);
     
-    void assignFloatValuesSize(int size, int val);
+    void assignOutputValuesSize(int size, int val);
     
-    void castValuesToFloat(bool logarithmic);
+    virtual void castValuesToFloat(bool logarithmic);
     
     void updateLogRealValues();
     
@@ -47,7 +47,8 @@ public:
     vector<Real> realValues;
     vector<Real> logRealValues;
     
-private:
+protected:
+    void castValues(bool logarithmic, vector<Real>& reals, vector<float>& floats);
     
     vector<float> floatValues;
     vector<float> smoothedFloatValues;
