@@ -22,19 +22,14 @@
  *
  */
 
-#include "ofxAATwoVectorsOutputAlgorithm.h"
+#pragma once
 
-ofxAATwoVectorsOutputAlgorithm::ofxAATwoVectorsOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize_1, int outputSize_2) :  ofxAAOneVectorOutputAlgorithm(algorithmType, samplerate, framesize, outputSize_1) {
-    assignSecondOutpuValuesSize(outputSize_2, 0.0);
-}
+#include "ofxAABaseAlgorithm.h"
 
-void ofxAATwoVectorsOutputAlgorithm::castToFloat(){
-    ofxAAOneVectorOutputAlgorithm::castToFloat();
-    castValues(realValues_2, floatValues_2);
-}
-
-void ofxAATwoVectorsOutputAlgorithm::assignSecondOutpuValuesSize(int size, int val){
-    realValues_2.assign(size, val);
-    floatValues_2.assign(size, val);
-    smoothedFloatValues_2.assign(size, val);
-}
+class ofxAANSGConstantQAlgorithm : public ofxAABaseAlgorithm{
+public:
+    ofxAANSGConstantQAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
+    vector < vector< complex<Real> > > constantq;
+    vector < complex<Real> > constantqdc;
+    vector < complex<Real> > constantqnf;
+};

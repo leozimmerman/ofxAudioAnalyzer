@@ -140,6 +140,7 @@ namespace ofxaa {
         Spectrum,
         SpectrumCQ,
         StrongPeak,
+        NSGConstantQ,
         
         ///RHYTHM
         Onsets,

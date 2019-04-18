@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "ofMain.h"
 #include "ofxAudioAnalyzerUtils.h"
 #include "ofxAudioAnalyzerAlgorithms.h"
 
@@ -37,26 +36,28 @@ namespace ofxaa {
         void computeAlgorithms(vector<Real>& signal, vector<Real>& accumulatedSignal);
         
         float getValue(ofxAAValueType valueType, float smooth, bool normalized);
-        
         vector<float>& getValues(ofxaa::AlgorithmType algorithmType, float smooth);
-        
         int getBinsNum(ofxaa::AlgorithmType algorithmType);
         
         void resetOnsets();
         bool getOnsetValue();
-        //vector<SalienceFunctionPeak>& getPitchSaliencePeaksRef(float smooth=0.0);
-        //void setSalienceFunctionPeaksParameters(int maxPeaks);
+        
         void setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
         
-        
     private:
+        
         void createAlgorithms();
         void setDefaultMaxEstimatedValues();
         void connectAlgorithms();
         void deleteAlgorithms();
         
+        int samplerate;
+        int framesize;
+        
+        vector<Real> _audioSignal;
+        vector<Real> _accumulatedAudioSignal;
+        
         vector<ofxAABaseAlgorithm*> algorithms;
-        vector<ofxAAOneVectorOutputAlgorithm*> vectorAlgorithms;
         
         ofxAAOneVectorOutputAlgorithm* dcRemoval;
         ofxAAOneVectorOutputAlgorithm* windowing;
@@ -83,13 +84,15 @@ namespace ofxaa {
         ofxAABaseAlgorithm* tcToTotal;
         
         ofxAAOneVectorOutputAlgorithm* spectrum;
-        ofxAAOneVectorOutputAlgorithm* spectrumCQ;
+        ofxAANSGConstantQAlgorithm* nsgConstantQ;
+        //https://essentia.upf.edu/documentation/reference/streaming_NSGConstantQStreaming.html
+        //https://github.com/MTG/essentia/blob/master/src/examples/python/NSGConstantQ-example.ipynb
+        //NSGConstantQStreaming
         ofxAATwoVectorsOutputAlgorithm* mfcc;
         ofxAAOneVectorOutputAlgorithm* melBands_centralMoments;
         ofxAAOneVectorOutputAlgorithm* melBands_distributionShape;
         ofxAABaseAlgorithm* melBands_flatnessDb;
         ofxAABaseAlgorithm* melBands_crest;
-        
         
         ofxAATwoVectorsOutputAlgorithm* gfcc;
         ofxAAOneVectorOutputAlgorithm* erbBands_centralMoments;
@@ -137,11 +140,8 @@ namespace ofxaa {
         ofxAAOneVectorOutputAlgorithm* pitchYinFFT;
         ofxAATwoVectorsOutputAlgorithm* pitchMelodia;
         ofxAATwoVectorsOutputAlgorithm* predominantPitchMelodia;
-        ofxAAOneVectorOutputAlgorithm* multiPitchMelodia;
-        ofxAAOneVectorOutputAlgorithm* multiPitchKlapuri;
-        
-        
-        
+        ofxAAVectorVectorOutputAlgorithm* multiPitchMelodia;
+        ofxAAVectorVectorOutputAlgorithm* multiPitchKlapuri;
         
         ofxAATwoVectorsOutputAlgorithm* spectralPeaks_hpcp;
         ofxAAOneVectorOutputAlgorithm* hpcp;
@@ -151,11 +151,7 @@ namespace ofxaa {
         
         ofxAAOnsetsAlgorithm* onsets;
         
-        int samplerate;
-        int framesize;
-        
-        vector<Real> _audioSignal;
-        vector<Real> _accumulatedAudioSignal;
+      
         
     };
 }

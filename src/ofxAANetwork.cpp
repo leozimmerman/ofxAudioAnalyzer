@@ -26,6 +26,7 @@
 #include "ofxAANetwork.h"
 #include "ofxAAConfigurations.h"
 
+//TODO: Remove this defines?
 #define DEFAULT_SILENCE_RATE_SIZE 3
 #define DEFAULT_SPECTRUM_CQ_BINS 24
 #define DEFAULT_MELBANDS_BANDS_NUM 24
@@ -66,127 +67,195 @@ namespace ofxaa {
     Network::~Network(){
         deleteAlgorithms();
     }
-    
+    //MARK: - CREATE ALGORITHMS
     void Network::createAlgorithms(){
         dcRemoval = new ofxAAOneVectorOutputAlgorithm(DCRemoval, samplerate, framesize);
-        vectorAlgorithms.push_back(dcRemoval);
+        algorithms.push_back(dcRemoval);
+        
+        windowing = new ofxAAOneVectorOutputAlgorithm(Windowing, samplerate, framesize);
+        algorithms.push_back(windowing);
+        
+        spectrum = new ofxAAOneVectorOutputAlgorithm(Spectrum, samplerate, framesize, (framesize/2)+1);
+        algorithms.push_back(spectrum);
         
         //MARK: TEMPORAL
         rms = new ofxAABaseAlgorithm(Rms, samplerate, framesize);
         algorithms.push_back(rms);
+        
         power = new ofxAABaseAlgorithm(InstantPower, samplerate, framesize);
         algorithms.push_back(power);
-        strongDecay = new ofxAABaseAlgorithm(StrongDecay, samplerate, framesize);
-        algorithms.push_back(strongDecay);
+        
         zeroCrossingRate = new ofxAABaseAlgorithm(ZeroCrossingRate, samplerate, framesize);
         algorithms.push_back(zeroCrossingRate);
+        
         loudness = new ofxAABaseAlgorithm(Loudness, samplerate, framesize);
         algorithms.push_back(loudness);
+        
         loudnessVickers = new ofxAABaseAlgorithm(LoudnessVickers, samplerate, framesize);
         algorithms.push_back(loudnessVickers);
+        
         silenceRate = new ofxAAOneVectorOutputAlgorithm(SilenceRate, samplerate, framesize, DEFAULT_SILENCE_RATE_SIZE);
-        vectorAlgorithms.push_back(silenceRate);
+        algorithms.push_back(silenceRate);
+        
+        dynamicComplexity = new ofxAAOneVectorOutputAlgorithm(DynamicComplexity, samplerate, framesize, 2);
+        algorithms.push_back(dynamicComplexity);
         
         //MARK: SFX
-        centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
-        vectorAlgorithms.push_back(centralMoments);
+        envelope = new ofxAAOneVectorOutputAlgorithm(Envelope, samplerate, framesize);
+        algorithms.push_back(envelope);
+        
+        envelope_acummulated = new ofxAAOneVectorOutputAlgorithm(Envelope, samplerate, framesize);
+        algorithms.push_back(envelope_acummulated);
+        
         sfx_decrease = new ofxAABaseAlgorithm(Decrease, samplerate, framesize);
         algorithms.push_back(sfx_decrease);
+        
+        centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
+        algorithms.push_back(centralMoments);
+        
         distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
-        vectorAlgorithms.push_back(distributionShape);
-        derivativeSFX = new ofxAAOneVectorOutputAlgorithm(DerivativeSFX, samplerate, framesize, 2);
-        vectorAlgorithms.push_back(derivativeSFX);
-        envelope = new ofxAAOneVectorOutputAlgorithm(Envelope, samplerate, framesize);
-        vectorAlgorithms.push_back(envelope);
-        envelope_acummulated = new ofxAAOneVectorOutputAlgorithm(Envelope, samplerate, framesize);
-        vectorAlgorithms.push_back(envelope_acummulated);
+        algorithms.push_back(distributionShape);
+        
+        logAttackTime = new ofxAAOneVectorOutputAlgorithm(LogAttackTime, samplerate, framesize, 3);
+        algorithms.push_back(logAttackTime);
+        
+        strongDecay = new ofxAABaseAlgorithm(StrongDecay, samplerate, framesize);
+        algorithms.push_back(strongDecay);
+        
         flatnessSFX = new ofxAABaseAlgorithm(FlatnessSFX, samplerate, framesize);
         algorithms.push_back(flatnessSFX);
-        logAttackTime = new ofxAAOneVectorOutputAlgorithm(LogAttackTime, samplerate, framesize, 3);
-        vectorAlgorithms.push_back(logAttackTime);
+        
         maxToTotal = new ofxAABaseAlgorithm(MaxToTotal, samplerate, framesize);
         algorithms.push_back(maxToTotal);
+        
         tcToTotal = new ofxAABaseAlgorithm(TCToTotal, samplerate, framesize);
         algorithms.push_back(tcToTotal);
         
+        derivativeSFX = new ofxAAOneVectorOutputAlgorithm(DerivativeSFX, samplerate, framesize, 2);
+        algorithms.push_back(derivativeSFX);
+        
+        //MARK: PITCH
+        pitchYinFFT = new ofxAAOneVectorOutputAlgorithm(PitchYinFFT, samplerate, framesize, 2);
+        algorithms.push_back(pitchYinFFT);
+        
+        pitchMelodia = new ofxAATwoVectorsOutputAlgorithm(PitchMelodia, samplerate, framesize);
+        algorithms.push_back(pitchMelodia);
+        
+        multiPitchKlapuri = new ofxAAVectorVectorOutputAlgorithm(MultiPitchKlapuri, samplerate, framesize);
+        algorithms.push_back(multiPitchKlapuri);
+        
+        /* Not working: https://github.com/MTG/essentia/issues/835 :
+        equalLoudness = new ofxAAOneVectorOutputAlgorithm(EqualLoudness, samplerate, framesize);
+        algorithms.push_back(equalLoudness);
+        
+        multiPitchMelodia = new ofxAAVectorVectorOutputAlgorithm(MultiPitchMelodia, samplerate, framesize);
+        algorithms.push_back(multiPitchMelodia);
+        */
+        
+        
+        predominantPitchMelodia = new ofxAATwoVectorsOutputAlgorithm(PredominantPitchMelodia, samplerate, framesize);
+        algorithms.push_back(predominantPitchMelodia);
+        
+        
         //MARK: SPECTRAL
-        windowing = new ofxAAOneVectorOutputAlgorithm(Windowing, samplerate, framesize);
-        vectorAlgorithms.push_back(windowing);
-        spectrum = new ofxAAOneVectorOutputAlgorithm(Spectrum, samplerate, framesize, (framesize/2)+1);
-        vectorAlgorithms.push_back(spectrum);
-        
-        spectrumCQ = new ofxAAOneVectorOutputAlgorithm(SpectrumCQ, samplerate, framesize, DEFAULT_SPECTRUM_CQ_BINS);
-        vectorAlgorithms.push_back(spectrumCQ);
-        
+        nsgConstantQ = new ofxAANSGConstantQAlgorithm(NSGConstantQ, samplerate, framesize);
+        algorithms.push_back(nsgConstantQ);
+      
+        //MARK: -MelBands
         mfcc = new ofxAATwoVectorsOutputAlgorithm(Mfcc, samplerate, framesize, DEFAULT_MFCC_BANDS_NUM, DEFAULT_MFCC_COEFF_NUM);
-        vectorAlgorithms.push_back(mfcc);
+        algorithms.push_back(mfcc);
         
         melBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
         ofxaa::configureCentralMoments(melBands_centralMoments->algorithm, "pdf", DEFAULT_MFCC_BANDS_NUM-1);
-        vectorAlgorithms.push_back(melBands_centralMoments);
+        algorithms.push_back(melBands_centralMoments);
+        
         melBands_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
-        vectorAlgorithms.push_back(melBands_distributionShape);
+        algorithms.push_back(melBands_distributionShape);
+        
         melBands_flatnessDb = new ofxAABaseAlgorithm(FlatnessDB, samplerate, framesize);
         algorithms.push_back(melBands_flatnessDb);
+        
         melBands_crest = new ofxAABaseAlgorithm(Crest, samplerate, framesize);
         algorithms.push_back(melBands_crest);
         
+        //MARK: -ERB Bands
         gfcc = new ofxAATwoVectorsOutputAlgorithm(Gfcc, samplerate, framesize, DEFAULT_GFCC_ERB_BANDS_NUM, DEFAULT_GFCC_COEFF);
-        vectorAlgorithms.push_back(gfcc);
+        algorithms.push_back(gfcc);
+        
         erbBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
         ofxaa::configureCentralMoments(erbBands_centralMoments->algorithm, "pdf", DEFAULT_GFCC_ERB_BANDS_NUM-1);
-        vectorAlgorithms.push_back(erbBands_centralMoments);
+        algorithms.push_back(erbBands_centralMoments);
+        
         erbBands_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
-        vectorAlgorithms.push_back(erbBands_distributionShape);
+        algorithms.push_back(erbBands_distributionShape);
+        
         erbBands_flatnessDb = new ofxAABaseAlgorithm(FlatnessDB, samplerate, framesize);
         algorithms.push_back(erbBands_flatnessDb);
+        
         erbBands_crest = new ofxAABaseAlgorithm(Crest, samplerate, framesize);
         algorithms.push_back(erbBands_crest);
         
+        //MARK: -BarkBands
         barkBands = new ofxAAOneVectorOutputAlgorithm(BarkBands, samplerate, framesize, DEFAULT_BARKBANDS_NUM);
-        vectorAlgorithms.push_back(barkBands);
+        algorithms.push_back(barkBands);
+        
         barkBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
         ofxaa::configureCentralMoments(barkBands_centralMoments->algorithm, "pdf", DEFAULT_BARKBANDS_NUM-1);
-        vectorAlgorithms.push_back(barkBands_centralMoments);
+        algorithms.push_back(barkBands_centralMoments);
+        
         barkBands_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
-        vectorAlgorithms.push_back(barkBands_distributionShape);
+        algorithms.push_back(barkBands_distributionShape);
+        
         barkBands_flatnessDb = new ofxAABaseAlgorithm(FlatnessDB, samplerate, framesize);
         algorithms.push_back(barkBands_flatnessDb);
+        
         barkBands_crest = new ofxAABaseAlgorithm(Crest, samplerate, framesize);
         algorithms.push_back(barkBands_crest);
         
         unaryOperator_square = new ofxAAOneVectorOutputAlgorithm(UnaryOperator, samplerate, framesize);
-        vectorAlgorithms.push_back(unaryOperator_square);
-        spectral_decrease = new ofxAABaseAlgorithm(Decrease, samplerate, framesize);
-        ofxaa::configureDecrease(spectral_decrease->algorithm, samplerate/2);
-        algorithms.push_back(spectral_decrease);
+        algorithms.push_back(unaryOperator_square);
         
-        rollOff = new ofxAABaseAlgorithm(RollOff, samplerate, framesize);
-        algorithms.push_back(rollOff);
-        
-        spectral_energy = new ofxAABaseAlgorithm(Energy, samplerate, framesize);
-        algorithms.push_back(spectral_energy);
-        
+        //MARK: -ERB
         ebr_low = new ofxAABaseAlgorithm(EnergyBand, samplerate, framesize);
         ofxaa::configureEnergyBand(ebr_low->algorithm, 20.0, 150.0);
         algorithms.push_back(ebr_low);
+        
         ebr_mid_low = new ofxAABaseAlgorithm(EnergyBand, samplerate, framesize);
         ofxaa::configureEnergyBand(ebr_mid_low->algorithm, 150.0, 800.0);
         algorithms.push_back(ebr_mid_low);
+        
         ebr_mid_hi = new ofxAABaseAlgorithm(EnergyBand, samplerate, framesize);
         ofxaa::configureEnergyBand(ebr_mid_hi->algorithm, 800.0, 4000.0);
         algorithms.push_back(ebr_mid_hi);
+        
         ebr_hi = new ofxAABaseAlgorithm(EnergyBand, samplerate, framesize);
         ofxaa::configureEnergyBand(ebr_hi->algorithm, 4.000, 20.000);
         algorithms.push_back(ebr_hi);
         
+        //MARK: -Spectral Descriptors
+        spectral_decrease = new ofxAABaseAlgorithm(Decrease, samplerate, framesize);
+        ofxaa::configureDecrease(spectral_decrease->algorithm, samplerate/2);
+        algorithms.push_back(spectral_decrease);
+        
+        spectral_centroid = new ofxAAOneVectorOutputAlgorithm(Centroid, samplerate, framesize);
+        ofxaa::configureCentroid(spectral_centroid->algorithm, samplerate/2);
+        algorithms.push_back(spectral_centroid);
+        
+        rollOff = new ofxAABaseAlgorithm(RollOff, samplerate, framesize);
+        algorithms.push_back(rollOff);
+        
+        spectral_entropy = new ofxAABaseAlgorithm(Entropy, samplerate, framesize);
+        algorithms.push_back(spectral_entropy);
+        
+        spectral_energy = new ofxAABaseAlgorithm(Energy, samplerate, framesize);
+        algorithms.push_back(spectral_energy);
         
         hfc = new ofxAABaseAlgorithm(Hfc, samplerate, framesize);
         algorithms.push_back(hfc);
         
         spectral_flux = new ofxAABaseAlgorithm(Flux, samplerate, framesize);
         algorithms.push_back(spectral_flux);
-       
+        
         strongPeak = new ofxAABaseAlgorithm(StrongPeak, samplerate, framesize);
         algorithms.push_back(strongPeak);
         
@@ -196,24 +265,18 @@ namespace ofxaa {
         pitchSalience = new ofxAABaseAlgorithm(PitchSalience, samplerate, framesize);
         algorithms.push_back(pitchSalience);
         
+        spectral_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
+        ofxaa::configureCentralMoments(spectral_centralMoments->algorithm, "pdf", samplerate/2);
+        algorithms.push_back(spectral_centralMoments);
+        
+        spectral_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
+        algorithms.push_back(spectral_distributionShape);
+        
         spectralPeaks = new ofxAATwoVectorsOutputAlgorithm(SpectralPeaks, samplerate, framesize);
         algorithms.push_back(spectralPeaks);
         
         dissonance = new ofxAABaseAlgorithm(Dissonance, samplerate, framesize);
         algorithms.push_back(dissonance);
-        
-        spectral_entropy = new ofxAABaseAlgorithm(Entropy, samplerate, framesize);
-        algorithms.push_back(spectral_entropy);
-        
-        
-        
-        spectral_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, samplerate, framesize);
-        ofxaa::configureCentralMoments(spectral_centralMoments->algorithm, "pdf", samplerate/2);
-        spectral_centroid = new ofxAAOneVectorOutputAlgorithm(Centroid, samplerate, framesize);
-        ofxaa::configureCentroid(spectral_centroid->algorithm, samplerate/2);
-        vectorAlgorithms.push_back(spectral_centralMoments);
-        spectral_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, samplerate, framesize, 3);
-        vectorAlgorithms.push_back(spectral_distributionShape);
         
         harmonicPeaks = new ofxAATwoVectorsOutputAlgorithm(HarmonicPeaks, samplerate, framesize);
         algorithms.push_back(harmonicPeaks);
@@ -225,39 +288,21 @@ namespace ofxaa {
         algorithms.push_back(oddToEven);
         
         tristimulus = new ofxAAOneVectorOutputAlgorithm(Tristimulus, samplerate, framesize, DEFAULT_TRISTIMULUS_BANDS_NUM);
-        vectorAlgorithms.push_back(tristimulus);
+        algorithms.push_back(tristimulus);
         
-        
-        //MARK: PITCH
-        pitchYinFFT = new ofxAAOneVectorOutputAlgorithm(PitchYinFFT, samplerate, framesize, 2);
-        algorithms.push_back(pitchYinFFT);
-        pitchMelodia = new ofxAATwoVectorsOutputAlgorithm(PitchMelodia, samplerate, framesize);
-        algorithms.push_back(pitchMelodia);
-        predominantPitchMelodia = new ofxAATwoVectorsOutputAlgorithm(PredominantPitchMelodia, samplerate, framesize);
-        algorithms.push_back(predominantPitchMelodia);
-        
-        multiPitchMelodia = new ofxAAOneVectorOutputAlgorithm(MultiPitchMelodia, samplerate, framesize);
-        algorithms.push_back(multiPitchMelodia);
-        multiPitchKlapuri = new ofxAAOneVectorOutputAlgorithm(MultiPitchKlapuri, samplerate, framesize);
-        algorithms.push_back(multiPitchKlapuri);
-        
-        equalLoudness = new ofxAAOneVectorOutputAlgorithm(EqualLoudness, samplerate, framesize);
-        algorithms.push_back(equalLoudness);
-        
-        
-        
+   
         //MARK: TONAL
         //src: tonalextractor.cpp
         spectralPeaks_hpcp = new ofxAATwoVectorsOutputAlgorithm(SpectralPeaks, samplerate, framesize);
         ofxaa::configureSpectralPeaks(spectralPeaks_hpcp->algorithm, 0.00001, 5000.0, 10000, 40.0, "magnitude");
-        vectorAlgorithms.push_back(spectralPeaks_hpcp);
+        algorithms.push_back(spectralPeaks_hpcp);
         
         hpcp = new ofxAAOneVectorOutputAlgorithm(Hpcp, samplerate, framesize, DEFAULT_HPCP_SIZE);
         ofxaa::configureHPCP(hpcp->algorithm, true, 500.0, 8, 5000.0, false, 40.0, true, "unitMax", 440, 36, "cosine", 0.5);
-        vectorAlgorithms.push_back(hpcp);
+        algorithms.push_back(hpcp);
         
         hpcp_entropy = new ofxAABaseAlgorithm(Entropy, samplerate, framesize);
-        algorithms.push_back(spectral_entropy);
+        algorithms.push_back(hpcp_entropy);
         
         hpcp_crest = new ofxAABaseAlgorithm(Crest, samplerate, framesize);
         algorithms.push_back(hpcp_crest);
@@ -265,22 +310,13 @@ namespace ofxaa {
         chordsDetection = new ofxAATwoTypesVectorOutputAlgorithm(ChordsDetection, samplerate, framesize);
         algorithms.push_back(chordsDetection);
         
-        ///*****************************************************
-        ///*****************************************************
-        
-        //MARK: ONSETS
-        
-        
-        
         onsets = new ofxAAOnsetsAlgorithm(windowing, samplerate, framesize);
         algorithms.push_back(onsets);
-        
-      
-        
         
     }
     
     void Network::setDefaultMaxEstimatedValues(){
+        return; ///******************************
         //default values set from testing with white noise.
         ///spectral_energy->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ENERGY);
         hfc->setMaxEstimatedValue(DEFAULT_MAX_VALUE_HFC);
@@ -292,10 +328,17 @@ namespace ofxaa {
         ///pitchYinFFT->setMaxEstimatedValue(DEFAULT_MAX_VALUE_PITCH_FREQ);//C8
     }
     
+    //MARK: - CONNECT ALGORITHMS
     void Network::connectAlgorithms(){
         
         dcRemoval->algorithm->input("signal").set(_audioSignal);
         dcRemoval->algorithm->output("signal").set(dcRemoval->realValues);
+        
+        windowing->algorithm->input("frame").set(dcRemoval->realValues);
+        windowing->algorithm->output("frame").set(windowing->realValues);
+        
+        spectrum->algorithm->input("frame").set(windowing->realValues);
+        spectrum->algorithm->output("spectrum").set(spectrum->realValues);
         
         //MARK: TEMPORAL
         rms->algorithm->input("array").set(dcRemoval->realValues);
@@ -317,6 +360,10 @@ namespace ofxaa {
         silenceRate->algorithm->output("threshold_0").set(silenceRate->realValues[0]);
         silenceRate->algorithm->output("threshold_1").set(silenceRate->realValues[1]);
         silenceRate->algorithm->output("threshold_2").set(silenceRate->realValues[2]);
+        
+        dynamicComplexity->algorithm->input("signal").set(_accumulatedAudioSignal);
+        dynamicComplexity->algorithm->output("dynamicComplexity").set(dynamicComplexity->realValues[0]);
+        dynamicComplexity->algorithm->output("loudness").set(dynamicComplexity->realValues[1]);
         
         //MARK: SFX
         //Essentia source: FreesoundSfxDescriptors.cpp
@@ -358,20 +405,40 @@ namespace ofxaa {
         derivativeSFX->algorithm->input("envelope").set(envelope_acummulated->realValues);
         derivativeSFX->algorithm->output("derAvAfterMax").set(derivativeSFX->realValues[0]);
         derivativeSFX->algorithm->output("maxDerBeforeMax").set(derivativeSFX->realValues[1]);
+       
+     
+        //MARK: PITCH
+        //source: standard_pitchdemo.cpp
+        pitchYinFFT->algorithm->input("spectrum").set(spectrum->realValues);
+        pitchYinFFT->algorithm->output("pitch").set(pitchYinFFT->realValues[0]);
+        pitchYinFFT->algorithm->output("pitchConfidence").set(pitchYinFFT->realValues[1]);
         
+        pitchMelodia->algorithm->input("signal").set(dcRemoval->realValues);
+        pitchMelodia->algorithm->output("pitch").set(pitchMelodia->realValues);
+        pitchMelodia->algorithm->output("pitchConfidence").set(pitchMelodia->realValues_2);
+        
+        multiPitchKlapuri->algorithm->input("signal").set(dcRemoval->realValues);
+        multiPitchKlapuri->algorithm->output("pitch").set(multiPitchKlapuri->vectorRealValues);
+        
+        /* Not working:  https://github.com/MTG/essentia/issues/835
+        equalLoudness->algorithm->input("signal").set(dcRemoval->realValues);
+        equalLoudness->algorithm->output("signal").set(equalLoudness->realValues);
+        
+        multiPitchMelodia->algorithm->input("signal").set(equalLoudness->realValues);
+        multiPitchMelodia->algorithm->output("pitch").set(multiPitchMelodia->vectorRealValues);
+        */
+        
+        predominantPitchMelodia->algorithm->input("signal").set(dcRemoval->realValues);
+        predominantPitchMelodia->algorithm->output("pitch").set(predominantPitchMelodia->realValues);
+        predominantPitchMelodia->algorithm->output("pitchConfidence").set(predominantPitchMelodia->realValues_2);
         
         //MARK: SPECTRAL
         //Essentia source: FreesoundLowLevelDescriptors.cpp
-        windowing->algorithm->input("frame").set(dcRemoval->realValues);
-        windowing->algorithm->output("frame").set(windowing->realValues);
-        
-        spectrum->algorithm->input("frame").set(windowing->realValues);
-        spectrum->algorithm->output("spectrum").set(spectrum->realValues);
-        
-        spectrumCQ->algorithm->input("frame").set(windowing->realValues);
-        spectrumCQ->algorithm->output("spectrumCQ").set(spectrumCQ->realValues);
-        
-        //MEL BANDS
+        nsgConstantQ->algorithm->input("frame").set(windowing->realValues);
+        nsgConstantQ->algorithm->output("constantq").set(nsgConstantQ->constantq);
+        nsgConstantQ->algorithm->output("constantqdc").set(nsgConstantQ->constantqdc);
+        nsgConstantQ->algorithm->output("constantqnf").set(nsgConstantQ->constantqnf);
+        //MARK: -MelBands
         mfcc->algorithm->input("spectrum").set(spectrum->realValues);
         mfcc->algorithm->output("bands").set(mfcc->realValues);
         mfcc->algorithm->output("mfcc").set(mfcc->realValues_2);
@@ -390,7 +457,7 @@ namespace ofxaa {
         melBands_crest->algorithm->input("array").set(mfcc->realValues);
         melBands_crest->algorithm->output("crest").set(melBands_crest->realValue);
         
-        //ERB Bands and GFCC
+        //MARK: -ERB Bands
         gfcc->algorithm->input("spectrum").set(spectrum->realValues);
         gfcc->algorithm->output("bands").set(gfcc->realValues);
         gfcc->algorithm->output("gfcc").set(gfcc->realValues_2);
@@ -409,7 +476,7 @@ namespace ofxaa {
         erbBands_crest->algorithm->input("array").set(gfcc->realValues);
         erbBands_crest->algorithm->output("crest").set(erbBands_crest->realValue);
         
-        //BARK BANDS
+        //MARK: -BarkBands
         barkBands->algorithm->input("spectrum").set(spectrum->realValues);
         barkBands->algorithm->output("bands").set(barkBands->realValues);
         
@@ -427,7 +494,20 @@ namespace ofxaa {
         barkBands_crest->algorithm->input("array").set(barkBands->realValues);
         barkBands_crest->algorithm->output("crest").set(barkBands_crest->realValue);
         
-        //Spectrals
+        //MARK: -ERB
+        ebr_low->algorithm->input("spectrum").set(spectrum->realValues);
+        ebr_low->algorithm->output("energyBand").set(ebr_low->realValue);
+        
+        ebr_mid_low->algorithm->input("spectrum").set(spectrum->realValues);
+        ebr_mid_low->algorithm->output("energyBand").set(ebr_mid_low->realValue);
+        
+        ebr_mid_hi->algorithm->input("spectrum").set(spectrum->realValues);
+        ebr_mid_hi->algorithm->output("energyBand").set(ebr_mid_hi->realValue);
+        
+        ebr_hi->algorithm->input("spectrum").set(spectrum->realValues);
+        ebr_hi->algorithm->output("energyBand").set(ebr_hi->realValue);
+        
+        //MARK: -Spectral Descriptors
         unaryOperator_square->algorithm->input("array").set(spectrum->realValues);
         unaryOperator_square->algorithm->output("array").set(unaryOperator_square->realValues);
         
@@ -445,18 +525,6 @@ namespace ofxaa {
         
         spectral_energy->algorithm->input("array").set(spectrum->realValues);
         spectral_energy->algorithm->output("energy").set(spectral_energy->realValue);
-        
-        ebr_low->algorithm->input("spectrum").set(spectrum->realValues);
-        ebr_low->algorithm->output("energyBand").set(ebr_low->realValue);
-        
-        ebr_mid_low->algorithm->input("spectrum").set(spectrum->realValues);
-        ebr_mid_low->algorithm->output("energyBand").set(ebr_mid_low->realValue);
-        
-        ebr_mid_hi->algorithm->input("spectrum").set(spectrum->realValues);
-        ebr_mid_hi->algorithm->output("energyBand").set(ebr_mid_hi->realValue);
-        
-        ebr_hi->algorithm->input("spectrum").set(spectrum->realValues);
-        ebr_hi->algorithm->output("energyBand").set(ebr_hi->realValue);
         
         hfc->algorithm->input("spectrum").set(spectrum->realValues);
         hfc->algorithm->output("hfc").set(hfc->realValue);
@@ -489,14 +557,9 @@ namespace ofxaa {
         dissonance->algorithm->input("magnitudes").set(spectralPeaks->realValues_2);
         dissonance->algorithm->output("dissonance").set(dissonance->realValue);
         
-        dynamicComplexity->algorithm->input("signal").set(_accumulatedAudioSignal);
-        spectral_centralMoments->algorithm->output("centralMoments").set(spectral_centralMoments->realValues);
-        spectral_centralMoments->algorithm->output("dynamicComplexity").set(spectral_centralMoments->realValues[0]);
-        spectral_centralMoments->algorithm->output("loudness").set(spectral_centralMoments->realValues[1]);
-        
         harmonicPeaks->algorithm->input("frequencies").set(spectralPeaks->realValues);
         harmonicPeaks->algorithm->input("magnitudes").set(spectralPeaks->realValues_2);
-        harmonicPeaks->algorithm->input("pitch").set(pitchYinFFT->realValues);
+        harmonicPeaks->algorithm->input("pitch").set(pitchYinFFT->realValues[0]);
         harmonicPeaks->algorithm->output("harmonicFrequencies").set(harmonicPeaks->realValues);
         harmonicPeaks->algorithm->output("harmonicMagnitudes").set(harmonicPeaks->realValues_2);
         
@@ -512,34 +575,10 @@ namespace ofxaa {
         tristimulus->algorithm->input("magnitudes").set(harmonicPeaks->realValues_2);
         tristimulus->algorithm->output("tristimulus").set(tristimulus->realValues);
         
-        //MARK: PITCH
-        //source: standard_pitchdemo.cpp
-        pitchYinFFT->algorithm->input("spectrum").set(spectrum->realValues);
-        pitchYinFFT->algorithm->output("pitch").set(pitchYinFFT->realValues[0]);
-        pitchYinFFT->algorithm->output("pitchConfidence").set(pitchYinFFT->realValues[1]);
-        
-        pitchMelodia->algorithm->input("signal").set(dcRemoval->realValues);
-        pitchMelodia->algorithm->output("pitch").set(pitchMelodia->realValues);
-        pitchMelodia->algorithm->output("pitchConfidence").set(pitchMelodia->realValues_2);
-        
-        multiPitchKlapuri->algorithm->input("signal").set(dcRemoval->realValues);
-        multiPitchKlapuri->algorithm->output("pitch").set(multiPitchKlapuri->realValues);
-        
-        equalLoudness->algorithm->input("signal").set(dcRemoval->realValues);
-        equalLoudness->algorithm->output("signal").set(equalLoudness->realValues);
-        
-        multiPitchMelodia->algorithm->input("signal").set(equalLoudness->realValues);
-        multiPitchMelodia->algorithm->output("pitch").set(multiPitchMelodia->realValues);
-        
-        predominantPitchMelodia->algorithm->input("signal").set(dcRemoval->realValues);
-        predominantPitchMelodia->algorithm->output("pitch").set(predominantPitchMelodia->realValues);
-        predominantPitchMelodia->algorithm->output("pitchConfidence").set(predominantPitchMelodia->realValues_2);
-        
         //MARK: TONAL
         spectralPeaks_hpcp->algorithm->input("spectrum").set(spectrum->realValues);
         spectralPeaks_hpcp->algorithm->output("frequencies").set(spectralPeaks_hpcp->realValues);
         spectralPeaks_hpcp->algorithm->output("magnitudes").set(spectralPeaks_hpcp->realValues_2);
-        
         
         hpcp->algorithm->input("frequencies").set(spectralPeaks_hpcp->realValues);
         hpcp->algorithm->input("magnitudes").set(spectralPeaks_hpcp->realValues_2);
@@ -550,119 +589,29 @@ namespace ofxaa {
         
         hpcp_crest->algorithm->input("array").set(hpcp->realValues);
         hpcp_crest->algorithm->output("crest").set(hpcp_crest->realValue);
-   
         
-        chordsDetection->algorithm->input("pcp").set(hpcp->realValues);
+        chordsDetection->algorithm->input("pcp").set(hpcp->realValuesAsVec());
         chordsDetection->algorithm->output("chords").set(chordsDetection->stringValues);
         chordsDetection->algorithm->output("strength").set(chordsDetection->realValues);
         
-        ///*************************************
-        ///*************************************
+    }
 
-        //Onsets
-       
-        
-        
-        //HPCP
-       
-        
-}
-    
     void Network::computeAlgorithms(vector<Real>& signal, vector<Real>& accumulatedSignal){
+        
         _audioSignal = signal;
         _accumulatedAudioSignal = accumulatedSignal;
         
-        // MARK: Compute Algorithms
-        dcRemoval->compute();
-        rms->compute();
-        power->compute();
-        zeroCrossingRate->compute();
-        loudness->compute();
-        loudnessVickers->compute();
-        silenceRate->compute();
-        
-        envelope->compute();
-        envelope_acummulated->compute();
-        sfx_decrease->compute();
-        centralMoments->compute();
-        distributionShape->compute();
-        logAttackTime->compute();
-        
-        flatnessSFX->compute();
-        maxToTotal->compute();
-        derivativeSFX->compute();
-        
-        if(envelope->realValues[0] != 0.0){
-            //the strong decay is not defined for a zero signal
-            tcToTotal->compute();
-            strongDecay->compute();
+        for (auto algorithm : algorithms){
+            if (algorithm->getType() == TCToTotal || algorithm->getType() == StrongDecay){
+                if(envelope->realValues[0] != 0.0){
+                    //StrongDecay and TcToTotal are not defined for a zero signal
+                    algorithm->compute();
+                }
+            } else {
+                algorithm->compute();
+            }
         }
         
-        
-        windowing->compute();
-        //spectrum must always be computed as it is neede for other algorithms
-        spectrum->algorithm->compute();
-        mfcc->compute();
-        
-        
-        ///**************************
-        
-        spectral_energy->compute();
-        
-        
-        
-        if(onsets->getIsActive()){
-            onsets->compute();
-        }
-        
-        
-        
-        hfc->compute();
-        pitchSalience->compute();
-        pitchYinFFT->compute();
-        
-        spectralComplexity->compute();
-        
-   
-        spectralPeaks->compute();
-        hpcp->compute();
-        
-        if (inharmonicity->getIsActive()){
-            harmonicPeaks->compute();
-            inharmonicity->algorithm->compute();
-        }
-        
-        dissonance->compute();
-        
-        ///multiPitchKlapuri.compute();
-        
-        rollOff->compute();
-        oddToEven->compute();
-        strongPeak->compute();
-        
-        tristimulus->compute();
-     
-        
-        // MARK: Cast Values
-        
-        for (auto a : algorithms){
-            a->castValueToFloat();
-        }
-        for (auto va: vectorAlgorithms){
-            va->castValuesToFloat(false);
-        }
-        
-//        silenceRate->castValuesToFloat(false);
-//        spectrum->castValuesToFloat(true);
-//        melBands->castValuesToFloat(true);
-//        dct->castValuesToFloat(false);
-//        hpcp->castValuesToFloat(false);
-//        tristimulus->castValuesToFloat(false);
-
-        pitchYinFFT->castValuesToFloat(false);
-        onsets->castValuesToFloat();
-
-        onsets->evaluate();
     }
     
     void Network::deleteAlgorithms(){
@@ -670,14 +619,11 @@ namespace ofxaa {
             a->deleteAlgorithm();
             delete a;
         }
-        for (auto a :vectorAlgorithms){
-            a->deleteAlgorithm();
-            delete a;
-        }
     }
- 
+    
     float Network::getValue(ofxAAValueType valueType, float smooth, bool normalized){
-      
+        return 0.37;
+        ///************
         switch (valueType) {
             case RMS:
                 return smooth ? rms->getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX) : rms->getValueDbNormalized(DB_MIN, DB_MAX);
@@ -718,7 +664,7 @@ namespace ofxaa {
             case TC_TO_TOTAL:
                 return smooth ? tcToTotal->getSmoothedValue(smooth) : tcToTotal->getValue();
             case DERIVATIVE_SFX_AFTER_MAX:
-                 return smooth ? derivativeSFX->getSmoothedValues(smooth)[0] : derivativeSFX->getValues()[0];
+                return smooth ? derivativeSFX->getSmoothedValues(smooth)[0] : derivativeSFX->getValues()[0];
             case DERIVATIVE_SFX_BEFORE_MAX:
                 return smooth ? derivativeSFX->getSmoothedValues(smooth)[1] : derivativeSFX->getValues()[1];
                 
@@ -732,11 +678,14 @@ namespace ofxaa {
     }
     
     vector<float>& Network::getValues(ofxaa::AlgorithmType algorithmType, float smooth){
-         return smooth ? hpcp->getSmoothedValues(smooth) : hpcp->getValues();
+        static vector<float>r (1, 0.37);
+        return r;
+        ///**************************
     }
     
     bool Network::getOnsetValue(){
-        return onsets->getValue();
+        return false;///******************
+        ///return onsets->getValue();
     }
     //----------------------------------------------
     void Network::resetOnsets(){
@@ -751,34 +700,34 @@ namespace ofxaa {
     }
     
     /*
-    ofxAABaseAlgorithm* Network::algorithm(ofxaa::AlgorithmType type){
-        for (int i=0; i<algorithms.size(); i++){
-            if (type == algorithms[i]->getType()){
-                return algorithms[i];
-            }
-        }
-        ofLogError()<<"ofxAudioAnalyzerUnit: algorithm type is NOT a Base Algorithm.";
-    }
-    
-    ofxAAOneVectorOutputAlgorithm* Network::vectorAlgorithm(ofxaa::AlgorithmType type){
-        for (int i=0; i<vectorAlgorithms.size(); i++){
-            if (type == vectorAlgorithms[i]->getType()){
-                return vectorAlgorithms[i];
-            }
-        }
-    }
-    */
+     ofxAABaseAlgorithm* Network::algorithm(ofxaa::AlgorithmType type){
+     for (int i=0; i<algorithms.size(); i++){
+     if (type == algorithms[i]->getType()){
+     return algorithms[i];
+     }
+     }
+     ofLogError()<<"ofxAudioAnalyzerUnit: algorithm type is NOT a Base Algorithm.";
+     }
+     
+     ofxAAOneVectorOutputAlgorithm* Network::vectorAlgorithm(ofxaa::AlgorithmType type){
+     for (int i=0; i<vectorAlgorithms.size(); i++){
+     if (type == vectorAlgorithms[i]->getType()){
+     return vectorAlgorithms[i];
+     }
+     }
+     }
+     */
     //----------------------------------------------
     
-//    void Network::setSalienceFunctionPeaksParameters(int maxPeaks){
-//        pitchSalienceFunctionPeaks->setMaxPeaksNum(maxPeaks);
-//    }
-//
-//    vector<SalienceFunctionPeak>& Network::getPitchSaliencePeaksRef(float smooth){
-//        return smooth ? pitchSalienceFunctionPeaks->getSmoothedPeaks(smooth) : pitchSalienceFunctionPeaks->getPeaks();
-//    }
+    //    void Network::setSalienceFunctionPeaksParameters(int maxPeaks){
+    //        pitchSalienceFunctionPeaks->setMaxPeaksNum(maxPeaks);
+    //    }
+    //
+    //    vector<SalienceFunctionPeak>& Network::getPitchSaliencePeaksRef(float smooth){
+    //        return smooth ? pitchSalienceFunctionPeaks->getSmoothedPeaks(smooth) : pitchSalienceFunctionPeaks->getPeaks();
+    //    }
     
-
+    
     
 }
 
@@ -912,6 +861,6 @@ namespace ofxaa {
  strongPeak.getValue();
  }
  break;
-
+ 
  
  */

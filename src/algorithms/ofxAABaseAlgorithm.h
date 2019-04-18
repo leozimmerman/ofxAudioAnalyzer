@@ -43,6 +43,8 @@ public:
     
     virtual ~ofxAABaseAlgorithm() = default;
     
+    virtual void compute();
+    
     float getValue();
     float getValueDb();
     
@@ -64,12 +66,10 @@ public:
     ofxaa::AlgorithmType getType();
     
     void setActive(bool state);
-    void setValueZero();
+    
     virtual void setMaxEstimatedValue(float value);
     
-    void compute();
     
-    void castValueToFloat();
     
     virtual void deleteAlgorithm();
     
@@ -78,11 +78,13 @@ public:
     
 protected:
     
-    bool isActivated;
+    virtual void castToFloat();
+    float smooth(float newValue, float previousValue, float amount);
+    bool isActive;
     ofxaa::AlgorithmType type;
     
 private:
-    
+    //TODO: remove floats - Real is float
     float floatValue;
     float smoothedFloatValue;
     float smoothedNormFloatValue;

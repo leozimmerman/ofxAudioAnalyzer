@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "ofMain.h"
+//#include "ofMain.h"
 #include "ofxAudioAnalyzerUtils.h"
 
 namespace ofxaa {

@@ -24,11 +24,8 @@
 
 #pragma once
 
-#include "ofxAAOneVectorOutputAlgorithm.h"
+#include "ofxAudioAnalyzerUtils.h"
 
-class ofxAAFftAlgorithm : public ofxAAOneVectorOutputAlgorithm{
-public:
-    ofxAAFftAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAAOneVectorOutputAlgorithm(algorithmType, samplerate, framesize){}
-    
-    vector<complex<Real> > fftRealValues;
-};
+namespace ofxaa {
+    Algorithm* createAlgorithmWithType(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize);
+}

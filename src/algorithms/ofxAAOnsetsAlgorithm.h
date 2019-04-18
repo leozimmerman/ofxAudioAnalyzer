@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "ofxAAFftAlgorithm.h"
+#include "ofxAAVectorComplexOutputAlgorithm.h"
 #include "ofxAATwoVectorsOutputAlgorithm.h"
 
 enum OnsetsTimeThresholdMode{
@@ -40,9 +40,8 @@ public:
     
     void deleteAlgorithm() override;
     
-    void compute();
-    void castValuesToFloat();
-    void evaluate();
+    void compute() override;
+    
     
     void reset();
     
@@ -58,22 +57,23 @@ public:
     void setUseTimeThreshold(bool doUse){usingTimeThreshold = doUse;}
     void setOnsetTimeThresholdsMode(OnsetsTimeThresholdMode mode){onsetsMode = mode;}
     
-    ofxAAOneVectorOutputAlgorithm* windowing;
-    ofxAAFftAlgorithm* fft;
-    ofxAATwoVectorsOutputAlgorithm* cartesianToPolar;
-    ofxAABaseAlgorithm* onsetHfc;
-    ofxAABaseAlgorithm* onsetComplex;
-    ofxAABaseAlgorithm* onsetFlux;
-    
 private:
     
     void connectAlgorithms();
+    void evaluate();
     
     bool _value;//isOnset
     
     bool onsetBufferEvaluation (Real iDetectHfc, Real iDetectComplex, Real iDetectFlux);
     bool onsetTimeThresholdEvaluation();
     bool onsetBufferNumThresholdEvaluation();//framebased threshold eval.
+    
+    ofxAAOneVectorOutputAlgorithm* windowing;
+    ofxAAVectorComplexOutputAlgorithm* fft;
+    ofxAATwoVectorsOutputAlgorithm* cartesianToPolar;
+    ofxAABaseAlgorithm* onsetHfc;
+    ofxAABaseAlgorithm* onsetComplex;
+    ofxAABaseAlgorithm* onsetFlux;
     
     int detecBufferSize;
     vector<vector<Real> > detections;

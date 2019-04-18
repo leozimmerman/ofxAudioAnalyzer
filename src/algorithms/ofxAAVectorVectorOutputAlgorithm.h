@@ -22,23 +22,21 @@
  *
  */
 
-#include "ofxAATuningFrequencyAlgorithm.h"
+#pragma once
 
-void ofxAATuningFrequencyAlgorithm::castValuesToFloat(){
-    if(getIsActive()){
-        freqFloatVal = (float) freqRealVal;
-        centsFloatVal = (float) centsRealVal;
-    }
-    else{
-        freqFloatVal = centsFloatVal = 0.0;
-    }
+#include "ofxAABaseAlgorithm.h"
+
+class ofxAAVectorVectorOutputAlgorithm : public ofxAABaseAlgorithm{
+public:
+    ofxAAVectorVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
     
-}
-//-------------------------------------------
-float ofxAATuningFrequencyAlgorithm::getFreqValue(){
-    return freqFloatVal;
-}
-//-------------------------------------------
-float ofxAATuningFrequencyAlgorithm::getCentsValue(){
-    return centsFloatVal;
-}
+    vector < vector <Real> > vectorRealValues;
+};
+
+class ofxAANSGConstantQAlgorithm : public ofxAABaseAlgorithm{
+public:
+    ofxAANSGConstantQAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
+    vector < vector< complex<Real> > > constantq;
+    vector < complex<Real> > constantqdc;
+    vector < complex<Real> > constantqnf;
+};

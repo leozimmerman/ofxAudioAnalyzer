@@ -41,8 +41,6 @@ using namespace standard;
 
 namespace ofxaa {
     
-    Algorithm* createAlgorithmWithType(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize);
-    
     void initializeEssentia();
     void shutEssentiaFactoryDown();
     

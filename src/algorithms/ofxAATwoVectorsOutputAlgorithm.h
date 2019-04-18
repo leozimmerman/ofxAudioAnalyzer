@@ -33,7 +33,7 @@ public:
     
     ofxAATwoVectorsOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize_1, int outputSize_2);
     
-    void castValuesToFloat(bool logarithmic) override;
+    void castToFloat() override;
     
     void assignSecondOutpuValuesSize(int size, int val);
     

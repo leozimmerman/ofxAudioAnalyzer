@@ -29,7 +29,7 @@ ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAOneVectorOutputAlgorithm* window
     
     windowing = windowingAlgorithm;
     
-    fft = new ofxAAFftAlgorithm(ofxaa::Fft, samplerate, framesize);
+    fft = new ofxAAVectorComplexOutputAlgorithm(ofxaa::Fft, samplerate, framesize);
     
     cartesianToPolar = new ofxAATwoVectorsOutputAlgorithm(ofxaa::CartesianToPolar, samplerate, framesize);
     
@@ -75,8 +75,8 @@ ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAOneVectorOutputAlgorithm* window
 }
 void ofxAAOnsetsAlgorithm::connectAlgorithms(){
     fft->algorithm->input("frame").set(windowing->realValues);
-    fft->algorithm->output("fft").set(fft->fftRealValues);
-    cartesianToPolar->algorithm->input("complex").set(fft->fftRealValues);
+    fft->algorithm->output("fft").set(fft->complexValues);
+    cartesianToPolar->algorithm->input("complex").set(fft->complexValues);
     cartesianToPolar->algorithm->output("magnitude").set(cartesianToPolar->realValues);
     cartesianToPolar->algorithm->output("phase").set(cartesianToPolar->realValues_2);
     
@@ -95,23 +95,14 @@ void ofxAAOnsetsAlgorithm::connectAlgorithms(){
 
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::compute(){
-    onsetHfc->compute();
-    onsetComplex->compute();
-    onsetFlux->compute();
-}
-//-------------------------------------------
-void ofxAAOnsetsAlgorithm::castValuesToFloat(){
-    
-    if(isActivated){
-        onsetHfc->castValueToFloat();
-        onsetComplex->castValueToFloat();
-        onsetFlux->castValueToFloat();
-    }else{
-        onsetHfc->setValueZero();
-        onsetFlux->setValueZero();
-        onsetComplex->setValueZero();
+    if (isActive){
+        fft->compute();
+        cartesianToPolar->compute();
+        onsetHfc->compute();
+        onsetComplex->compute();
+        onsetFlux->compute();
+        evaluate();
     }
-
 }
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::evaluate(){
@@ -259,6 +250,8 @@ void ofxAAOnsetsAlgorithm::reset(){
 
 //----------------------------------------------
 void ofxAAOnsetsAlgorithm::deleteAlgorithm(){
+    delete fft->algorithm;
+    delete cartesianToPolar->algorithm;
     delete onsetHfc->algorithm;
     delete onsetComplex->algorithm;
     delete onsetFlux->algorithm;

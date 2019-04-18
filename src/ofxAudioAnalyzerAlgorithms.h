@@ -28,6 +28,8 @@
 #include "ofxAAOneVectorOutputAlgorithm.h"
 #include "ofxAATwoVectorsOutputAlgorithm.h"
 #include "ofxAATwoTypesVectorOutputAlgorithm.h"
+#include "ofxAAVectorVectorOutputAlgorithm.h"
 #include "ofxAAOnsetsAlgorithm.h"
+#include "ofxAANSGConstantQAlgorithm.h"
 
 

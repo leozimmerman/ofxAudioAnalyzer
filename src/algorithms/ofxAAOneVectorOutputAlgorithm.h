@@ -36,9 +36,17 @@ public:
     
     void assignOutputValuesSize(int size, int val);
     
-    virtual void castValuesToFloat(bool logarithmic);
+    virtual void castToFloat() override;
+    //void updateLogRealValues();
     
-    void updateLogRealValues();
+    //This is only used for chordDetection at the moment...
+    vector<vector<Real>> realsVec;
+    vector<vector<Real>>& realValuesAsVec(){
+        realsVec = {realValues};
+        return realsVec;
+    }
+    
+    
     
     int getBinsNum();
     vector<float>& getValues();
@@ -47,8 +55,10 @@ public:
     vector<Real> realValues;
     vector<Real> logRealValues;
     
+    bool hasLogaritmicValues;
+    
 protected:
-    void castValues(bool logarithmic, vector<Real>& reals, vector<float>& floats);
+    void castValues(vector<Real>& reals, vector<float>& floats);
     
     vector<float> floatValues;
     vector<float> smoothedFloatValues;

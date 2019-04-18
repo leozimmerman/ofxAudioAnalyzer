@@ -23,14 +23,14 @@
  */
 
 #include "ofxAABaseAlgorithm.h"
-#include "ofxAudioAnalyzerUtils.h"
+#include "ofxAAFactory.h"
 
 ofxAABaseAlgorithm::ofxAABaseAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize){
     type = algorithmType;
     
     algorithm = ofxaa::createAlgorithmWithType(type, samplerate, framesize);
     
-    isActivated = TRUE;
+    isActive = TRUE;
     floatValue = 0.0;
     smoothedFloatValue = 0.0;
     smoothedNormFloatValue = 0.0;
@@ -60,32 +60,32 @@ float ofxAABaseAlgorithm::getValueDbNormalized(float min, float max, bool doClam
 }
 //-------------------------------------------
 float ofxAABaseAlgorithm::getSmoothedValue(float smthAmnt){
-    smoothedFloatValue =  smoothedFloatValue * smthAmnt + (1-smthAmnt) * floatValue;
+    smoothedFloatValue = smooth(floatValue, smoothedFloatValue, smthAmnt);
     return smoothedFloatValue;
 }
 //-------------------------------------------
 float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmnt){
     float normVal = ofMap(floatValue, 0.0, maxEstimatedValue, 0.0, 1.0, TRUE);
-    smoothedNormFloatValue =  smoothedNormFloatValue * smthAmnt + (1-smthAmnt) * normVal;
+    smoothedNormFloatValue =  smooth(normVal, smoothedNormFloatValue, smthAmnt);
     return smoothedNormFloatValue;
 }
 //-------------------------------------------
 float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmnt, float min, float max, bool doClamp){
     float normVal = ofMap(floatValue, min, max, 0.0, 1.0, doClamp);
-    smoothedNormFloatValue =  smoothedNormFloatValue * smthAmnt + (1-smthAmnt) * normVal;
+    smoothedNormFloatValue =  smooth(normVal, smoothedNormFloatValue, smthAmnt);
     return smoothedNormFloatValue;
 }
 //-------------------------------------------
 float ofxAABaseAlgorithm::getSmoothedValueDbNormalized(float smthAmnt, float min, float max, bool doClamp){
     
     float normVal = ofMap(getValueDb(), min, max, 0.0, 1.0, doClamp);
-    smoothedNormFloatValueDb = smoothedNormFloatValueDb * smthAmnt + (1-smthAmnt) * normVal;
+    smoothedNormFloatValueDb = smooth(normVal, smoothedNormFloatValueDb, smthAmnt);
     return smoothedNormFloatValueDb;
     
 }
 //-------------------------------------------
 bool ofxAABaseAlgorithm::getIsActive(){
-    return isActivated;
+    return isActive;
 }
 //-------------------------------------------
 ofxaa::AlgorithmType ofxAABaseAlgorithm::getType(){
@@ -97,11 +97,7 @@ float ofxAABaseAlgorithm::getMaxEstimatedValue(){
 }
 //-------------------------------------------
 void ofxAABaseAlgorithm::setActive(bool state){
-    isActivated = state;
-}
-//-------------------------------------------
-void ofxAABaseAlgorithm::setValueZero(){
-    floatValue = 0.0;
+    isActive = state;
 }
 //-------------------------------------------
 void ofxAABaseAlgorithm::setMaxEstimatedValue(float value){
@@ -109,18 +105,24 @@ void ofxAABaseAlgorithm::setMaxEstimatedValue(float value){
 }
 //-------------------------------------------
 void ofxAABaseAlgorithm::compute(){
-    if(isActivated){
+    if(isActive){
         algorithm->compute();
+        castToFloat();
     }
 }
 //-------------------------------------------
-void ofxAABaseAlgorithm::castValueToFloat(){
-    if(isActivated)
+void ofxAABaseAlgorithm::castToFloat(){
+    if(isActive){
         floatValue = (float) realValue;
-    else
+    } else {
         floatValue = 0.0;
+    }
 }
 //-------------------------------------------
 void ofxAABaseAlgorithm::deleteAlgorithm(){
     delete algorithm;
+}
+//-------------------------------------------
+float ofxAABaseAlgorithm::smooth(float newValue, float previousValue, float amount){
+    return previousValue * amount + (1-amount) * newValue;
 }
