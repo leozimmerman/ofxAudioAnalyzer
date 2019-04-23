@@ -24,9 +24,6 @@
 
 #pragma once
 
-//#include "ofMain.h"
-#include "ofxAudioAnalyzerUtils.h"
-
 namespace ofxaa {
     
     /// https://essentia.upf.edu/documentation/reference/std_Windowing.html

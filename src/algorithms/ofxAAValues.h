@@ -96,6 +96,7 @@ enum ofxAAValue {
     PITCH_YIN_FREQUENCY,
     PITCH_YIN_CONFIDENCE,
     
+    ONSETS
 };
 
 enum ofxAABinsValue {

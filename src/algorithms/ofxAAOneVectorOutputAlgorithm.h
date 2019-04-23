@@ -52,20 +52,16 @@ public:
     vector<Real> outputValues;
     //vector<Real> logRealValues;
     
+protected:
     
+    void normalizeValues(vector<float>& valuesToNorm, vector<float>& normValues);
+    vector<float>& smoothValues(vector<float>& valuesToSmooth, vector<float>& smoothedValues, float smthAmnt);
     
 private:
     void assignOutputValuesSize(int size, int val);
     
-   // void castValues(vector<Real>& reals, vector<float>& floats);///Delete
-    
     vector<float> _normalizedValues;
     vector<float> _smoothedValues;
     vector<float> _smoothedValuesNormalized;
-    
-    vector<float>& valuesNormalized();
-    vector<float>& smoothedValues(float smthAmnt);
-    vector<float>& smoothedValuesNormalized(float smthAmnt);
-    
     
 };

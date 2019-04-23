@@ -23,7 +23,6 @@
  */
 
 #include "ofxAudioAnalyzer.h"
-#include "ofxAudioAnalyzerUtils.h"
 
 //-------------------------------------------------------
 void ofxAudioAnalyzer::setup(int sampleRate, int bufferSize, int channels){
@@ -37,7 +36,9 @@ void ofxAudioAnalyzer::setup(int sampleRate, int bufferSize, int channels){
         _channels = 1;
     }
     
-    ofxaa::initializeEssentia();
+    if (!essentia::isInitialized()){
+        essentia::init();
+    }
     
     for(int i=0; i<_channels; i++){
         ofxAudioAnalyzerUnit * aaUnit = new ofxAudioAnalyzerUnit(_samplerate, _buffersize);
@@ -98,7 +99,9 @@ void ofxAudioAnalyzer::analyze(const ofSoundBuffer & inBuffer){
 }
 //-------------------------------------------------------
 void ofxAudioAnalyzer::exit(){
-    ofxaa::shutEssentiaFactoryDown();
+    AlgorithmFactory& factory = AlgorithmFactory::instance();
+    factory.shutdown();
+    
     essentia::shutdown();
     
     for(int i=0; i<channelAnalyzerUnits.size();i++){
@@ -133,7 +136,7 @@ bool ofxAudioAnalyzer::getOnsetValue(int channel){
         return false;
     }
     
-    return channelAnalyzerUnits[channel]->getOnsetValue();
+    return channelAnalyzerUnits[channel]->getValue(ONSETS, 0.0, false);
     
 }
 //-------------------------------------------------------
@@ -155,7 +158,7 @@ void ofxAudioAnalyzer::resetOnsets(int channel){
         return;
     }
     
-    channelAnalyzerUnits[channel]->resetOnsets();
+    channelAnalyzerUnits[channel]->getOnsetsPtr()->reset();
 }
 //-------------------------------------------------------
 void ofxAudioAnalyzer::setActive(int channel, ofxaa::AlgorithmType algorithm, bool state){
@@ -186,8 +189,11 @@ void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silen
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return;
     }
-    channelAnalyzerUnits[channel]->network->setOnsetsParameters(alpha, silenceTresh, timeTresh, useTimeTresh);
-
+    auto onsets =  channelAnalyzerUnits[channel]->getOnsetsPtr();
+    onsets->setOnsetAlpha(alpha);
+    onsets->setOnsetSilenceThreshold(silenceTresh);
+    onsets->setOnsetTimeThreshold(timeTresh);
+    onsets->setUseTimeThreshold(useTimeTresh);
 }
 
 

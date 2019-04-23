@@ -40,9 +40,12 @@ void ofxAASingleOutputAlgorithm::compute(){
 //-------------------------------------------
 float ofxAASingleOutputAlgorithm::getValue(float smooth, bool normalized){
     if (normalized){
-        return smooth ? smoothedValueNormalized(smooth) : valueNormalized();
+        float normValue = valueNormalized();
+        smoothValue(normValue, _smoothedNormValue, smooth);
+        return _smoothedNormValue;
     } else {
-        return smooth ? smoothedValue(smooth) : outputValue;
+        smoothValue(outputValue, _smoothedValue, smooth);
+        return _smoothedValue;
     }
 }
 //-------------------------------------------
@@ -58,14 +61,11 @@ float ofxAASingleOutputAlgorithm::valueNormalized(){
     }
 }
 //-------------------------------------------
-float ofxAASingleOutputAlgorithm::smoothedValue(float smthAmnt){
-    _smoothedValue = smooth(outputValue, _smoothedValue, smthAmnt);
-    return _smoothedValue;
+void ofxAASingleOutputAlgorithm::smoothValue(float& valueToSmooth, float& smoothedValue, float smthAmnt){
+    if (smthAmnt == 0){
+        smoothedValue = valueToSmooth;
+    }
+    smoothedValue = smooth(valueToSmooth, smoothedValue, smthAmnt);
 }
 
-//-------------------------------------------
-float ofxAASingleOutputAlgorithm::smoothedValueNormalized(float smthAmnt){
-    float normVal = valueNormalized();
-    _smoothedNormValue =  smooth(normVal, _smoothedNormValue, smthAmnt);
-    return _smoothedNormValue;
-}
+

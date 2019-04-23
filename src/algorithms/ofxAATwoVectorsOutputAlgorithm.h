@@ -44,9 +44,4 @@ protected:
     vector<float> _smoothedValues_2;
     vector<float> _smoothedValuesNormalized_2;
     
-    vector<float>& values2Normalized();
-    vector<float>& smoothedValues2(float smthAmnt);
-    vector<float>& smoothedValues2Normalized(float smthAmnt);
-    
-   // vector<float> smoothedFloatValues_2;
 };

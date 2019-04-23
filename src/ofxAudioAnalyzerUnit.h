@@ -26,18 +26,8 @@
 
 #include "ofMain.h"
 
-//#include <iostream>
-//#include "algorithmfactory.h"
-//#include "essentiamath.h"
-//#include "pool.h"
-//
-//using namespace std;
-//using namespace essentia;
-//using namespace standard;
-
 #include "ofxAudioAnalyzerAlgorithms.h"
 #include "ofxAANetwork.h"
-
 
 class ofxAudioAnalyzerUnit
 {
@@ -53,37 +43,32 @@ public:
     void analyze(const vector<float> &  inBuffer);
     void exit();
     
-    void resetOnsets();
-    bool getOnsetValue();
-    
     int getSampleRate() {return samplerate;}
     int getBufferSize() {return framesize;}
     
-    void setActive(ofxaa::AlgorithmType algorithmType, bool state);
-    void setMaxEstimatedValue(ofxaa::AlgorithmType algorithmType, float value);
-    
     
     float getValue(ofxAAValue value, float smooth, bool normalized);
+    float getValue(ofxAAValue value){ return getValue(value, 0.0, false); }
     vector<float>& getValues(ofxAABinsValue value, float smooth , bool normalized);
+    vector<float>& getValues(ofxAABinsValue value){ return getValues(value, 0.0, false); }
+    
     int getBinsNum(ofxAABinsValue value);
     
+    void setActive(ofxaa::AlgorithmType algorithmType, bool state);
     bool getIsActive(ofxaa::AlgorithmType algorithmType);
-    
-    
     float getMaxEstimatedValue(ofxaa::AlgorithmType algorithmType);
+    void setMaxEstimatedValue(ofxaa::AlgorithmType algorithmType, float value);
     
+    ofxAAOnsetsAlgorithm* getOnsetsPtr(){ return network->getOnsetsPtr();}
     
-    ofxaa::Network* network; //TODO: Make private
 private:
-    
-    
+    ofxaa::Network* network; 
     
     vector<Real> audioBuffer;
     vector<Real> accumulatedAudioBuffer;
     
     int samplerate;
     int framesize;
-    
 };
 
 

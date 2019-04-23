@@ -52,42 +52,43 @@ float ofxAAOneVectorOutputAlgorithm::getValueAtIndex(int index, float smooth, bo
 //-------------------------------------------
 vector<float>& ofxAAOneVectorOutputAlgorithm::getValues(float smooth, bool normalized){
     if (normalized){
-        return smooth ? smoothedValuesNormalized(smooth) : valuesNormalized();
+        normalizeValues(outputValues, _normalizedValues);
+        smoothValues(_normalizedValues, _smoothedValuesNormalized, smooth);
+        return _smoothedValuesNormalized;
     } else {
-        return smooth ? smoothedValues(smooth) : outputValues;
+        smoothValues(outputValues, _smoothedValues, smooth);
+        return _smoothedValues;
     }
 }
 //-------------------------------------------
-vector<float>& ofxAAOneVectorOutputAlgorithm::valuesNormalized(){
+void ofxAAOneVectorOutputAlgorithm::normalizeValues(vector<float>& valuesToNorm, vector<float>& normValues){
     
     if (isNormalizedByDefault) {
-        return outputValues;
+        normValues = valuesToNorm;
     } else {
-        for (int i=0; i<outputValues.size(); i++){
+        for (int i=0; i<valuesToNorm.size(); i++){
             if (hasLogaritmicValues){
-                _normalizedValues[i] = ofMap(lin2db(outputValues[i]), dbSilenceCutoff, DB_MAX, 0.0, 1.0, TRUE);
+                normValues[i] = ofMap(lin2db(valuesToNorm[i]), dbSilenceCutoff, DB_MAX, 0.0, 1.0, TRUE);
             } else {
-                _normalizedValues[i] = ofMap(outputValues[i], minEstimatedValue, maxEstimatedValue, 0.0, 1.0, TRUE);
+                normValues[i] = ofMap(outputValues[i], minEstimatedValue, maxEstimatedValue, 0.0, 1.0, TRUE);
             }
         }
     }
-    return _normalizedValues;
+    
 }
 //-------------------------------------------
-vector<float>& ofxAAOneVectorOutputAlgorithm::smoothedValues(float smthAmnt){
-    for(int i=0; i<_smoothedValues.size(); i++){
-        _smoothedValues[i] = smooth(outputValues[i], _smoothedValues[i], smthAmnt);
+vector<float>& ofxAAOneVectorOutputAlgorithm::smoothValues(vector<float>& valuesToSmooth, vector<float>& smoothedValues, float smthAmnt){
+    
+    if (smthAmnt == 0) {
+        smoothedValues = valuesToSmooth;
+        return;
     }
-    return _smoothedValues;
-}
-//-------------------------------------------
-vector<float>& ofxAAOneVectorOutputAlgorithm::smoothedValuesNormalized(float smthAmnt){
-    auto normValues = valuesNormalized();
-    for(int i=0; i<_smoothedValuesNormalized.size(); i++){
-        _smoothedValuesNormalized[i] = smooth(normValues[i], _smoothedValuesNormalized[i], smthAmnt);
+    
+    for(int i=0; i<smoothedValues.size(); i++){
+        smoothedValues[i] = smooth(valuesToSmooth[i], smoothedValues[i], smthAmnt);
     }
-    return _smoothedValuesNormalized;
 }
+
 //-------------------------------------------
 //int ofxAAOneVectorOutputAlgorithm::getBinsNum(){
 //    return outputValues.size();

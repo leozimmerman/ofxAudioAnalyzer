@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "ofxAudioAnalyzerUtils.h"
 #include "ofxAudioAnalyzerAlgorithms.h"
 #include "ofxAAValues.h"
 
@@ -36,17 +35,15 @@ namespace ofxaa {
         
         void computeAlgorithms(vector<Real>& signal, vector<Real>& accumulatedSignal);
         
-        float getValue(ofxAAValue value){ return getValue(value, 0.0, false); }
+        
         float getValue(ofxAAValue value, float smooth, bool normalized);
+        float getValue(ofxAAValue value){ return getValue(value, 0.0, false); }
         
-        vector<float>& getValues(ofxAABinsValue value){ return getValues(value, 0.0, false); }
         vector<float>& getValues(ofxAABinsValue value, float smooth, bool normalized);
+        vector<float>& getValues(ofxAABinsValue value){ return getValues(value, 0.0, false); }
 
-        
-        //TODO: Remove this from here...
-        void resetOnsets();
-        bool getOnsetValue();
-        void setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
+        ofxAAOnsetsAlgorithm* getOnsetsPtr(){ return onsets;}
+        ofxAABaseAlgorithm* getAlgorithmWithType(ofxaa::AlgorithmType algorithmType);
         
     private:
         
@@ -54,6 +51,8 @@ namespace ofxaa {
         void setDefaultMaxEstimatedValues();
         void connectAlgorithms();
         void deleteAlgorithms();
+        
+        
         
         int _samplerate;
         int _framesize;

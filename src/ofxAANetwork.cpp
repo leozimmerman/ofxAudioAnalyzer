@@ -748,7 +748,6 @@ namespace ofxaa {
                 return spectralComplexity->getValue(smooth, normalized);
             case SPECTRAL_FLUX:
                 return spectral_flux->getValue(smooth, normalized);
-                
             case DISSONANCE:
                 return dissonance->getValue(smooth, normalized);
             case HFC:
@@ -765,12 +764,10 @@ namespace ofxaa {
                 return hpcp_crest->getValue(smooth, normalized);
             case HPCP_ENTROPY:
                 return hpcp_entropy->getValue(smooth, normalized);
-            
-//            default:
-//                return 3737.3737;
+                
+            case ONSETS:
+                return onsets->getValue();
         }
-        
-        
     }
     
     vector<float>& Network::getValues(ofxAABinsValue value, float smooth, bool normalized){
@@ -796,24 +793,14 @@ namespace ofxaa {
                 return predominantPitchMelodia->getValues(smooth, normalized);
             case PREDOMINANT_PITCH_MELODIA_CONFIDENCES:
                 return predominantPitchMelodia->getValues2(smooth, normalized);
-
         }
     }
-    
-    bool Network::getOnsetValue(){
-        return false;///******************
-        ///return onsets->getValue();
+    //MARK: - 
+    ofxAABaseAlgorithm* Network::getAlgorithmWithType(ofxaa::AlgorithmType algorithmType){
+        for (auto a : algorithms){
+            if (a->getType() == algorithmType){
+                return a;
+            }
+        }
     }
-    //----------------------------------------------
-    void Network::resetOnsets(){
-        onsets->reset();
-    }
-    //----------------------------------------------
-    void Network::setOnsetsParameters(float alpha, float silenceTresh, float timeTresh, bool useTimeTresh){
-        onsets->setOnsetAlpha(alpha);
-        onsets->setOnsetSilenceThreshold(silenceTresh);
-        onsets->setOnsetTimeThreshold(timeTresh);
-        onsets->setUseTimeThreshold(useTimeTresh);
-    }
-    
 }

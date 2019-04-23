@@ -35,39 +35,13 @@ void ofxAATwoVectorsOutputAlgorithm::assignSecondOutpuValuesSize(int size, int v
 
 vector<float>& ofxAATwoVectorsOutputAlgorithm::getValues2(float smooth, bool normalized){
     if (normalized){
-        return smooth ? smoothedValues2Normalized(smooth) : values2Normalized();
+        normalizeValues(outputValues_2, _normalizedValues_2);
+        smoothValues(_normalizedValues_2, _smoothedValuesNormalized_2, smooth);
+        return _smoothedValuesNormalized_2;
     } else {
-        return smooth ? smoothedValues2(smooth) : outputValues_2;
+        smoothValues(outputValues_2, _smoothedValues_2, smooth);
+        return _smoothedValues_2;
     }
 }
-//-------------------------------------------
-vector<float>& ofxAATwoVectorsOutputAlgorithm::values2Normalized(){
-    
-    if (isNormalizedByDefault) {
-        return outputValues_2;
-    } else {
-        for (int i=0; i<outputValues_2.size(); i++){
-            if (hasLogaritmicValues){
-            _normalizedValues_2[i] = ofMap(lin2db(outputValues_2[i]), dbSilenceCutoff, DB_MAX, 0.0, 1.0, TRUE);
-            } else {
-                _normalizedValues_2[i] = ofMap(outputValues_2[i], minEstimatedValue, maxEstimatedValue, 0.0, 1.0, TRUE);
-            }
-        }
-    }
-    return _normalizedValues_2;
-}
-//-------------------------------------------
-vector<float>& ofxAATwoVectorsOutputAlgorithm::smoothedValues2(float smthAmnt){
-    for(int i=0; i<_smoothedValues_2.size(); i++){
-        _smoothedValues_2[i] = smooth(outputValues_2[i], _smoothedValues_2[i], smthAmnt);
-    }
-    return _smoothedValues_2;
-}
-//-------------------------------------------
-vector<float>& ofxAATwoVectorsOutputAlgorithm::smoothedValues2Normalized(float smthAmnt){
-    auto normValues = values2Normalized();
-    for(int i=0; i<_smoothedValuesNormalized_2.size(); i++){
-        _smoothedValuesNormalized_2[i] = smooth(normValues[i], _smoothedValuesNormalized_2[i], smthAmnt);
-    }
-    return _smoothedValuesNormalized_2;
-}
+
+

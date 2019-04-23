@@ -23,7 +23,6 @@
  */
 
 #include "ofxAudioAnalyzerUnit.h"
-#include "ofxAudioAnalyzerUtils.h"
 #include "ofxAAConfigurations.h"
 
 
@@ -63,18 +62,7 @@ void ofxAudioAnalyzerUnit::exit(){
 }
 
 //--------------------------------------------------------------
-#pragma mark - Activates
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::setActive(ofxaa::AlgorithmType algorithmType, bool state){
-    //TODO: !
-    ///network->setActive(algorithmType, state);
-}
-//----------------------------------------------
-bool ofxAudioAnalyzerUnit::getIsActive(ofxaa::AlgorithmType algorithmType){
-    //TODO: !
-    ///return  network->getIsActive(algorithmType)
-    return true;
-}
+
 //----------------------------------------------
 #pragma mark - Get values
 //----------------------------------------------
@@ -90,47 +78,26 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAABinsValue value, float smoot
 int ofxAudioAnalyzerUnit::getBinsNum(ofxAABinsValue value){
     return network->getValues(value).size();
 }
+#pragma mark - Activates
+//----------------------------------------------
+void ofxAudioAnalyzerUnit::setActive(ofxaa::AlgorithmType algorithmType, bool state){
+    auto algorithm = network->getAlgorithmWithType(algorithmType);
+    algorithm->isActive = state;
+}
+//----------------------------------------------
+bool ofxAudioAnalyzerUnit::getIsActive(ofxaa::AlgorithmType algorithmType){
+    auto algorithm = network->getAlgorithmWithType(algorithmType);
+    return algorithm->isActive;
+}
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxaa::AlgorithmType algorithmType){
-    return 1.0;
-    //TODO: !
-    /*
-     ofxAABaseAlgorithm* baseAlgorithm = algorithm(algorithmType);
-    
-    if (ofxaa::algorithmHasVectorOutput(baseAlgorithm)){
-        ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for Getting max estimated value. This is algorithm outputs a vector" << baseAlgorithm->algorithm->name();
-    }
-    
-    if (ofxaa::algorithmHasNormalizedSingleOutputByDefault(baseAlgorithm)){
-        ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for Getting max estimated value. This is algorithm outputs a normalized value by default." << baseAlgorithm->algorithm->name();
-    }
-    
-    return baseAlgorithm->getMaxEstimatedValue();
-    */
+    auto algorithm = network->getAlgorithmWithType(algorithmType);
+    return algorithm->maxEstimatedValue;
 }
 //----------------------------------------------
 void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxaa::AlgorithmType algorithmType, float value){
-    //TODO: !
-    /*
-     ofxAABaseAlgorithm* baseAlgorithm = algorithm(algorithmType);
-    
-    if (ofxaa::algorithmHasVectorOutput(baseAlgorithm)){
-         ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for Setting max estimated value. This is algorithm outputs a vector" << baseAlgorithm->algorithm->name();
-    }
-    
-    if (ofxaa::algorithmHasNormalizedSingleOutputByDefault(baseAlgorithm)){
-        ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for Setting max estimated value. This is algorithm outputs a normalized value by default." << baseAlgorithm->algorithm->name();
-    }
-    
-    baseAlgorithm->setMaxEstimatedValue(value);
-    */
+    auto algorithm = network->getAlgorithmWithType(algorithmType);
+    algorithm->maxEstimatedValue = value;
 }
-//----------------------------------------------
-bool ofxAudioAnalyzerUnit::getOnsetValue(){
-     return network->getOnsetValue();
-}
-//----------------------------------------------
-void ofxAudioAnalyzerUnit::resetOnsets(){
-    network->resetOnsets();
-}
+
 
