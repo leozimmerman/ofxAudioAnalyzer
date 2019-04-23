@@ -36,11 +36,14 @@ void ofxAudioAnalyzer::setup(int sampleRate, int bufferSize, int channels){
         _channels = 1;
     }
     
+    if (!essentia::isInitialized()){
+        essentia::init();
+    }
+    
     for(int i=0; i<_channels; i++){
         ofxAudioAnalyzerUnit * aaUnit = new ofxAudioAnalyzerUnit(_samplerate, _buffersize);
         channelAnalyzerUnits.push_back(aaUnit);
     }
-    
 }
 //-------------------------------------------------------
 void ofxAudioAnalyzer::reset(int sampleRate, int bufferSize, int channels){
@@ -87,56 +90,41 @@ void ofxAudioAnalyzer::analyze(const ofSoundBuffer & inBuffer){
         inBuffer.getChannel(chBuff, i);//copy channel from inBuffer
         if(channelAnalyzerUnits[i]!=nullptr){
             channelAnalyzerUnits[i]->analyze(chBuff.getBuffer());
-            //cout<<"analyzer-"<<i<<"rms"<<channelAnalyzerUnits[i]->getRms()<<endl;
         }else{
             ofLogError()<<"ofxAudioAnalyzer: channelAnalyzer NULL pointer";
         }
-        
     }
-    
 }
 //-------------------------------------------------------
 void ofxAudioAnalyzer::exit(){
+    AlgorithmFactory& factory = AlgorithmFactory::instance();
+    factory.shutdown();
+    
+    essentia::shutdown();
     
     for(int i=0; i<channelAnalyzerUnits.size();i++){
         channelAnalyzerUnits[i]->exit();
     }
-    
 }
 //-------------------------------------------------------
-float ofxAudioAnalyzer::getValue(ofxAAAlgorithmType algorithm, int channel, float smooth, bool normalized){
-    
+float ofxAudioAnalyzer::getValue(ofxAAValue valueType, int channel, float smooth, bool normalized){
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return 0.0;
     }
-    
-    return channelAnalyzerUnits[channel]->getValue(algorithm, smooth, normalized);
-
+    return channelAnalyzerUnits[channel]->getValue(valueType, smooth, normalized);
 }
 //-------------------------------------------------------
-vector<float>& ofxAudioAnalyzer::getValues(ofxAAAlgorithmType algorithm, int channel, float smooth){
+vector<float>& ofxAudioAnalyzer::getValues(ofxAABinsValue valueType, int channel, float smooth, bool normalized){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        vector<float>r (1, 0.0);
+        static vector<float>r (1, 0.0);
         return r;
     }
     
-    return channelAnalyzerUnits[channel]->getValues(algorithm, smooth);
+    return channelAnalyzerUnits[channel]->getValues(valueType, smooth, normalized);
     
-}
-//-------------------------------------------------------
-vector<SalienceFunctionPeak>& ofxAudioAnalyzer::getSalienceFunctionPeaks(int channel, float smooth){
-    if (channel >= _channels){
-        ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        //SalienceFunctionPeak peak = SalienceFunctionPeak();
-        vector<SalienceFunctionPeak> r(1, SalienceFunctionPeak());
-        return r;
-    }
-    
-     return channelAnalyzerUnits[channel]->getPitchSaliencePeaksRef(smooth);
-
 }
 //-------------------------------------------------------
 bool ofxAudioAnalyzer::getOnsetValue(int channel){
@@ -145,21 +133,9 @@ bool ofxAudioAnalyzer::getOnsetValue(int channel){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return false;
     }
-    
-    return channelAnalyzerUnits[channel]->getOnsetValue();
-    
+    return channelAnalyzerUnits[channel]->getValue(ONSETS, 0.0, false);
 }
-//-------------------------------------------------------
-bool ofxAudioAnalyzer::getIsActive(int channel, ofxAAAlgorithmType algorithm){
-    
-    if (channel >= _channels){
-        ofLogError()<<"ofxAudioAnalyzer: channel for getting if its active is incorrect.";
-        return false;
-    }
-    
-    return channelAnalyzerUnits[channel]->getIsActive(algorithm);
-    
-}
+
 //-------------------------------------------------------
 void ofxAudioAnalyzer::resetOnsets(int channel){
     
@@ -168,29 +144,27 @@ void ofxAudioAnalyzer::resetOnsets(int channel){
         return;
     }
     
-    channelAnalyzerUnits[channel]->resetOnsets();
+    channelAnalyzerUnits[channel]->getOnsetsPtr()->reset();
 }
 //-------------------------------------------------------
-void ofxAudioAnalyzer::setActive(int channel, ofxAAAlgorithmType algorithm, bool state){
-
-    if (channel >= _channels){
-        ofLogError()<<"ofxAudioAnalyzer: channel for setting active is incorrect.";
-        return;
-    }
-    
-    channelAnalyzerUnits[channel]->setActive(algorithm, state);
-    
-}
-//-------------------------------------------------------
-void ofxAudioAnalyzer::setMaxEstimatedValue(int channel, ofxAAAlgorithmType algorithm, float value){
+void ofxAudioAnalyzer::setMaxEstimatedValue(int channel, ofxAAValue valueType, float value){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for setting max estimated value is incorrect.";
         return;
     }
     
-    channelAnalyzerUnits[channel]->setMaxEstimatedValue(algorithm, value);
+    channelAnalyzerUnits[channel]->setMaxEstimatedValue(valueType, value);
+}
+//-------------------------------------------------------
+void ofxAudioAnalyzer::setMaxEstimatedValue(int channel, ofxAABinsValue valueType, float value){
     
+    if (channel >= _channels){
+        ofLogError()<<"ofxAudioAnalyzer: channel for setting max estimated value is incorrect.";
+        return;
+    }
+    
+    channelAnalyzerUnits[channel]->setMaxEstimatedValue(valueType, value);
 }
 //-------------------------------------------------------
 void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silenceTresh, float timeTresh, bool useTimeTresh){
@@ -199,20 +173,13 @@ void ofxAudioAnalyzer::setOnsetsParameters(int channel, float alpha, float silen
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return;
     }
-    channelAnalyzerUnits[channel]->setOnsetsParameters(alpha, silenceTresh, timeTresh, useTimeTresh);
-
+    auto onsets =  channelAnalyzerUnits[channel]->getOnsetsPtr();
+    onsets->setOnsetAlpha(alpha);
+    onsets->setOnsetSilenceThreshold(silenceTresh);
+    onsets->setOnsetTimeThreshold(timeTresh);
+    onsets->setUseTimeThreshold(useTimeTresh);
 }
-//-------------------------------------------------------
-void ofxAudioAnalyzer::setSalienceFunctionPeaksParameters(int channel, int maxPeaks){
-    
-    if (channel >= _channels){
-        ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
-        return;
-    }
-    
-    channelAnalyzerUnits[channel]->setSalienceFunctionPeaksParameters(maxPeaks);
 
-}
 
 
 
