@@ -25,97 +25,30 @@
 #include "ofxAABaseAlgorithm.h"
 #include "ofxAAFactory.h"
 
+
+
+//#define DB_MIN -6
+
+//LoudnessVickers uses -90
+
 ofxAABaseAlgorithm::ofxAABaseAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize){
-    type = algorithmType;
+    _type = algorithmType;
     
-    algorithm = ofxaa::createAlgorithmWithType(type, samplerate, framesize);
+    algorithm = ofxaa::createAlgorithmWithType(_type, samplerate, framesize);
     
     isActive = TRUE;
-    floatValue = 0.0;
-    smoothedFloatValue = 0.0;
-    smoothedNormFloatValue = 0.0;
-    smoothedNormFloatValueDb = 0.0;
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getValue(){
-    return floatValue;
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getValueDb(){
-    //returns floatValue in a logaritmic scale
-    //0.000001 to 1 -->  -6 to 0
-    return log10(floatValue);
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getValueNormalized(){
-    return ofMap(floatValue, 0.0, maxEstimatedValue, 0.0, 1.0, TRUE);
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getValueNormalized(float min, float max, bool doClamp){
-    return ofMap(floatValue, min, max, 0.0, 1.0, doClamp);
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getValueDbNormalized(float min, float max, bool doClamp){
-    return ofMap(getValueDb(), min, max, 0.0, 1.0, doClamp);
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getSmoothedValue(float smthAmnt){
-    smoothedFloatValue = smooth(floatValue, smoothedFloatValue, smthAmnt);
-    return smoothedFloatValue;
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmnt){
-    float normVal = ofMap(floatValue, 0.0, maxEstimatedValue, 0.0, 1.0, TRUE);
-    smoothedNormFloatValue =  smooth(normVal, smoothedNormFloatValue, smthAmnt);
-    return smoothedNormFloatValue;
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getSmoothedValueNormalized(float smthAmnt, float min, float max, bool doClamp){
-    float normVal = ofMap(floatValue, min, max, 0.0, 1.0, doClamp);
-    smoothedNormFloatValue =  smooth(normVal, smoothedNormFloatValue, smthAmnt);
-    return smoothedNormFloatValue;
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getSmoothedValueDbNormalized(float smthAmnt, float min, float max, bool doClamp){
     
-    float normVal = ofMap(getValueDb(), min, max, 0.0, 1.0, doClamp);
-    smoothedNormFloatValueDb = smooth(normVal, smoothedNormFloatValueDb, smthAmnt);
-    return smoothedNormFloatValueDb;
-    
+    hasLogaritmicValues = false;
+    hasDbValues = false;
+    isNormalizedByDefault = false;
+    minEstimatedValue = 0.0;
+    maxEstimatedValue = 1.0;
 }
-//-------------------------------------------
-bool ofxAABaseAlgorithm::getIsActive(){
-    return isActive;
-}
-//-------------------------------------------
-ofxaa::AlgorithmType ofxAABaseAlgorithm::getType(){
-    return type;
-}
-//-------------------------------------------
-float ofxAABaseAlgorithm::getMaxEstimatedValue(){
-    return maxEstimatedValue;
-}
-//-------------------------------------------
-void ofxAABaseAlgorithm::setActive(bool state){
-    isActive = state;
-}
-//-------------------------------------------
-void ofxAABaseAlgorithm::setMaxEstimatedValue(float value){
-    maxEstimatedValue = value;
-}
+
 //-------------------------------------------
 void ofxAABaseAlgorithm::compute(){
     if(isActive){
         algorithm->compute();
-        castToFloat();
-    }
-}
-//-------------------------------------------
-void ofxAABaseAlgorithm::castToFloat(){
-    if(isActive){
-        floatValue = (float) realValue;
-    } else {
-        floatValue = 0.0;
     }
 }
 //-------------------------------------------
@@ -126,3 +59,4 @@ void ofxAABaseAlgorithm::deleteAlgorithm(){
 float ofxAABaseAlgorithm::smooth(float newValue, float previousValue, float amount){
     return previousValue * amount + (1-amount) * newValue;
 }
+

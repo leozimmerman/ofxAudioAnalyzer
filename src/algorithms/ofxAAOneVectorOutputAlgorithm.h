@@ -34,33 +34,38 @@ public:
     
     ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize);
     
-    void assignOutputValuesSize(int size, int val);
-    
-    virtual void castToFloat() override;
+    void compute() override;
     //void updateLogRealValues();
     
     //This is only used for chordDetection at the moment...
     vector<vector<Real>> realsVec;
     vector<vector<Real>>& realValuesAsVec(){
-        realsVec = {realValues};
+        realsVec = {outputValues};
         return realsVec;
     }
     
+    float getValueAtIndex(int index, float smooth, bool normalized);
+    
+    //int getBinsNum();
+    vector<float>& getValues(float smooth, bool normalized);
+    
+    vector<Real> outputValues;
+    //vector<Real> logRealValues;
     
     
-    int getBinsNum();
-    vector<float>& getValues();
-    vector<float>& getSmoothedValues(float smthAmnt);
     
-    vector<Real> realValues;
-    vector<Real> logRealValues;
+private:
+    void assignOutputValuesSize(int size, int val);
     
-    bool hasLogaritmicValues;
+   // void castValues(vector<Real>& reals, vector<float>& floats);///Delete
     
-protected:
-    void castValues(vector<Real>& reals, vector<float>& floats);
+    vector<float> _normalizedValues;
+    vector<float> _smoothedValues;
+    vector<float> _smoothedValuesNormalized;
     
-    vector<float> floatValues;
-    vector<float> smoothedFloatValues;
+    vector<float>& valuesNormalized();
+    vector<float>& smoothedValues(float smthAmnt);
+    vector<float>& smoothedValuesNormalized(float smthAmnt);
+    
     
 };

@@ -24,7 +24,7 @@
 
 # pragma once
 
-#include "ofxAABaseAlgorithm.h"
+#include "ofxAASingleOutputAlgorithm.h"
 #include "ofxAAOneVectorOutputAlgorithm.h"
 #include "ofxAATwoVectorsOutputAlgorithm.h"
 #include "ofxAATwoTypesVectorOutputAlgorithm.h"

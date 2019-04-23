@@ -36,9 +36,6 @@ using namespace std;
 using namespace essentia;
 using namespace standard;
 
-#define DB_MIN -6
-#define DB_MAX 0
-
 namespace ofxaa {
     
     void initializeEssentia();

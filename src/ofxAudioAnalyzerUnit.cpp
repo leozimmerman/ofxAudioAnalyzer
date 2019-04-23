@@ -78,78 +78,17 @@ bool ofxAudioAnalyzerUnit::getIsActive(ofxaa::AlgorithmType algorithmType){
 //----------------------------------------------
 #pragma mark - Get values
 //----------------------------------------------
-float ofxAudioAnalyzerUnit::getValue(ofxAAValueType valueType, float smooth, bool normalized){
-    auto value = network->getValue(valueType , smooth, normalized);
-   // cout<<value<<endl;
-    return value;
-    
-    //TODO: !
-    /*
-     
-    switch (algorithmType) {
-        case PITCH_YIN_FREQ:
-            if (normalized){
-                return smooth ? pitchDetect->getSmoothedPitchValueNormalized(smooth): pitchDetect->getPitchValueNormalized();
-            }else{
-                return smooth ? pitchDetect->getSmoothedPitchValue(smooth) : pitchDetect->getPitchValue();
-            }
-            break;
-            
-        case PITCH_YIN_CONFIDENCE:
-            return smooth ? pitchDetect->getSmoothedConfidenceValue(smooth) : pitchDetect->getConfidenceValue();
-            break;
-            
-        default:
-            ofxAABaseAlgorithm* baseAlgorithm =  algorithm(algorithmType);
-            
-            if (ofxaa::algorithmHasVectorOutput(baseAlgorithm)){
-                ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for Getting values. This is algorithm outputs a vector of values" << baseAlgorithm->algorithm->name();
-                return 0.0;
-            }
-            if (normalized && !ofxaa::algorithmHasNormalizedSingleOutputByDefault(baseAlgorithm)){
-                return smooth ? baseAlgorithm->getSmoothedValueNormalized(smooth): baseAlgorithm->getValueNormalized();
-            } else if (ofxaa::algorithmHasOutputInDbs(baseAlgorithm)) {
-                return smooth ? baseAlgorithm->getSmoothedValueDbNormalized(smooth, DB_MIN, DB_MAX) : baseAlgorithm->getValueDbNormalized(DB_MIN, DB_MAX);
-            } else {
-                return smooth ? baseAlgorithm->getSmoothedValue(smooth): baseAlgorithm->getValue();
-            }
-            break;
-    }
-    */
+float ofxAudioAnalyzerUnit::getValue(ofxAAValue value, float smooth, bool normalized){
+    return network->getValue(value , smooth, normalized);
 }
 
 //----------------------------------------------
-vector<float>& ofxAudioAnalyzerUnit::getValues(ofxaa::AlgorithmType algorithmType, float smooth){
-    auto values = network->getValues(algorithmType, algorithmType);
-    return values;
-    //TODO: !
-    /*
-    ofxAAOneVectorOutputAlgorithm* algorithm = vectorAlgorithm(algorithmType);
-    
-    if (!ofxaa::algorithmHasVectorOutput(algorithm)){
-        ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for Getting values. This is algorithm outputs a single of values" << algorithm->algorithm->name();
-        static vector<float>r (1, 0.0);
-        return r;
-    }
-    
-    return smooth ? algorithm->getSmoothedValues(smooth) : algorithm->getValues();
-    */
+vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAABinsValue value, float smooth , bool normalized){
+    return network->getValues(value, smooth, normalized);
 }
 //----------------------------------------------
-int ofxAudioAnalyzerUnit::getBinsNum(ofxaa::AlgorithmType algorithmType){
-    auto size = network->getValues(algorithmType, 0.0).size();
-    return size;
-    //TODO: !
-    /*
-    ofxAAOneVectorOutputAlgorithm* algorithm = vectorAlgorithm(algorithmType);
-    
-    if (!ofxaa::algorithmHasVectorOutput(algorithm)){
-        ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm for Getting values. This is algorithm outputs a single of values" << algorithm->algorithm->name();
-        return 0;
-    }
-    
-    return algorithm->getBinsNum();
-    */
+int ofxAudioAnalyzerUnit::getBinsNum(ofxAABinsValue value){
+    return network->getValues(value).size();
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxaa::AlgorithmType algorithmType){

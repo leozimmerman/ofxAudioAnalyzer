@@ -39,9 +39,6 @@
 #include "ofxAANetwork.h"
 
 
-
-
-
 class ofxAudioAnalyzerUnit
 {
 
@@ -66,13 +63,13 @@ public:
     void setMaxEstimatedValue(ofxaa::AlgorithmType algorithmType, float value);
     
     
-    float getValue(ofxAAValueType valueType, float smooth=0.0, bool normalized=false);
-    vector<float>& getValues(ofxaa::AlgorithmType algorithmType, float smooth=0.0);
-   
+    float getValue(ofxAAValue value, float smooth, bool normalized);
+    vector<float>& getValues(ofxAABinsValue value, float smooth , bool normalized);
+    int getBinsNum(ofxAABinsValue value);
+    
     bool getIsActive(ofxaa::AlgorithmType algorithmType);
     
     
-    int getBinsNum(ofxaa::AlgorithmType algorithmType);
     float getMaxEstimatedValue(ofxaa::AlgorithmType algorithmType);
     
     

@@ -26,18 +26,23 @@
 
 #include "ofxAABaseAlgorithm.h"
 
-class ofxAATuningFrequencyAlgorithm : public ofxAABaseAlgorithm{
-    
+class ofxAASingleOutputAlgorithm : public ofxAABaseAlgorithm {
 public:
     
-    void castValuesToFloat();
+    ofxAASingleOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize);
     
-    float getFreqValue();
-    float getCentsValue();
+    void compute() override;
     
-    Real freqRealVal,   centsRealVal;
+    Real outputValue;
+    
+    float getValue(float smooth, bool normalized);
     
 private:
-    float freqFloatVal, centsFloatVal;
+    float valueNormalized();
+    float smoothedValue(float smthAmnt);
+    float smoothedValueNormalized(float smthAmnt);
+    
+    float _smoothedValue;
+    float _smoothedNormValue;
     
 };

@@ -35,6 +35,8 @@ using namespace std;
 using namespace essentia;
 using namespace standard;
 
+#define DB_MAX 0
+
 class ofxAABaseAlgorithm{
     
 public:
@@ -45,51 +47,23 @@ public:
     
     virtual void compute();
     
-    float getValue();
-    float getValueDb();
-    
-    ///Gets the value normalized from 0 to maxEstimatedValue with Clamping
-    float getValueNormalized();
-    
-    float getValueNormalized(float min, float max, bool doClamp=TRUE);
-    float getValueDbNormalized(float min, float max, bool doClamp=TRUE);
-    float getSmoothedValue(float smthAmnt);
-    
-    ///Gets the value normalized and smoothed from 0 to maxEstimatedValue with Clamping
-    float getSmoothedValueNormalized(float smthAmnt);
-    
-    float getSmoothedValueNormalized(float smthAmnt, float min, float max, bool doClamp=TRUE);
-    float getSmoothedValueDbNormalized(float smthAmnt, float min, float max, bool doClamp=TRUE);
-    
-    virtual float getMaxEstimatedValue();
-    bool getIsActive();
-    ofxaa::AlgorithmType getType();
-    
-    void setActive(bool state);
-    
-    virtual void setMaxEstimatedValue(float value);
-    
-    
+    ofxaa::AlgorithmType getType(){ return _type;}
     
     virtual void deleteAlgorithm();
     
     Algorithm* algorithm;
-    Real realValue;
     
-protected:
-    
-    virtual void castToFloat();
-    float smooth(float newValue, float previousValue, float amount);
     bool isActive;
-    ofxaa::AlgorithmType type;
-    
-private:
-    //TODO: remove floats - Real is float
-    float floatValue;
-    float smoothedFloatValue;
-    float smoothedNormFloatValue;
-    float smoothedNormFloatValueDb;
-    
+
+    float minEstimatedValue;
     float maxEstimatedValue;
     
+    bool hasDbValues;
+    bool hasLogaritmicValues;
+    bool isNormalizedByDefault;
+    
+protected:
+    float smooth(float newValue, float previousValue, float amount);
+    ofxaa::AlgorithmType _type;
+
 };

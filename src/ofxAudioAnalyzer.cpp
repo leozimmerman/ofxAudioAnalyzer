@@ -106,7 +106,7 @@ void ofxAudioAnalyzer::exit(){
     }
 }
 //-------------------------------------------------------
-float ofxAudioAnalyzer::getValue(ofxAAValueType valueType, int channel, float smooth, bool normalized){
+float ofxAudioAnalyzer::getValue(ofxAAValue valueType, int channel, float smooth, bool normalized){
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
         return 0.0;
@@ -114,7 +114,7 @@ float ofxAudioAnalyzer::getValue(ofxAAValueType valueType, int channel, float sm
     return channelAnalyzerUnits[channel]->getValue(valueType, smooth, normalized);
 }
 //-------------------------------------------------------
-vector<float>& ofxAudioAnalyzer::getValues(ofxaa::AlgorithmType algorithm, int channel, float smooth){
+vector<float>& ofxAudioAnalyzer::getValues(ofxAABinsValue valueType, int channel, float smooth, bool normalized){
     
     if (channel >= _channels){
         ofLogError()<<"ofxAudioAnalyzer: channel for getting value is incorrect.";
@@ -122,7 +122,7 @@ vector<float>& ofxAudioAnalyzer::getValues(ofxaa::AlgorithmType algorithm, int c
         return r;
     }
     
-    return channelAnalyzerUnits[channel]->getValues(algorithm, smooth);
+    return channelAnalyzerUnits[channel]->getValues(valueType, smooth, normalized);
     
 }
 //-------------------------------------------------------

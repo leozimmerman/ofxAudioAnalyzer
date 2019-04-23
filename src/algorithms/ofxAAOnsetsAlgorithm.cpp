@@ -33,13 +33,13 @@ ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAOneVectorOutputAlgorithm* window
     
     cartesianToPolar = new ofxAATwoVectorsOutputAlgorithm(ofxaa::CartesianToPolar, samplerate, framesize);
     
-    onsetHfc = new ofxAABaseAlgorithm(ofxaa::OnsetDetection, samplerate, framesize);
+    onsetHfc = new ofxAASingleOutputAlgorithm(ofxaa::OnsetDetection, samplerate, framesize);
     ofxaa::configureOnsetDetection(onsetHfc->algorithm, "hfc");
     
-    onsetComplex = new ofxAABaseAlgorithm(ofxaa::OnsetDetection, samplerate, framesize);
+    onsetComplex = new ofxAASingleOutputAlgorithm(ofxaa::OnsetDetection, samplerate, framesize);
     ofxaa::configureOnsetDetection(onsetComplex->algorithm, "complex");
     
-    onsetFlux = new ofxAABaseAlgorithm(ofxaa::OnsetDetection, samplerate, framesize);
+    onsetFlux = new ofxAASingleOutputAlgorithm(ofxaa::OnsetDetection, samplerate, framesize);
     ofxaa::configureOnsetDetection(onsetFlux->algorithm, "flux");
     
     
@@ -74,23 +74,23 @@ ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAOneVectorOutputAlgorithm* window
     
 }
 void ofxAAOnsetsAlgorithm::connectAlgorithms(){
-    fft->algorithm->input("frame").set(windowing->realValues);
+    fft->algorithm->input("frame").set(windowing->outputValues);
     fft->algorithm->output("fft").set(fft->complexValues);
     cartesianToPolar->algorithm->input("complex").set(fft->complexValues);
-    cartesianToPolar->algorithm->output("magnitude").set(cartesianToPolar->realValues);
-    cartesianToPolar->algorithm->output("phase").set(cartesianToPolar->realValues_2);
+    cartesianToPolar->algorithm->output("magnitude").set(cartesianToPolar->outputValues);
+    cartesianToPolar->algorithm->output("phase").set(cartesianToPolar->outputValues_2);
     
-    onsetHfc->algorithm->input("spectrum").set(cartesianToPolar->realValues);
-    onsetHfc->algorithm->input("phase").set(cartesianToPolar->realValues_2);
-    onsetHfc->algorithm->output("onsetDetection").set(onsetHfc->realValue);
+    onsetHfc->algorithm->input("spectrum").set(cartesianToPolar->outputValues);
+    onsetHfc->algorithm->input("phase").set(cartesianToPolar->outputValues_2);
+    onsetHfc->algorithm->output("onsetDetection").set(onsetHfc->outputValue);
     
-    onsetComplex->algorithm->input("spectrum").set(cartesianToPolar->realValues);
-    onsetComplex->algorithm->input("phase").set(cartesianToPolar->realValues_2);
-    onsetComplex->algorithm->output("onsetDetection").set(onsetComplex->realValue);
+    onsetComplex->algorithm->input("spectrum").set(cartesianToPolar->outputValues);
+    onsetComplex->algorithm->input("phase").set(cartesianToPolar->outputValues_2);
+    onsetComplex->algorithm->output("onsetDetection").set(onsetComplex->outputValue);
     
-    onsetFlux->algorithm->input("spectrum").set(cartesianToPolar->realValues);
-    onsetFlux->algorithm->input("phase").set(cartesianToPolar->realValues_2);
-    onsetFlux->algorithm->output("onsetDetection").set(onsetFlux->realValue);
+    onsetFlux->algorithm->input("spectrum").set(cartesianToPolar->outputValues);
+    onsetFlux->algorithm->input("phase").set(cartesianToPolar->outputValues_2);
+    onsetFlux->algorithm->output("onsetDetection").set(onsetFlux->outputValue);
 }
 
 //-------------------------------------------
@@ -108,7 +108,7 @@ void ofxAAOnsetsAlgorithm::compute(){
 void ofxAAOnsetsAlgorithm::evaluate(){
     
     //is current buffer an Onset?
-    bool isCurrentBufferOnset = onsetBufferEvaluation(onsetHfc->getValue(), onsetComplex->getValue(), onsetFlux->getValue());
+    bool isCurrentBufferOnset = onsetBufferEvaluation(onsetHfc->outputValue, onsetComplex->outputValue, onsetFlux->outputValue);
     
     //if current buffer is onset, check for timeThreshold evaluation
     if (usingTimeThreshold && isCurrentBufferOnset){

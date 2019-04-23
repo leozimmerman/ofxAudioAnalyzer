@@ -33,10 +33,3 @@ public:
     vector < vector <Real> > vectorRealValues;
 };
 
-class ofxAANSGConstantQAlgorithm : public ofxAABaseAlgorithm{
-public:
-    ofxAANSGConstantQAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){}
-    vector < vector< complex<Real> > > constantq;
-    vector < complex<Real> > constantqdc;
-    vector < complex<Real> > constantqnf;
-};

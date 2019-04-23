@@ -33,13 +33,20 @@ public:
     
     ofxAATwoVectorsOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize_1, int outputSize_2);
     
-    void castToFloat() override;
-    
     void assignSecondOutpuValuesSize(int size, int val);
     
-    vector<Real> realValues_2;
+    vector<float>& getValues2(float smooth, bool normalized);
+    
+    vector<Real> outputValues_2;
     
 protected:
-    vector<float> floatValues_2;
-    vector<float> smoothedFloatValues_2;
+    vector<float> _normalizedValues_2;
+    vector<float> _smoothedValues_2;
+    vector<float> _smoothedValuesNormalized_2;
+    
+    vector<float>& values2Normalized();
+    vector<float>& smoothedValues2(float smthAmnt);
+    vector<float>& smoothedValues2Normalized(float smthAmnt);
+    
+   // vector<float> smoothedFloatValues_2;
 };

@@ -31,15 +31,69 @@ ofxAAOneVectorOutputAlgorithm::ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmTyp
 }
 //-------------------------------------------
 void ofxAAOneVectorOutputAlgorithm::assignOutputValuesSize(int size, int val){
-    realValues.assign(size, val);
-    floatValues.assign(size, val);
-    smoothedFloatValues.assign(size, val);
+    outputValues.assign(size, val);
+    _normalizedValues.assign(size, val);
+    _smoothedValues.assign(size, val);
+    _smoothedValuesNormalized.assign(size, val);
 }
 //-------------------------------------------
-void ofxAAOneVectorOutputAlgorithm::castToFloat(){
-    castValues(realValues, floatValues);
+void ofxAAOneVectorOutputAlgorithm::compute(){
+    ofxAABaseAlgorithm::compute();
+    if (!isActive) {
+        float zeroValue = hasLogaritmicValues ? dbSilenceCutoff : 0.0; ///???
+        static vector<float> zerosVec(outputValues.size(), zeroValue);
+        outputValues = zerosVec;
+    }
 }
 //-------------------------------------------
+float ofxAAOneVectorOutputAlgorithm::getValueAtIndex(int index, float smooth, bool normalized){
+    return getValues(smooth, normalized)[index];
+}
+//-------------------------------------------
+vector<float>& ofxAAOneVectorOutputAlgorithm::getValues(float smooth, bool normalized){
+    if (normalized){
+        return smooth ? smoothedValuesNormalized(smooth) : valuesNormalized();
+    } else {
+        return smooth ? smoothedValues(smooth) : outputValues;
+    }
+}
+//-------------------------------------------
+vector<float>& ofxAAOneVectorOutputAlgorithm::valuesNormalized(){
+    
+    if (isNormalizedByDefault) {
+        return outputValues;
+    } else {
+        for (int i=0; i<outputValues.size(); i++){
+            if (hasLogaritmicValues){
+                _normalizedValues[i] = ofMap(lin2db(outputValues[i]), dbSilenceCutoff, DB_MAX, 0.0, 1.0, TRUE);
+            } else {
+                _normalizedValues[i] = ofMap(outputValues[i], minEstimatedValue, maxEstimatedValue, 0.0, 1.0, TRUE);
+            }
+        }
+    }
+    return _normalizedValues;
+}
+//-------------------------------------------
+vector<float>& ofxAAOneVectorOutputAlgorithm::smoothedValues(float smthAmnt){
+    for(int i=0; i<_smoothedValues.size(); i++){
+        _smoothedValues[i] = smooth(outputValues[i], _smoothedValues[i], smthAmnt);
+    }
+    return _smoothedValues;
+}
+//-------------------------------------------
+vector<float>& ofxAAOneVectorOutputAlgorithm::smoothedValuesNormalized(float smthAmnt){
+    auto normValues = valuesNormalized();
+    for(int i=0; i<_smoothedValuesNormalized.size(); i++){
+        _smoothedValuesNormalized[i] = smooth(normValues[i], _smoothedValuesNormalized[i], smthAmnt);
+    }
+    return _smoothedValuesNormalized;
+}
+//-------------------------------------------
+//int ofxAAOneVectorOutputAlgorithm::getBinsNum(){
+//    return outputValues.size();
+//}
+//-------------------------------------------
+/*
 void ofxAAOneVectorOutputAlgorithm::castValues(vector<Real>& reals, vector<float>& floats){
     if (floats.size() != reals.size()) { return; }
     
@@ -64,6 +118,7 @@ void ofxAAOneVectorOutputAlgorithm::castValues(vector<Real>& reals, vector<float
     }
     
 }
+*/
 //-------------------------------------------
 //void ofxAAOneVectorOutputAlgorithm::updateLogRealValues(){
 //    logRealValues.resize(realValues.size());
@@ -71,19 +126,5 @@ void ofxAAOneVectorOutputAlgorithm::castValues(vector<Real>& reals, vector<float
 //        logRealValues[i] = amp2db(realValues[i]);
 //
 //}
-//-------------------------------------------
-int ofxAAOneVectorOutputAlgorithm::getBinsNum(){
-    return floatValues.size();
-}
-//-------------------------------------------
-vector<float>& ofxAAOneVectorOutputAlgorithm::getValues(){
-    return floatValues;
-}
-//-------------------------------------------
-vector<float>& ofxAAOneVectorOutputAlgorithm::getSmoothedValues(float smthAmnt){
-    
-    for(int i=0; i<smoothedFloatValues.size(); i++){
-        smoothedFloatValues[i] = smooth(floatValues[i], smoothedFloatValues[i], smthAmnt);
-    }
-    return smoothedFloatValues;
-}
+
+

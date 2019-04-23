@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "ofxAASingleOutputAlgorithm.h"
 #include "ofxAAVectorComplexOutputAlgorithm.h"
 #include "ofxAATwoVectorsOutputAlgorithm.h"
 
@@ -71,9 +72,9 @@ private:
     ofxAAOneVectorOutputAlgorithm* windowing;
     ofxAAVectorComplexOutputAlgorithm* fft;
     ofxAATwoVectorsOutputAlgorithm* cartesianToPolar;
-    ofxAABaseAlgorithm* onsetHfc;
-    ofxAABaseAlgorithm* onsetComplex;
-    ofxAABaseAlgorithm* onsetFlux;
+    ofxAASingleOutputAlgorithm* onsetHfc;
+    ofxAASingleOutputAlgorithm* onsetComplex;
+    ofxAASingleOutputAlgorithm* onsetFlux;
     
     int detecBufferSize;
     vector<vector<Real> > detections;

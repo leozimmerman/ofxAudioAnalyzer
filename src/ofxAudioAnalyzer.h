@@ -44,13 +44,13 @@ class ofxAudioAnalyzer{
     ///\param algorithm
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
-    float getValue(ofxAAValueType valueType, int channel, float smooth=0.0, bool normalized=false);
+    float getValue(ofxAAValue valueType, int channel, float smooth=0.0, bool normalized=false);
     
     ///Gets values of vector output Algorithms.
     ///\param algorithm
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
-    vector<float>& getValues(ofxaa::AlgorithmType algorithm, int channel, float smooth=0.0);
+    vector<float>& getValues(ofxAABinsValue valueType, int channel, float smooth, bool normalized);
     
     ///Returns if there is an onset in the speciefied channel.
     bool getOnsetValue(int channel);

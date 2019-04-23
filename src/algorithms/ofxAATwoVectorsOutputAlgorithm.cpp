@@ -28,13 +28,46 @@ ofxAATwoVectorsOutputAlgorithm::ofxAATwoVectorsOutputAlgorithm(ofxaa::AlgorithmT
     assignSecondOutpuValuesSize(outputSize_2, 0.0);
 }
 
-void ofxAATwoVectorsOutputAlgorithm::castToFloat(){
-    ofxAAOneVectorOutputAlgorithm::castToFloat();
-    castValues(realValues_2, floatValues_2);
+void ofxAATwoVectorsOutputAlgorithm::assignSecondOutpuValuesSize(int size, int val){
+    outputValues_2.assign(size, val);
+    //smoothedFloatValues_2.assign(size, val);
 }
 
-void ofxAATwoVectorsOutputAlgorithm::assignSecondOutpuValuesSize(int size, int val){
-    realValues_2.assign(size, val);
-    floatValues_2.assign(size, val);
-    smoothedFloatValues_2.assign(size, val);
+vector<float>& ofxAATwoVectorsOutputAlgorithm::getValues2(float smooth, bool normalized){
+    if (normalized){
+        return smooth ? smoothedValues2Normalized(smooth) : values2Normalized();
+    } else {
+        return smooth ? smoothedValues2(smooth) : outputValues_2;
+    }
+}
+//-------------------------------------------
+vector<float>& ofxAATwoVectorsOutputAlgorithm::values2Normalized(){
+    
+    if (isNormalizedByDefault) {
+        return outputValues_2;
+    } else {
+        for (int i=0; i<outputValues_2.size(); i++){
+            if (hasLogaritmicValues){
+            _normalizedValues_2[i] = ofMap(lin2db(outputValues_2[i]), dbSilenceCutoff, DB_MAX, 0.0, 1.0, TRUE);
+            } else {
+                _normalizedValues_2[i] = ofMap(outputValues_2[i], minEstimatedValue, maxEstimatedValue, 0.0, 1.0, TRUE);
+            }
+        }
+    }
+    return _normalizedValues_2;
+}
+//-------------------------------------------
+vector<float>& ofxAATwoVectorsOutputAlgorithm::smoothedValues2(float smthAmnt){
+    for(int i=0; i<_smoothedValues_2.size(); i++){
+        _smoothedValues_2[i] = smooth(outputValues_2[i], _smoothedValues_2[i], smthAmnt);
+    }
+    return _smoothedValues_2;
+}
+//-------------------------------------------
+vector<float>& ofxAATwoVectorsOutputAlgorithm::smoothedValues2Normalized(float smthAmnt){
+    auto normValues = values2Normalized();
+    for(int i=0; i<_smoothedValuesNormalized_2.size(); i++){
+        _smoothedValuesNormalized_2[i] = smooth(normValues[i], _smoothedValuesNormalized_2[i], smthAmnt);
+    }
+    return _smoothedValuesNormalized_2;
 }
