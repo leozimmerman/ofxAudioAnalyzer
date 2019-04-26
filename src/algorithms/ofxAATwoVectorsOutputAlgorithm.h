@@ -34,12 +34,14 @@ public:
     ofxAATwoVectorsOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize_1, int outputSize_2);
     
     void assignSecondOutpuValuesSize(int size, int val);
+    void checkInternalValuesSizes() override;
     
     vector<float>& getValues2(float smooth, bool normalized);
     
     vector<Real> outputValues_2;
     
 protected:
+    vector<float> _linearValues_2;
     vector<float> _normalizedValues_2;
     vector<float> _smoothedValues_2;
     vector<float> _smoothedValuesNormalized_2;

@@ -46,13 +46,10 @@ public:
     int getSampleRate() {return samplerate;}
     int getBufferSize() {return framesize;}
     
-    
     float getValue(ofxAAValue value, float smooth, bool normalized);
     float getValue(ofxAAValue value){ return getValue(value, 0.0, false); }
     vector<float>& getValues(ofxAABinsValue value, float smooth , bool normalized);
     vector<float>& getValues(ofxAABinsValue value){ return getValues(value, 0.0, false); }
-    
-    int getBinsNum(ofxAABinsValue value);
     
     void setActive(ofxAAValue valueType, bool state);
     void setActive(ofxAABinsValue valueType, bool state);
@@ -70,6 +67,8 @@ public:
     void setMaxEstimatedValue(ofxAABinsValue valueType, float value);
     
     ofxAAOnsetsAlgorithm* getOnsetsPtr(){ return network->getOnsetsPtr();}
+    ofxAABaseAlgorithm* getAlgorithmWithType(ofxAAValue valueType){ return network->getAlgorithmWithType(valueType); };
+    ofxAAOneVectorOutputAlgorithm* getAlgorithmWithType(ofxAABinsValue valueType) { return network->getAlgorithmWithType(valueType); };
     
 private:
     ofxaa::Network* network; 

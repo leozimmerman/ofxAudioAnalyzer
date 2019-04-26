@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include "InheritEnum.h"
-
 enum ofxAAValue {
     //TEMPORAL
     RMS,
@@ -39,7 +37,6 @@ enum ofxAAValue {
     //SFX
     DYNAMIC_COMPLEXITY,
     DECREASE,
-    ///<---
     DISTRIBUTION_SHAPE_KURTOSIS,
     DISTRIBUTION_SHAPE_SPREAD,
     DISTRIBUTION_SHAPE_SKEWNESS,
@@ -91,6 +88,7 @@ enum ofxAAValue {
     
     INHARMONICITY,
     ODD_TO_EVEN,
+    STRONG_PEAK,
     
     HPCP_CREST,
     HPCP_ENTROPY,
@@ -103,7 +101,7 @@ enum ofxAAValue {
 };
 
 enum ofxAABinsValue {
-    SPECTRUM = 100,
+    SPECTRUM,
     MFCC_MEL_BANDS,
     GFCC_ERB_BANDS,
     BARK_BANDS,
@@ -114,7 +112,8 @@ enum ofxAABinsValue {
     PITCH_MELODIA_FREQUENCIES,
     PITCH_MELODIA_CONFIDENCES,
     PREDOMINANT_PITCH_MELODIA_FREQUENCIES,
-    PREDOMINANT_PITCH_MELODIA_CONFIDENCES
+    PREDOMINANT_PITCH_MELODIA_CONFIDENCES,
+    NONE_BINS
 };
 
 enum ofxAAOtherValue {

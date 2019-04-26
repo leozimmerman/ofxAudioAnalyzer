@@ -39,22 +39,37 @@ void ofxAASingleOutputAlgorithm::compute(){
 //-------------------------------------------
 float ofxAASingleOutputAlgorithm::getValue(float smooth, bool normalized){
     if (normalized){
-        float normValue = valueNormalized();
+        float normValue = normalizedValue();
         smoothValue(normValue, _smoothedNormValue, smooth);
         return _smoothedNormValue;
     } else {
-        smoothValue(outputValue, _smoothedValue, smooth);
+        float linValue = linearValue();
+        smoothValue(linValue, _smoothedValue, smooth);
         return _smoothedValue;
     }
 }
 //-------------------------------------------
-float ofxAASingleOutputAlgorithm::valueNormalized(){
-    if (isNormalizedByDefault) {
+float ofxAASingleOutputAlgorithm::linearValue(){
+    if (hasLogarithmicValues){
+        /*
+        lin2db-> 0.001 = -30
+        lin2db-> 1.5 = 17.6
+        lin2db-> 1 = 0
+        lin2db-> -0.001 = No existe
+        */
+        float dbMax = lin2db(maxEstimatedValue);
+        return ofMap(lin2db(outputValue), DB_MIN, dbMax, 0.0, 1.0, TRUE);
+    } else {
         return outputValue;
-    } else if (hasLogaritmicValues){
-        return ofMap(lin2db(outputValue), dbSilenceCutoff, DB_MAX, 0.0, 1.0, TRUE);
+    }
+}
+//-------------------------------------------
+float ofxAASingleOutputAlgorithm::normalizedValue(){
+    if (isNormalizedByDefault || hasLogarithmicValues) {
+        return linearValue();
     } else if (hasDbValues){
-        return ofMap(outputValue, dbSilenceCutoff, DB_MAX, 0.0, 1.0, TRUE);
+        float dbMax = 0.0;
+        return ofMap(outputValue, dbSilenceCutoff, dbMax, 0.0, 1.0, TRUE);
     } else {
         return ofMap(outputValue, minEstimatedValue, maxEstimatedValue, 0.0, 1.0, TRUE);
     }

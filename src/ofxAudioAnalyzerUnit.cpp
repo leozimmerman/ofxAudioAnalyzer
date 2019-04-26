@@ -75,9 +75,6 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAABinsValue value, float smoot
     return network->getValues(value, smooth, normalized);
 }
 //----------------------------------------------
-int ofxAudioAnalyzerUnit::getBinsNum(ofxAABinsValue value){
-    return network->getValues(value).size();
-}
 #pragma mark - Activates
 //----------------------------------------------
 void ofxAudioAnalyzerUnit::setActive(ofxAAValue valueType, bool state){
@@ -97,26 +94,26 @@ bool ofxAudioAnalyzerUnit::getIsActive(ofxAABinsValue valueType){
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAValue valueType){
-    return network->getAlgorithmWithType(valueType)->maxEstimatedValue;
+    return network->getMaxEstimatedValue(valueType);
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAABinsValue valueType){
-    return network->getAlgorithmWithType(valueType)->maxEstimatedValue;
+    return network->getMaxEstimatedValue(valueType);
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getMinEstimatedValue(ofxAAValue valueType){
-    return network->getAlgorithmWithType(valueType)->minEstimatedValue;
+    return network->getMinEstimatedValue(valueType);
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getMinEstimatedValue(ofxAABinsValue valueType){
-    return network->getAlgorithmWithType(valueType)->minEstimatedValue;
+    return network->getMinEstimatedValue(valueType);
 }
 //----------------------------------------------
 void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAAValue valueType, float value){
-    network->getAlgorithmWithType(valueType)->maxEstimatedValue = value;;
+    network->setMaxEstimatedValue(valueType, value);
 }
 //----------------------------------------------
 void ofxAudioAnalyzerUnit::setMaxEstimatedValue(ofxAABinsValue valueType, float value){
-    network->getAlgorithmWithType(valueType)->maxEstimatedValue = value;;
+    network->setMaxEstimatedValue(valueType, value);
 }
 

@@ -50,18 +50,30 @@ public:
     vector<float>& getValues(float smooth, bool normalized);
     
     vector<Real> outputValues;
+    
+    void setMinEstimatedValues(vector<float> values);
+    void setMaxEstimatedValues(vector<float> values);
+    
+    vector<float>& getMinEstimatedValues(){ return _minEstimatedValues; }
+    vector<float>& getMaxEstimatedValues(){ return _maxEstimatedValues; };
     //vector<Real> logRealValues;
     
 protected:
+    virtual void checkInternalValuesSizes();
     
     void normalizeValues(vector<float>& valuesToNorm, vector<float>& normValues);
+    void linValues(vector<float>& valuesToLin, vector<float>& linearValues);
     void smoothValues(vector<float>& valuesToSmooth, vector<float>& smoothedValues, float smthAmnt);
     
 private:
-    void assignOutputValuesSize(int size, int val);
+    virtual void assignOutputValuesSize(int size, int val);
     
     vector<float> _normalizedValues;
+    vector<float> _linearValues;
     vector<float> _smoothedValues;
     vector<float> _smoothedValuesNormalized;
+    
+    vector<float> _minEstimatedValues;
+    vector<float> _maxEstimatedValues;
     
 };

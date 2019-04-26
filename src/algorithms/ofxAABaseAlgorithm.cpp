@@ -38,7 +38,7 @@ ofxAABaseAlgorithm::ofxAABaseAlgorithm(ofxaa::AlgorithmType algorithmType, int s
     
     isActive = TRUE;
     
-    hasLogaritmicValues = false;
+    hasLogarithmicValues = false;
     hasDbValues = false;
     isNormalizedByDefault = false;
     minEstimatedValue = 0.0;

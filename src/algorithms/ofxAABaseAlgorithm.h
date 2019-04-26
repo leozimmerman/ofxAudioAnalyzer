@@ -35,7 +35,7 @@
 using namespace essentia;
 using namespace standard;
 
-#define DB_MAX 0
+#define DB_MIN -60
 
 class ofxAABaseAlgorithm{
     
@@ -58,12 +58,12 @@ public:
     float minEstimatedValue;
     float maxEstimatedValue;
     
+    bool hasLogarithmicValues;
     bool hasDbValues;
-    bool hasLogaritmicValues;
     bool isNormalizedByDefault;
     
 protected:
     float smooth(float newValue, float previousValue, float amount);
     ofxaa::AlgorithmType _algorithmType;
-
+    
 };

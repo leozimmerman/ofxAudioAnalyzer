@@ -35,22 +35,30 @@ namespace ofxaa {
         
         void computeAlgorithms(vector<Real>& signal, vector<Real>& accumulatedSignal);
         
-        
         float getValue(ofxAAValue value, float smooth, bool normalized);
         float getValue(ofxAAValue value){ return getValue(value, 0.0, false); }
         
         vector<float>& getValues(ofxAABinsValue value, float smooth, bool normalized);
         vector<float>& getValues(ofxAABinsValue value){ return getValues(value, 0.0, false); }
 
+        float getMinEstimatedValue(ofxAAValue valueType);
+        float getMinEstimatedValue(ofxAABinsValue valueType);
+        
+        float getMaxEstimatedValue(ofxAAValue valueType);
+        float getMaxEstimatedValue(ofxAABinsValue valueType);
+        
+        void setMaxEstimatedValue(ofxAAValue valueType, float value);
+        void setMaxEstimatedValue(ofxAABinsValue valueType, float value);
+        
         ofxAAOnsetsAlgorithm* getOnsetsPtr(){ return onsets;}
         
         ofxAABaseAlgorithm* getAlgorithmWithType(ofxAAValue valueType);
-        ofxAABaseAlgorithm* getAlgorithmWithType(ofxAABinsValue valueType);
+        ofxAAOneVectorOutputAlgorithm* getAlgorithmWithType(ofxAABinsValue valueType);
         
     private:
         
         void createAlgorithms();
-        void setDefaultMaxEstimatedValues();
+        
         void connectAlgorithms();
         void deleteAlgorithms();
         
@@ -77,7 +85,7 @@ namespace ofxaa {
         
         ofxAAOneVectorOutputAlgorithm* centralMoments;
         ofxAASingleOutputAlgorithm* sfx_decrease;
-        ofxAAOneVectorOutputAlgorithm* distributionShape;
+        ofxAADistributionShapeAlgorithm* distributionShape;
         ofxAAOneVectorOutputAlgorithm* derivativeSFX;
         ofxAAOneVectorOutputAlgorithm* envelope;
         ofxAAOneVectorOutputAlgorithm* envelope_acummulated;
@@ -90,19 +98,19 @@ namespace ofxaa {
         ofxAANSGConstantQAlgorithm* nsgConstantQ;
         ofxAATwoVectorsOutputAlgorithm* mfcc;
         ofxAAOneVectorOutputAlgorithm* melBands_centralMoments;
-        ofxAAOneVectorOutputAlgorithm* melBands_distributionShape;
+        ofxAADistributionShapeAlgorithm* melBands_distributionShape;
         ofxAASingleOutputAlgorithm* melBands_flatnessDb;
         ofxAASingleOutputAlgorithm* melBands_crest;
         
         ofxAATwoVectorsOutputAlgorithm* gfcc;
         ofxAAOneVectorOutputAlgorithm* erbBands_centralMoments;
-        ofxAAOneVectorOutputAlgorithm* erbBands_distributionShape;
+        ofxAADistributionShapeAlgorithm* erbBands_distributionShape;
         ofxAASingleOutputAlgorithm* erbBands_flatnessDb;
         ofxAASingleOutputAlgorithm* erbBands_crest;
         
         ofxAAOneVectorOutputAlgorithm* barkBands;
         ofxAAOneVectorOutputAlgorithm* barkBands_centralMoments;
-        ofxAAOneVectorOutputAlgorithm* barkBands_distributionShape;
+        ofxAADistributionShapeAlgorithm* barkBands_distributionShape;
         ofxAASingleOutputAlgorithm* barkBands_flatnessDb;
         ofxAASingleOutputAlgorithm* barkBands_crest;
         
@@ -128,7 +136,7 @@ namespace ofxaa {
         ofxAASingleOutputAlgorithm* spectral_centroid;
         
         ofxAAOneVectorOutputAlgorithm* spectral_centralMoments;
-        ofxAAOneVectorOutputAlgorithm* spectral_distributionShape;
+        ofxAADistributionShapeAlgorithm* spectral_distributionShape;
         
         ofxAAOneVectorOutputAlgorithm* dynamicComplexity;
         

@@ -14,3 +14,4 @@ ofxAATwoTypesVectorOutputAlgorithm::ofxAATwoTypesVectorOutputAlgorithm(ofxaa::Al
 void ofxAATwoTypesVectorOutputAlgorithm::assignSecondOutpuValuesSize(int size, string val){
     stringValues.assign(size, "");
 }
+

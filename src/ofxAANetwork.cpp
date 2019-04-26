@@ -26,30 +26,32 @@
 #include "ofxAANetwork.h"
 #include "ofxAAConfigurations.h"
 
-//TODO: Remove this defines?
-#define DEFAULT_SILENCE_RATE_SIZE 3
-#define DEFAULT_SPECTRUM_CQ_BINS 24
-#define DEFAULT_MELBANDS_BANDS_NUM 24
-#define DEFAULT_MFCC_BANDS_NUM 40
-#define DEFAULT_MFCC_COEFF_NUM 13
-#define DEFAULT_GFCC_ERB_BANDS_NUM 40
-#define DEFAULT_GFCC_COEFF 13
-#define DEFAULT_BARKBANDS_NUM 27
-//#define DEFAULT_DCT_COEFF_NUM 10
-#define DEFAULT_PITCH_SALIENCE_FUNC_BIN_RES 10
-#define DEFAULT_TRISTIMULUS_BANDS_NUM 3
-#define DEFAULT_HPCP_SIZE 36
+#define LOUDNESS_MAX_VALUE 100.0
+#define DYN_COMP_MAX_VALUE 50.0
+#define STRONG_DECAY_MAX_VALUE 120.0
+#define FLATNESS_SFX_MAX_VALUE 60.0
 
-#define DEFAULT_MAX_VALUE_ENERGY 100.0
-#define DEFAULT_MAX_VALUE_HFC 2000.0
-#define DEFAULT_MAX_VALUE_SPECTRAL_COMPLEXITY 20.0
-#define DEFAULT_MAX_VALUE_ODD_TO_EVEN 10.0
-#define DEFAULT_MAX_VALUE_STRONG_PEAK 20.0
-#define DEFAULT_MAX_VALUE_STRONG_DECAY 100.0
-#define DEFAULT_MAX_VALUE_PITCH_FREQ 4186.0 //C8
+#define CREST_MAX_VALUE 50.0
+#define ENERGY_MAX_VALUE 1.50
+#define ENTROPY_MAX_VALUE 10.0
 
-//for scaling values:
-#define MFCC_MAX_ESTIMATED_VALUE 300.0 //???
+#define KURTOSIS_MIN_VALUE -100
+#define KURTOSIS_MAX_VALUE 1000
+
+#define SPREAD_MIN_VALUE 0.0
+#define SPREAD_MAX_VALUE 0.2
+
+#define SKEWNESS_MIN_VALUE -2.0
+#define SKEWNESS_MAX_VALUE 25.0
+
+#define SPECTRAL_COMPLEXITY_MAX_VALUE 75.0
+
+#define HFC_MAX_VALUE 8000.0
+#define ODD_TO_EVEN_MAX_VALUE 10.0
+#define STRONG_PEAK_MAX_VALUE 150
+#define PITCH_YIN_FREQ_MAX_VALUE 4186.0 //C8
+
+#define GFCC_MAX_VALUE 36000
 
 namespace ofxaa {
     
@@ -61,9 +63,9 @@ namespace ofxaa {
         _accumulatedAudioSignal.resize(bufferSize * 87, 0.0); //TODO: Remove duplicated calculation
         
         createAlgorithms();
-        setDefaultMaxEstimatedValues();
         connectAlgorithms();
     }
+    
     Network::~Network(){
         deleteAlgorithms();
     }
@@ -80,6 +82,9 @@ namespace ofxaa {
         int sr = _samplerate;
         int fs = _framesize;
         
+        vector<float> distributionShapeMinValues { KURTOSIS_MIN_VALUE, SPREAD_MIN_VALUE, SKEWNESS_MIN_VALUE };
+        vector<float> distributionShapeMaxValues { KURTOSIS_MAX_VALUE, SPREAD_MAX_VALUE, SKEWNESS_MAX_VALUE };
+        
         dcRemoval = new ofxAAOneVectorOutputAlgorithm(DCRemoval, sr, fs);
         algorithms.push_back(dcRemoval);
         
@@ -87,15 +92,16 @@ namespace ofxaa {
         algorithms.push_back(windowing);
         
         spectrum = new ofxAAOneVectorOutputAlgorithm(Spectrum, sr, fs, (fs/2)+1);
+        spectrum->hasLogarithmicValues = true;
         algorithms.push_back(spectrum);
         
         //MARK: TEMPORAL
         rms = new ofxAASingleOutputAlgorithm(Rms, sr, fs);
-        rms->hasLogaritmicValues = true;
+        rms->hasLogarithmicValues = true;
         algorithms.push_back(rms);
         
         power = new ofxAASingleOutputAlgorithm(InstantPower, sr, fs);
-        power->hasLogaritmicValues = true;
+        power->hasLogarithmicValues = true;
         algorithms.push_back(power);
         
         zeroCrossingRate = new ofxAASingleOutputAlgorithm(ZeroCrossingRate, sr, fs);
@@ -103,19 +109,19 @@ namespace ofxaa {
         algorithms.push_back(zeroCrossingRate);
         
         loudness = new ofxAASingleOutputAlgorithm(Loudness, sr, fs);
-        loudness->maxEstimatedValue = 15.0;///??
+        loudness->maxEstimatedValue = LOUDNESS_MAX_VALUE;
         algorithms.push_back(loudness);
         
         loudnessVickers = new ofxAASingleOutputAlgorithm(LoudnessVickers, sr, fs);
         loudnessVickers->hasDbValues = true;
         algorithms.push_back(loudnessVickers);
         
-        silenceRate = new ofxAAOneVectorOutputAlgorithm(SilenceRate, sr, fs, DEFAULT_SILENCE_RATE_SIZE);
+        silenceRate = new ofxAAOneVectorOutputAlgorithm(SilenceRate, sr, fs, 3);
         silenceRate->isNormalizedByDefault = true;
         algorithms.push_back(silenceRate);
         
         dynamicComplexity = new ofxAAOneVectorOutputAlgorithm(DynamicComplexity, sr, fs, 2);
-        dynamicComplexity->maxEstimatedValue = 15.0;///??
+        dynamicComplexity->maxEstimatedValue = DYN_COMP_MAX_VALUE;
         algorithms.push_back(dynamicComplexity);
         
         //MARK: SFX
@@ -126,28 +132,34 @@ namespace ofxaa {
         algorithms.push_back(envelope_acummulated);
         
         sfx_decrease = new ofxAASingleOutputAlgorithm(Decrease, sr, fs);
-        sfx_decrease->hasLogaritmicValues = true;
+        sfx_decrease->hasLogarithmicValues = true;
         algorithms.push_back(sfx_decrease);
         
         centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, sr, fs);
         algorithms.push_back(centralMoments);
         
-        distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, sr, fs, 3);
+        distributionShape = new ofxAADistributionShapeAlgorithm(sr, fs);
+        distributionShape->setMinEstimatedValues(distributionShapeMinValues);
+        distributionShape->setMaxEstimatedValues(distributionShapeMaxValues);
         algorithms.push_back(distributionShape);
         
         logAttackTime = new ofxAAOneVectorOutputAlgorithm(LogAttackTime, sr, fs, 3);
         algorithms.push_back(logAttackTime);
         
         strongDecay = new ofxAASingleOutputAlgorithm(StrongDecay, sr, fs);
+        strongDecay->maxEstimatedValue = STRONG_DECAY_MAX_VALUE;
         algorithms.push_back(strongDecay);
         
         flatnessSFX = new ofxAASingleOutputAlgorithm(FlatnessSFX, sr, fs);
+        flatnessSFX->maxEstimatedValue = FLATNESS_SFX_MAX_VALUE;
         algorithms.push_back(flatnessSFX);
         
         maxToTotal = new ofxAASingleOutputAlgorithm(MaxToTotal, sr, fs);
+        maxToTotal->isNormalizedByDefault = true;
         algorithms.push_back(maxToTotal);
         
         tcToTotal = new ofxAASingleOutputAlgorithm(TCToTotal, sr, fs);
+        tcToTotal->isNormalizedByDefault = true;
         algorithms.push_back(tcToTotal);
         
         derivativeSFX = new ofxAAOneVectorOutputAlgorithm(DerivativeSFX, sr, fs, 2);
@@ -155,6 +167,7 @@ namespace ofxaa {
         
         //MARK: PITCH
         pitchYinFFT = new ofxAAOneVectorOutputAlgorithm(PitchYinFFT, sr, fs, 2);
+        pitchYinFFT->setMaxEstimatedValues({PITCH_YIN_FREQ_MAX_VALUE, 1.0});
         algorithms.push_back(pitchYinFFT);
         
         pitchMelodia = new ofxAATwoVectorsOutputAlgorithm(PitchMelodia, sr, fs);
@@ -181,54 +194,70 @@ namespace ofxaa {
         algorithms.push_back(nsgConstantQ);
       
         //MARK: -MelBands
-        mfcc = new ofxAATwoVectorsOutputAlgorithm(Mfcc, sr, fs, DEFAULT_MFCC_BANDS_NUM, DEFAULT_MFCC_COEFF_NUM);
+        mfcc = new ofxAATwoVectorsOutputAlgorithm(Mfcc, sr, fs, 40, 13);
+        mfcc->hasLogarithmicValues = true;
         algorithms.push_back(mfcc);
         
         melBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, sr, fs);
-        ofxaa::configureCentralMoments(melBands_centralMoments->algorithm, "pdf", DEFAULT_MFCC_BANDS_NUM-1);
+        ofxaa::configureCentralMoments(melBands_centralMoments->algorithm, "pdf", 40-1);
         algorithms.push_back(melBands_centralMoments);
         
-        melBands_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, sr, fs, 3);
+        melBands_distributionShape = new ofxAADistributionShapeAlgorithm(sr, fs);
+        melBands_distributionShape->setMinEstimatedValues(distributionShapeMinValues);
+        melBands_distributionShape->setMaxEstimatedValues(distributionShapeMaxValues);
         algorithms.push_back(melBands_distributionShape);
         
         melBands_flatnessDb = new ofxAASingleOutputAlgorithm(FlatnessDB, sr, fs);
+        melBands_flatnessDb->isNormalizedByDefault = true;
         algorithms.push_back(melBands_flatnessDb);
         
         melBands_crest = new ofxAASingleOutputAlgorithm(Crest, sr, fs);
+        melBands_crest->maxEstimatedValue = CREST_MAX_VALUE;
         algorithms.push_back(melBands_crest);
         
         //MARK: -ERB Bands
-        gfcc = new ofxAATwoVectorsOutputAlgorithm(Gfcc, sr, fs, DEFAULT_GFCC_ERB_BANDS_NUM, DEFAULT_GFCC_COEFF);
+        gfcc = new ofxAATwoVectorsOutputAlgorithm(Gfcc, sr, fs, 40, 13);
+        gfcc->maxEstimatedValue = GFCC_MAX_VALUE ;
+        gfcc->hasLogarithmicValues = true;
         algorithms.push_back(gfcc);
         
         erbBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, sr, fs);
-        ofxaa::configureCentralMoments(erbBands_centralMoments->algorithm, "pdf", DEFAULT_GFCC_ERB_BANDS_NUM-1);
+        ofxaa::configureCentralMoments(erbBands_centralMoments->algorithm, "pdf", 40-1);
         algorithms.push_back(erbBands_centralMoments);
         
-        erbBands_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, sr, fs, 3);
+        erbBands_distributionShape = new ofxAADistributionShapeAlgorithm(sr, fs);
+        erbBands_distributionShape->setMinEstimatedValues(distributionShapeMinValues);
+        erbBands_distributionShape->setMaxEstimatedValues(distributionShapeMaxValues);
         algorithms.push_back(erbBands_distributionShape);
         
         erbBands_flatnessDb = new ofxAASingleOutputAlgorithm(FlatnessDB, sr, fs);
+        erbBands_flatnessDb->isNormalizedByDefault = true;
         algorithms.push_back(erbBands_flatnessDb);
         
         erbBands_crest = new ofxAASingleOutputAlgorithm(Crest, sr, fs);
+        erbBands_crest->maxEstimatedValue = CREST_MAX_VALUE;
         algorithms.push_back(erbBands_crest);
         
         //MARK: -BarkBands
-        barkBands = new ofxAAOneVectorOutputAlgorithm(BarkBands, sr, fs, DEFAULT_BARKBANDS_NUM);
+        barkBands = new ofxAAOneVectorOutputAlgorithm(BarkBands, sr, fs, 27);
+        barkBands->hasLogarithmicValues = true;
         algorithms.push_back(barkBands);
         
         barkBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, sr, fs);
-        ofxaa::configureCentralMoments(barkBands_centralMoments->algorithm, "pdf", DEFAULT_BARKBANDS_NUM-1);
+        ofxaa::configureCentralMoments(barkBands_centralMoments->algorithm, "pdf", 27-1);
         algorithms.push_back(barkBands_centralMoments);
         
-        barkBands_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, sr, fs, 3);
+        barkBands_distributionShape = new ofxAADistributionShapeAlgorithm(sr, fs);
+        barkBands_distributionShape->setMinEstimatedValues(distributionShapeMinValues);
+        barkBands_distributionShape->setMaxEstimatedValues(distributionShapeMaxValues);
         algorithms.push_back(barkBands_distributionShape);
         
         barkBands_flatnessDb = new ofxAASingleOutputAlgorithm(FlatnessDB, sr, fs);
+        barkBands_flatnessDb->isNormalizedByDefault = true;
         algorithms.push_back(barkBands_flatnessDb);
         
         barkBands_crest = new ofxAASingleOutputAlgorithm(Crest, sr, fs);
+        barkBands_crest->maxEstimatedValue = CREST_MAX_VALUE;
         algorithms.push_back(barkBands_crest);
         
         unaryOperator_square = new ofxAAOneVectorOutputAlgorithm(UnaryOperator, sr, fs);
@@ -237,76 +266,100 @@ namespace ofxaa {
         //MARK: -ERB
         ebr_low = new ofxAASingleOutputAlgorithm(EnergyBand, sr, fs);
         ofxaa::configureEnergyBand(ebr_low->algorithm, 20.0, 150.0);
+        ebr_low->maxEstimatedValue = ENERGY_MAX_VALUE;
+        ebr_low->hasLogarithmicValues = true;
         algorithms.push_back(ebr_low);
         
         ebr_mid_low = new ofxAASingleOutputAlgorithm(EnergyBand, sr, fs);
         ofxaa::configureEnergyBand(ebr_mid_low->algorithm, 150.0, 800.0);
+        ebr_mid_low->maxEstimatedValue = ENERGY_MAX_VALUE;
+        ebr_mid_low->hasLogarithmicValues = true;
         algorithms.push_back(ebr_mid_low);
         
         ebr_mid_hi = new ofxAASingleOutputAlgorithm(EnergyBand, sr, fs);
         ofxaa::configureEnergyBand(ebr_mid_hi->algorithm, 800.0, 4000.0);
+        ebr_mid_hi->maxEstimatedValue = ENERGY_MAX_VALUE;
+        ebr_mid_hi->hasLogarithmicValues = true;
         algorithms.push_back(ebr_mid_hi);
         
         ebr_hi = new ofxAASingleOutputAlgorithm(EnergyBand, sr, fs);
         ofxaa::configureEnergyBand(ebr_hi->algorithm, 4.000, 20.000);
+        ebr_hi->maxEstimatedValue = ENERGY_MAX_VALUE;
+        ebr_hi->hasLogarithmicValues = true;
         algorithms.push_back(ebr_hi);
         
         //MARK: -Spectral Descriptors
         spectral_decrease = new ofxAASingleOutputAlgorithm(Decrease, sr, fs);
         ofxaa::configureDecrease(spectral_decrease->algorithm, sr/2);
+        spectral_decrease->hasLogarithmicValues = true;
         algorithms.push_back(spectral_decrease);
         
         spectral_centroid = new ofxAASingleOutputAlgorithm(Centroid, sr, fs);
         ofxaa::configureCentroid(spectral_centroid->algorithm, sr/2);
+        spectral_centroid->maxEstimatedValue = sr/4;
         algorithms.push_back(spectral_centroid);
         
         rollOff = new ofxAASingleOutputAlgorithm(RollOff, sr, fs);
+        rollOff->maxEstimatedValue = sr/2;
         algorithms.push_back(rollOff);
         
         spectral_entropy = new ofxAASingleOutputAlgorithm(Entropy, sr, fs);
+        spectral_entropy->maxEstimatedValue = ENTROPY_MAX_VALUE;
         algorithms.push_back(spectral_entropy);
         
         spectral_energy = new ofxAASingleOutputAlgorithm(Energy, sr, fs);
+        spectral_energy->maxEstimatedValue = ENERGY_MAX_VALUE;
         algorithms.push_back(spectral_energy);
         
         hfc = new ofxAASingleOutputAlgorithm(Hfc, sr, fs);
+        hfc->maxEstimatedValue = HFC_MAX_VALUE;
         algorithms.push_back(hfc);
         
         spectral_flux = new ofxAASingleOutputAlgorithm(Flux, sr, fs);
+        spectral_flux->isNormalizedByDefault = true;
         algorithms.push_back(spectral_flux);
         
         strongPeak = new ofxAASingleOutputAlgorithm(StrongPeak, sr, fs);
+        strongPeak->maxEstimatedValue = STRONG_PEAK_MAX_VALUE;
         algorithms.push_back(strongPeak);
         
         spectralComplexity = new ofxAASingleOutputAlgorithm(SpectralComplexity, sr, fs);
+        spectralComplexity->maxEstimatedValue = SPECTRAL_COMPLEXITY_MAX_VALUE;
         algorithms.push_back(spectralComplexity);
         
         pitchSalience = new ofxAASingleOutputAlgorithm(PitchSalience, sr, fs);
+        pitchSalience->isNormalizedByDefault = true;
         algorithms.push_back(pitchSalience);
         
         spectral_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, sr, fs);
         ofxaa::configureCentralMoments(spectral_centralMoments->algorithm, "pdf", sr/2);
         algorithms.push_back(spectral_centralMoments);
         
-        spectral_distributionShape = new ofxAAOneVectorOutputAlgorithm(DistributionShape, sr, fs, 3);
+        spectral_distributionShape = new ofxAADistributionShapeAlgorithm(sr, fs);
+        spectral_distributionShape->setMinEstimatedValues(distributionShapeMinValues);
+        spectral_distributionShape->setMaxEstimatedValues(distributionShapeMaxValues);
         algorithms.push_back(spectral_distributionShape);
         
         spectralPeaks = new ofxAATwoVectorsOutputAlgorithm(SpectralPeaks, sr, fs);
         algorithms.push_back(spectralPeaks);
         
         dissonance = new ofxAASingleOutputAlgorithm(Dissonance, sr, fs);
+        dissonance->isNormalizedByDefault = true;
         algorithms.push_back(dissonance);
         
         harmonicPeaks = new ofxAATwoVectorsOutputAlgorithm(HarmonicPeaks, sr, fs);
         algorithms.push_back(harmonicPeaks);
         
         inharmonicity = new ofxAASingleOutputAlgorithm(Inharmonicity, sr, fs);
+        inharmonicity->isNormalizedByDefault = true;
         algorithms.push_back(inharmonicity);
         
         oddToEven = new ofxAASingleOutputAlgorithm(OddToEven, sr, fs);
+        oddToEven->maxEstimatedValue = ODD_TO_EVEN_MAX_VALUE;
         algorithms.push_back(oddToEven);
         
-        tristimulus = new ofxAAOneVectorOutputAlgorithm(Tristimulus, sr, fs, DEFAULT_TRISTIMULUS_BANDS_NUM);
+        tristimulus = new ofxAAOneVectorOutputAlgorithm(Tristimulus, sr, fs, 3);
+        tristimulus->isNormalizedByDefault = true;
         algorithms.push_back(tristimulus);
         
    
@@ -316,14 +369,17 @@ namespace ofxaa {
         ofxaa::configureSpectralPeaks(spectralPeaks_hpcp->algorithm, 0.00001, 5000.0, 10000, 40.0, "magnitude");
         algorithms.push_back(spectralPeaks_hpcp);
         
-        hpcp = new ofxAAOneVectorOutputAlgorithm(Hpcp, sr, fs, DEFAULT_HPCP_SIZE);
+        hpcp = new ofxAAOneVectorOutputAlgorithm(Hpcp, sr, fs, 36);
         ofxaa::configureHPCP(hpcp->algorithm, true, 500.0, 8, 5000.0, false, 40.0, true, "unitMax", 440, 36, "cosine", 0.5);
+        hpcp->isNormalizedByDefault = true;
         algorithms.push_back(hpcp);
         
         hpcp_entropy = new ofxAASingleOutputAlgorithm(Entropy, sr, fs);
+        hpcp_entropy->maxEstimatedValue = ENTROPY_MAX_VALUE;
         algorithms.push_back(hpcp_entropy);
         
         hpcp_crest = new ofxAASingleOutputAlgorithm(Crest, sr, fs);
+        hpcp_crest->maxEstimatedValue = CREST_MAX_VALUE;
         algorithms.push_back(hpcp_crest);
         
         chordsDetection = new ofxAATwoTypesVectorOutputAlgorithm(ChordsDetection, sr, fs);
@@ -331,22 +387,6 @@ namespace ofxaa {
         
         onsets = new ofxAAOnsetsAlgorithm(windowing, sr, fs);
         algorithms.push_back(onsets);
-        
-    }
-    
-    void Network::setDefaultMaxEstimatedValues(){
-        return; ///******************************
-        //default values set from testing with white noise.
-        ///spectral_energy->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ENERGY);
-        /*
-        hfc->setMaxEstimatedValue(DEFAULT_MAX_VALUE_HFC);
-        spectralComplexity->setMaxEstimatedValue(DEFAULT_MAX_VALUE_SPECTRAL_COMPLEXITY);
-        rollOff->setMaxEstimatedValue(_samplerate/2);
-        oddToEven->setMaxEstimatedValue(DEFAULT_MAX_VALUE_ODD_TO_EVEN);
-        strongPeak->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_PEAK);
-        strongDecay->setMaxEstimatedValue(DEFAULT_MAX_VALUE_STRONG_DECAY);
-        pitchYinFFT->setMaxEstimatedValue(DEFAULT_MAX_VALUE_PITCH_FREQ);//C8
-         */
     }
     
     //MARK: - CONNECT ALGORITHMS
@@ -638,44 +678,22 @@ namespace ofxaa {
     //MARK: - GET VALUES
     float Network::getValue(ofxAAValue value, float smooth, bool normalized){
         switch (value) {
-            //MARK: TEMPORAL
-            case RMS:
-                return rms->getValue(smooth, normalized);
-            case POWER:
-                return power->getValue(smooth, normalized);
-            case ZERO_CROSSING_RATE:
-                return zeroCrossingRate->getValue(smooth, normalized);
-            case LOUDNESS:
-                return loudness->getValue(smooth, normalized);
-            case LOUDNESS_VICKERS:
-                return loudnessVickers->getValue(smooth, normalized);
+            
             case SILENCE_RATE_20dB:
                 return silenceRate->getValueAtIndex(0, smooth, normalized);
             case SILENCE_RATE_30dB:
                 return silenceRate->getValueAtIndex(1, smooth, normalized);
             case SILENCE_RATE_60dB:
                 return silenceRate->getValueAtIndex(2, smooth, normalized);
-           //MARK: SFX
-            case DECREASE:
-                return sfx_decrease->getValue(smooth, normalized);
+           
             case DYNAMIC_COMPLEXITY:
                 return dynamicComplexity->getValueAtIndex(0, smooth, normalized);
-            case DISTRIBUTION_SHAPE_KURTOSIS:
-                return distributionShape->getValueAtIndex(0, smooth, normalized);
-            case DISTRIBUTION_SHAPE_SPREAD:
-                return distributionShape->getValueAtIndex(1, smooth, normalized);
-            case DISTRIBUTION_SHAPE_SKEWNESS:
-                return distributionShape->getValueAtIndex(2, smooth, normalized);
+                
+          
+          
             case LOG_ATTACK_TIME:
                 return logAttackTime->getValueAtIndex(0, smooth, normalized);
-            case STRONG_DECAY:
-                return strongDecay->getValue(smooth, normalized);
-            case FLATNESS_SFX:
-                return flatnessSFX->getValue(smooth, normalized);
-            case MAX_TO_TOTAL:
-                return maxToTotal->getValue(smooth, normalized);
-            case TC_TO_TOTAL:
-                return tcToTotal->getValue(smooth, normalized);
+
             case DERIVATIVE_SFX_AFTER_MAX:
                 return derivativeSFX->getValueAtIndex(0, smooth, normalized);
             case DERIVATIVE_SFX_BEFORE_MAX:
@@ -685,106 +703,58 @@ namespace ofxaa {
                 return pitchYinFFT->getValueAtIndex(0, smooth, normalized);
             case PITCH_YIN_CONFIDENCE:
                 return pitchYinFFT->getValueAtIndex(1, smooth, normalized);
-            //MARK: SPECTRAL
+           
+            case DISTRIBUTION_SHAPE_KURTOSIS:
+                return distributionShape->getKurtosisValue(smooth, normalized);
+            case DISTRIBUTION_SHAPE_SPREAD:
+                return distributionShape->getSpreadValue(smooth, normalized);
+            case DISTRIBUTION_SHAPE_SKEWNESS:
+                return distributionShape->getSkewnessValue(smooth, normalized);
+                
             case MEL_BANDS_KURTOSIS:
-                return melBands_distributionShape->getValueAtIndex(0, smooth, normalized);
+                return melBands_distributionShape->getKurtosisValue(smooth, normalized);
             case MEL_BANDS_SPREAD:
-                return melBands_distributionShape->getValueAtIndex(1, smooth, normalized);
+                return melBands_distributionShape->getSpreadValue(smooth, normalized);
             case MEL_BANDS_SKEWNESS:
-                return melBands_distributionShape->getValueAtIndex(2, smooth, normalized);
-            case MEL_BANDS_FLATNESS_DB:
-                return melBands_flatnessDb->getValue(smooth, normalized);
-            case MEL_BANDS_CREST:
-                return melBands_crest->getValue(smooth, normalized);
+                return melBands_distributionShape->getSkewnessValue(smooth, normalized);
                 
             case ERB_BANDS_KURTOSIS:
-                return erbBands_distributionShape->getValueAtIndex(0, smooth, normalized);
+                return erbBands_distributionShape->getKurtosisValue(smooth, normalized);
             case ERB_BANDS_SPREAD:
-                return erbBands_distributionShape->getValueAtIndex(1, smooth, normalized);
+                return erbBands_distributionShape->getSpreadValue(smooth, normalized);
             case ERB_BANDS_SKEWNESS:
-                return erbBands_distributionShape->getValueAtIndex(2, smooth, normalized);
-            case ERB_BANDS_FLATNESS_DB:
-                return erbBands_flatnessDb->getValue(smooth, normalized);
-            case ERB_BANDS_CREST:
-                return erbBands_crest->getValue(smooth, normalized);
-                
+                 return erbBands_distributionShape->getSkewnessValue(smooth, normalized);
+           
             case BARK_BANDS_KURTOSIS:
-                return barkBands_distributionShape->getValueAtIndex(0, smooth, normalized);
+                return barkBands_distributionShape->getKurtosisValue(smooth, normalized);
             case BARK_BANDS_SPREAD:
-                return barkBands_distributionShape->getValueAtIndex(1, smooth, normalized);
+                return barkBands_distributionShape->getSpreadValue(smooth, normalized);
             case BARK_BANDS_SKEWNESS:
-                return barkBands_distributionShape->getValueAtIndex(2, smooth, normalized);
-            case BARK_BANDS_FLATNESS_DB:
-                return barkBands_flatnessDb->getValue(smooth, normalized);
-            case BARK_BANDS_CREST:
-                return barkBands_crest->getValue(smooth, normalized);
-                
-            case ENERGY_BAND_LOW:
-                return ebr_low->getValue(smooth, normalized);
-            case ENERGY_BAND_MID_LOW:
-                return ebr_mid_low->getValue(smooth, normalized);
-            case ENERGY_BAND_MID_HI:
-                return ebr_mid_hi->getValue(smooth, normalized);
-            case ENERGY_BAND_HI:
-                return ebr_hi->getValue(smooth, normalized);
-                
+                return barkBands_distributionShape->getSkewnessValue(smooth, normalized);
+           
             case SPECTRAL_KURTOSIS:
-                return spectral_distributionShape->getValueAtIndex(0, smooth, normalized);
+                return spectral_distributionShape->getKurtosisValue(smooth, normalized);
             case SPECTRAL_SPREAD:
-                return spectral_distributionShape->getValueAtIndex(1, smooth, normalized);
+                return spectral_distributionShape->getSpreadValue(smooth, normalized);
             case SPECTRAL_SKEWNESS:
-                return spectral_distributionShape->getValueAtIndex(2, smooth, normalized);
-            case SPECTRAL_DECREASE:
-                return spectral_decrease->getValue(smooth, normalized);
-            case SPECTRAL_ROLLOFF:
-                return rollOff->getValue(smooth, normalized);
-            case SPECTRAL_ENERGY:
-                return spectral_energy->getValue(smooth, normalized);
-            case SPECTRAL_ENTROPY:
-                return spectral_entropy->getValue(smooth, normalized);
-            case SPECTRAL_CENTROID:
-                return spectral_centroid->getValue(smooth, normalized);
-            case SPECTRAL_COMPLEXITY:
-                return spectralComplexity->getValue(smooth, normalized);
-            case SPECTRAL_FLUX:
-                return spectral_flux->getValue(smooth, normalized);
-            case DISSONANCE:
-                return dissonance->getValue(smooth, normalized);
-            case HFC:
-                return hfc->getValue(smooth, normalized);
-            case PITCH_SALIENCE:
-                return pitchSalience->getValue(smooth, normalized);
-                
-            case INHARMONICITY:
-                return inharmonicity->getValue(smooth, normalized);
-            case ODD_TO_EVEN:
-                return oddToEven->getValue(smooth, normalized);
-                
-            case HPCP_CREST:
-                return hpcp_crest->getValue(smooth, normalized);
-            case HPCP_ENTROPY:
-                return hpcp_entropy->getValue(smooth, normalized);
+                return spectral_distributionShape->getSkewnessValue(smooth, normalized);
                 
             case ONSETS:
                 return onsets->getValue();
+                
+            case NONE:
+                ofLogError()<< "ofxAANetwork: getValue() for NONE value type";
+                return 0.0;
+                
+            default:
+                auto singleAlgorithm = dynamic_cast<ofxAASingleOutputAlgorithm*>(getAlgorithmWithType(value));
+                return singleAlgorithm->getValue(smooth, normalized);
         }
     }
     
     vector<float>& Network::getValues(ofxAABinsValue value, float smooth, bool normalized){
+        static vector<float> r(1, 0.0);
         switch (value){
-            case SPECTRUM:
-                return spectrum->getValues(smooth, normalized);
-            case MFCC_MEL_BANDS:
-                return mfcc->getValues(smooth, normalized);
-            case GFCC_ERB_BANDS:
-                return gfcc->getValues(smooth, normalized);
-            case BARK_BANDS:
-                return barkBands->getValues(smooth, normalized);
-            case TRISTIMULUS:
-                return tristimulus->getValues(smooth, normalized);
-            case HPCP:
-                return hpcp->getValues(smooth, normalized);
-                
             case PITCH_MELODIA_FREQUENCIES:
                 return pitchMelodia->getValues(smooth, normalized);
             case PITCH_MELODIA_CONFIDENCES:
@@ -793,6 +763,13 @@ namespace ofxaa {
                 return predominantPitchMelodia->getValues(smooth, normalized);
             case PREDOMINANT_PITCH_MELODIA_CONFIDENCES:
                 return predominantPitchMelodia->getValues2(smooth, normalized);
+                
+            case NONE_BINS:
+                ofLogError()<< "ofxAANetwork: getValues() for NONE_BINS type";
+                return r;
+                
+            default:
+                return getAlgorithmWithType(value)->getValues(smooth, normalized);
         }
     }
     //MARK: - 
@@ -919,6 +896,8 @@ namespace ofxaa {
                 return inharmonicity;
             case ODD_TO_EVEN:
                 return oddToEven;
+            case STRONG_PEAK:
+                return strongPeak;
                 
             case HPCP_CREST:
                 return hpcp_crest;
@@ -927,10 +906,14 @@ namespace ofxaa {
                 
             case ONSETS:
                 return onsets;
+                
+            case NONE:
+                ofLogError()<< "ofxAANetwork: getValue() for NONE value type";
+                return NULL;
         }
     }
     
-    ofxAABaseAlgorithm* Network::getAlgorithmWithType(ofxAABinsValue valueType){
+    ofxAAOneVectorOutputAlgorithm* Network::getAlgorithmWithType(ofxAABinsValue valueType){
         switch (valueType){
             case SPECTRUM:
                 return spectrum;
@@ -953,6 +936,118 @@ namespace ofxaa {
                 return predominantPitchMelodia;
             case PREDOMINANT_PITCH_MELODIA_CONFIDENCES:
                 return predominantPitchMelodia;
+                
+            case NONE_BINS:
+                ofLogError()<< "ofxAANetwork: getValues() for NONE_BINS type.";
+                return NULL;
         }
+    }
+    //----------------------------------------------
+    float Network::getMinEstimatedValue(ofxAAValue valueType){
+        //TODO: Copy max
+        return getAlgorithmWithType(valueType)->minEstimatedValue;
+    }
+    //----------------------------------------------
+    float Network::getMaxEstimatedValue(ofxAAValue valueType){
+        switch (valueType) {
+            case DISTRIBUTION_SHAPE_KURTOSIS:
+                return distributionShape->getMaxKurtosisValue();
+            case DISTRIBUTION_SHAPE_SPREAD:
+                return distributionShape->getMaxSpreadValue();
+            case DISTRIBUTION_SHAPE_SKEWNESS:
+                return distributionShape->getMaxSkewnessValue();
+                
+            case MEL_BANDS_KURTOSIS:
+                return melBands_distributionShape->getMaxKurtosisValue();
+            case MEL_BANDS_SPREAD:
+                return melBands_distributionShape->getMaxSpreadValue();
+            case MEL_BANDS_SKEWNESS:
+                return melBands_distributionShape->getMaxSkewnessValue();
+                
+            case ERB_BANDS_KURTOSIS:
+                return erbBands_distributionShape->getMaxKurtosisValue();
+            case ERB_BANDS_SPREAD:
+                return erbBands_distributionShape->getMaxSpreadValue();
+            case ERB_BANDS_SKEWNESS:
+                return erbBands_distributionShape->getMaxSkewnessValue();
+                
+            case BARK_BANDS_KURTOSIS:
+                return barkBands_distributionShape->getMaxKurtosisValue();
+            case BARK_BANDS_SPREAD:
+                return barkBands_distributionShape->getMaxSpreadValue();
+            case BARK_BANDS_SKEWNESS:
+                return barkBands_distributionShape->getMaxSkewnessValue();
+                
+            case SPECTRAL_KURTOSIS:
+                return spectral_distributionShape->getMaxKurtosisValue();
+            case SPECTRAL_SPREAD:
+                return spectral_distributionShape->getMaxSpreadValue();
+            case SPECTRAL_SKEWNESS:
+                return spectral_distributionShape->getMaxSkewnessValue();
+            case PITCH_YIN_FREQUENCY:
+                return pitchYinFFT->getMaxEstimatedValues()[0];
+                
+            default:
+                return getAlgorithmWithType(valueType)->maxEstimatedValue;
+    
+        }
+    }
+    //----------------------------------------------
+    float Network::getMaxEstimatedValue(ofxAABinsValue valueType){
+        return getAlgorithmWithType(valueType)->maxEstimatedValue;
+    }
+    
+    //----------------------------------------------
+    float Network::getMinEstimatedValue(ofxAABinsValue valueType){
+        return getAlgorithmWithType(valueType)->minEstimatedValue;
+    }
+    //----------------------------------------------
+    void Network::setMaxEstimatedValue(ofxAAValue valueType, float value){
+        switch (valueType) {
+            case DISTRIBUTION_SHAPE_KURTOSIS:
+                distributionShape->setMaxKurtosisValue(value);
+            case DISTRIBUTION_SHAPE_SPREAD:
+                distributionShape->setMaxSpreadValue(value);
+            case DISTRIBUTION_SHAPE_SKEWNESS:
+                distributionShape->setMaxSkewnessValue(value);
+                
+            case MEL_BANDS_KURTOSIS:
+                return melBands_distributionShape->setMaxKurtosisValue(value);
+            case MEL_BANDS_SPREAD:
+                return melBands_distributionShape->setMaxSpreadValue(value);
+            case MEL_BANDS_SKEWNESS:
+                return melBands_distributionShape->setMaxSkewnessValue(value);
+                
+            case ERB_BANDS_KURTOSIS:
+                return erbBands_distributionShape->setMaxKurtosisValue(value);
+            case ERB_BANDS_SPREAD:
+                return erbBands_distributionShape->setMaxSpreadValue(value);
+            case ERB_BANDS_SKEWNESS:
+                return erbBands_distributionShape->setMaxSkewnessValue(value);
+                
+            case BARK_BANDS_KURTOSIS:
+                return barkBands_distributionShape->setMaxKurtosisValue(value);
+            case BARK_BANDS_SPREAD:
+                return barkBands_distributionShape->setMaxSpreadValue(value);
+            case BARK_BANDS_SKEWNESS:
+                return barkBands_distributionShape->setMaxSkewnessValue(value);
+                
+            case SPECTRAL_KURTOSIS:
+                return spectral_distributionShape->setMaxKurtosisValue(value);
+            case SPECTRAL_SPREAD:
+                return spectral_distributionShape->setMaxSpreadValue(value);
+            case SPECTRAL_SKEWNESS:
+                return spectral_distributionShape->setMaxSkewnessValue(value);
+            case PITCH_YIN_FREQUENCY:
+                return pitchYinFFT->setMaxEstimatedValues({value, 1.0});
+                
+            default:
+                getAlgorithmWithType(valueType)->maxEstimatedValue = value;
+                break;
+        }
+    }
+    //----------------------------------------------
+    void Network::setMaxEstimatedValue(ofxAABinsValue valueType, float value){
+        getAlgorithmWithType(valueType)->maxEstimatedValue = value;
     }
 }

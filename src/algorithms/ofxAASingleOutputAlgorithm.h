@@ -39,8 +39,9 @@ public:
     
 private:
     
+    float normalizedValue();
+    float linearValue();
     
-    float valueNormalized();
     void smoothValue(float& valueToSmooth, float& smoothedValue, float smthAmnt);
     
     float _smoothedValue;

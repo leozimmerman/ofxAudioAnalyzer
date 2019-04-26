@@ -27,20 +27,29 @@
 ofxAAOneVectorOutputAlgorithm::ofxAAOneVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize){
     
     assignOutputValuesSize(outputSize, 0.0);
-    hasLogaritmicValues = false;
+    hasLogarithmicValues = false;
 }
 //-------------------------------------------
 void ofxAAOneVectorOutputAlgorithm::assignOutputValuesSize(int size, int val){
     outputValues.assign(size, val);
-    _normalizedValues.assign(size, val);
-    _smoothedValues.assign(size, val);
-    _smoothedValuesNormalized.assign(size, val);
+    checkInternalValuesSizes();
+}
+//-------------------------------------------
+void ofxAAOneVectorOutputAlgorithm::checkInternalValuesSizes(){
+    auto size = outputValues.size();
+    float val = 0.0;
+    if (size != _normalizedValues.size()){
+        _normalizedValues.assign(size, val);
+        _smoothedValues.assign(size, val);
+        _smoothedValuesNormalized.assign(size, val);
+        _linearValues.assign(size, val);
+    }
 }
 //-------------------------------------------
 void ofxAAOneVectorOutputAlgorithm::compute(){
     ofxAABaseAlgorithm::compute();
     if (!isActive) {
-        float zeroValue = hasLogaritmicValues ? dbSilenceCutoff : 0.0; ///???
+        float zeroValue = hasLogarithmicValues ? dbSilenceCutoff : 0.0;
         static vector<float> zerosVec(outputValues.size(), zeroValue);
         outputValues = zerosVec;
     }
@@ -51,26 +60,44 @@ float ofxAAOneVectorOutputAlgorithm::getValueAtIndex(int index, float smooth, bo
 }
 //-------------------------------------------
 vector<float>& ofxAAOneVectorOutputAlgorithm::getValues(float smooth, bool normalized){
+    checkInternalValuesSizes();
+
     if (normalized){
         normalizeValues(outputValues, _normalizedValues);
         smoothValues(_normalizedValues, _smoothedValuesNormalized, smooth);
         return _smoothedValuesNormalized;
     } else {
-        smoothValues(outputValues, _smoothedValues, smooth);
+        linValues(outputValues, _linearValues);
+        smoothValues(_linearValues, _smoothedValues, smooth);
         return _smoothedValues;
+    }
+}
+//-------------------------------------------
+void ofxAAOneVectorOutputAlgorithm::linValues(vector<float>& valuesToLin, vector<float>& linearValues){
+    if (hasLogarithmicValues){
+        float dbMax = lin2db(maxEstimatedValue);
+        for (int i=0; i<outputValues.size(); i++){
+            linearValues[i] =  ofMap(lin2db(outputValues[i]), DB_MIN, dbMax, 0.0, 1.0, TRUE);
+        }
+    } else {
+        linearValues = valuesToLin;
     }
 }
 //-------------------------------------------
 void ofxAAOneVectorOutputAlgorithm::normalizeValues(vector<float>& valuesToNorm, vector<float>& normValues){
     
-    if (isNormalizedByDefault) {
-        normValues = valuesToNorm;
+    if (isNormalizedByDefault || hasLogarithmicValues) {
+        linValues(outputValues, _linearValues);
+        normValues = _linearValues;
     } else {
         for (int i=0; i<valuesToNorm.size(); i++){
-            if (hasLogaritmicValues){
-                normValues[i] = ofMap(lin2db(valuesToNorm[i]), dbSilenceCutoff, DB_MAX, 0.0, 1.0, TRUE);
+            if (hasLogarithmicValues){
+                float dbMax = 0.0;
+                normValues[i] = ofMap(lin2db(valuesToNorm[i]), dbSilenceCutoff, dbMax, 0.0, 1.0, TRUE);
             } else {
-                normValues[i] = ofMap(outputValues[i], minEstimatedValue, maxEstimatedValue, 0.0, 1.0, TRUE);
+                float min = (_minEstimatedValues.size() == normValues.size()) ? _minEstimatedValues[i] : minEstimatedValue;
+                float max = (_maxEstimatedValues.size() == normValues.size()) ? _maxEstimatedValues[i] : maxEstimatedValue;
+                normValues[i] = ofMap(outputValues[i], min, max, 0.0, 1.0, TRUE);
             }
         }
     }
@@ -87,6 +114,16 @@ void ofxAAOneVectorOutputAlgorithm::smoothValues(vector<float>& valuesToSmooth, 
     for(int i=0; i<smoothedValues.size(); i++){
         smoothedValues[i] = smooth(valuesToSmooth[i], smoothedValues[i], smthAmnt);
     }
+}
+
+void ofxAAOneVectorOutputAlgorithm::setMaxEstimatedValues(vector<float> values){
+    if (values.size() != outputValues.size()){ return ;}
+    _maxEstimatedValues = values;
+}
+
+void ofxAAOneVectorOutputAlgorithm::setMinEstimatedValues(vector<float> values){
+    if (values.size() != outputValues.size()){ return ;}
+    _minEstimatedValues = values;
 }
 
 //-------------------------------------------

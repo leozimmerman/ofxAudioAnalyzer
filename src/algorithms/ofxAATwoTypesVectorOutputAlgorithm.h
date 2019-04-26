@@ -33,8 +33,6 @@ public:
     
     ofxAATwoTypesVectorOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize, int outputSize_1, int outputSize_2);
     
-    
-    
     void assignSecondOutpuValuesSize(int size, string val);
     
     vector<string> stringValues;

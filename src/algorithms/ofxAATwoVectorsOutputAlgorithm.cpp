@@ -30,16 +30,34 @@ ofxAATwoVectorsOutputAlgorithm::ofxAATwoVectorsOutputAlgorithm(ofxaa::AlgorithmT
 
 void ofxAATwoVectorsOutputAlgorithm::assignSecondOutpuValuesSize(int size, int val){
     outputValues_2.assign(size, val);
-    //smoothedFloatValues_2.assign(size, val);
+    _smoothedValuesNormalized_2.assign(size, val);
+    _smoothedValues_2.assign(size, val);
+    _linearValues_2.assign(size, val);
+    _normalizedValues_2.assign(size, val);
+}
+
+void ofxAATwoVectorsOutputAlgorithm::checkInternalValuesSizes() {
+    ofxAAOneVectorOutputAlgorithm::checkInternalValuesSizes();
+    auto size = outputValues_2.size();
+    float val = 0.0;
+    if (size != _normalizedValues_2.size()){
+        _smoothedValuesNormalized_2.assign(size, val);
+        _smoothedValues_2.assign(size, val);
+        _linearValues_2.assign(size, val);
+        _normalizedValues_2.assign(size, val);
+    }
 }
 
 vector<float>& ofxAATwoVectorsOutputAlgorithm::getValues2(float smooth, bool normalized){
+    checkInternalValuesSizes();
+    
     if (normalized){
         normalizeValues(outputValues_2, _normalizedValues_2);
         smoothValues(_normalizedValues_2, _smoothedValuesNormalized_2, smooth);
         return _smoothedValuesNormalized_2;
     } else {
-        smoothValues(outputValues_2, _smoothedValues_2, smooth);
+        linValues(outputValues_2, _linearValues_2);
+        smoothValues(_linearValues_2, _smoothedValues_2, smooth);
         return _smoothedValues_2;
     }
 }

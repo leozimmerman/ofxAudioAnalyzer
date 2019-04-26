@@ -31,5 +31,5 @@
 #include "ofxAAVectorVectorOutputAlgorithm.h"
 #include "ofxAAOnsetsAlgorithm.h"
 #include "ofxAANSGConstantQAlgorithm.h"
-
+#include "ofxAADistributionShapeAlgorithm.h"
 
