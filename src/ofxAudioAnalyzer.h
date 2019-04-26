@@ -27,7 +27,6 @@
 #include "ofMain.h"
 #include "ofxAudioAnalyzerUnit.h"
 
-
 class ofxAudioAnalyzer{
  
  public:
@@ -45,23 +44,17 @@ class ofxAudioAnalyzer{
     ///\param algorithm
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
-    float getValue(ofxAAAlgorithmType algorithm, int channel, float smooth=0.0, bool normalized=false);
+    float getValue(ofxAAValue valueType, int channel, float smooth=0.0, bool normalized=false);
     
     ///Gets values of vector output Algorithms.
     ///\param algorithm
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
     ///\param smooth: smoothing amount. 0.0=non smoothing, 1.0=fixed value
-    vector<float>& getValues(ofxAAAlgorithmType algorithm, int channel, float smooth=0.0);
-    
-    ///Gets the array of pitch salience function peaks: bin/cents & value
-    vector<SalienceFunctionPeak>& getSalienceFunctionPeaks(int channel, float smooth=0.0);
+    vector<float>& getValues(ofxAABinsValue valueType, int channel, float smooth, bool normalized);
     
     ///Returns if there is an onset in the speciefied channel.
     bool getOnsetValue(int channel);
     
-    ///Gets the state of an algorithm
-    bool getIsActive(int channel, ofxAAAlgorithmType algorithm);
-
     ///Pointers for the audio analyzing units.
     ///Use very carefully!
     vector<ofxAudioAnalyzerUnit*>& getChannelAnalyzersPtrs(){return channelAnalyzerUnits;}
@@ -69,11 +62,9 @@ class ofxAudioAnalyzer{
     ///Resets onsetsr detections buffer
     void resetOnsets(int channel);
     
-    ///Activates and deactives algorithms.
-    void setActive(int channel, ofxAAAlgorithmType algorithm, bool state);
-    
     ///Set max estimated values for algorithms that are not normalized
-    void setMaxEstimatedValue(int channel, ofxAAAlgorithmType algorithm, float value);
+    void setMaxEstimatedValue(int channel, ofxAAValue valueType, float value);
+    void setMaxEstimatedValue(int channel, ofxAABinsValue valueType, float value);
     
     ///Sets onsets detection parameters
     ///\param channel: starting from 0 (for stereo setup, 0 and 1)
@@ -82,9 +73,6 @@ class ofxAudioAnalyzer{
     ///\param timeThreshold: time threshold in ms.
     ///\param useTimeThreshold: use or note the time threshold.
     void setOnsetsParameters(int channel, float alpha, float silenceTresh, float timeTresh, bool useTimeTresh = true);
-    
-    void setSalienceFunctionPeaksParameters(int channel, int maxPeaks);
-    
     
 
  private:
