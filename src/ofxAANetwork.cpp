@@ -112,9 +112,12 @@ namespace ofxaa {
         loudness->maxEstimatedValue = LOUDNESS_MAX_VALUE;
         algorithms.push_back(loudness);
         
+        /*
+         Only works at 44100 samplerate
         loudnessVickers = new ofxAASingleOutputAlgorithm(LoudnessVickers, sr, fs);
         loudnessVickers->hasDbValues = true;
         algorithms.push_back(loudnessVickers);
+        */
         
         silenceRate = new ofxAAOneVectorOutputAlgorithm(SilenceRate, sr, fs, 3);
         silenceRate->isNormalizedByDefault = true;
@@ -122,29 +125,29 @@ namespace ofxaa {
         
         dynamicComplexity = new ofxAAOneVectorOutputAlgorithm(DynamicComplexity, sr, fs, 2);
         dynamicComplexity->maxEstimatedValue = DYN_COMP_MAX_VALUE;
-        algorithms.push_back(dynamicComplexity);
+//        algorithms.push_back(dynamicComplexity);
         
         //MARK: SFX
         envelope = new ofxAAOneVectorOutputAlgorithm(Envelope, sr, fs);
         algorithms.push_back(envelope);
         
         envelope_acummulated = new ofxAAOneVectorOutputAlgorithm(Envelope, sr, fs);
-        algorithms.push_back(envelope_acummulated);
+//        algorithms.push_back(envelope_acummulated);
         
         sfx_decrease = new ofxAASingleOutputAlgorithm(Decrease, sr, fs);
         sfx_decrease->hasLogarithmicValues = true;
-        algorithms.push_back(sfx_decrease);
+//        algorithms.push_back(sfx_decrease);
         
         centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, sr, fs);
-        algorithms.push_back(centralMoments);
+//        algorithms.push_back(centralMoments);
         
         distributionShape = new ofxAADistributionShapeAlgorithm(sr, fs);
         distributionShape->setMinEstimatedValues(distributionShapeMinValues);
         distributionShape->setMaxEstimatedValues(distributionShapeMaxValues);
-        algorithms.push_back(distributionShape);
+//        algorithms.push_back(distributionShape);
         
         logAttackTime = new ofxAAOneVectorOutputAlgorithm(LogAttackTime, sr, fs, 3);
-        algorithms.push_back(logAttackTime);
+//        algorithms.push_back(logAttackTime);
         
         strongDecay = new ofxAASingleOutputAlgorithm(StrongDecay, sr, fs);
         strongDecay->maxEstimatedValue = STRONG_DECAY_MAX_VALUE;
@@ -163,7 +166,7 @@ namespace ofxaa {
         algorithms.push_back(tcToTotal);
         
         derivativeSFX = new ofxAAOneVectorOutputAlgorithm(DerivativeSFX, sr, fs, 2);
-        algorithms.push_back(derivativeSFX);
+//        algorithms.push_back(derivativeSFX);
         
         //MARK: PITCH
         pitchYinFFT = new ofxAAOneVectorOutputAlgorithm(PitchYinFFT, sr, fs, 2);
@@ -171,7 +174,7 @@ namespace ofxaa {
         algorithms.push_back(pitchYinFFT);
         
         pitchMelodia = new ofxAATwoVectorsOutputAlgorithm(PitchMelodia, sr, fs);
-        algorithms.push_back(pitchMelodia);
+//        algorithms.push_back(pitchMelodia); // NOT WORKING
         
         multiPitchKlapuri = new ofxAAVectorVectorOutputAlgorithm(MultiPitchKlapuri, sr, fs);
         algorithms.push_back(multiPitchKlapuri);
@@ -186,12 +189,13 @@ namespace ofxaa {
         
         
         predominantPitchMelodia = new ofxAATwoVectorsOutputAlgorithm(PredominantPitchMelodia, sr, fs);
-        algorithms.push_back(predominantPitchMelodia);
+//        algorithms.push_back(predominantPitchMelodia); // NOT WORKING
         
         
         //MARK: SPECTRAL
         nsgConstantQ = new ofxAANSGConstantQAlgorithm(NSGConstantQ, sr, fs);
-        algorithms.push_back(nsgConstantQ);
+        
+//        algorithms.push_back(nsgConstantQ); // HIGH CPU CONSUMING ALGORITHM
       
         //MARK: -MelBands
         mfcc = new ofxAATwoVectorsOutputAlgorithm(Mfcc, sr, fs, 40, 13);
@@ -414,9 +418,10 @@ namespace ofxaa {
         loudness->algorithm->input("signal").set(dcRemoval->outputValues);
         loudness->algorithm->output("loudness").set(loudness->outputValue);
         
+        /* Only at 44100 sr
         loudnessVickers->algorithm->input("signal").set(dcRemoval->outputValues);
         loudnessVickers->algorithm->output("loudness").set(loudnessVickers->outputValue);
-        
+        */
         silenceRate->algorithm->input("frame").set(dcRemoval->outputValues);
         silenceRate->algorithm->output("threshold_0").set(silenceRate->outputValues[0]);
         silenceRate->algorithm->output("threshold_1").set(silenceRate->outputValues[1]);
@@ -657,19 +662,25 @@ namespace ofxaa {
         
     }
     //MARK: - COMPUTE
+    
+
     void Network::computeAlgorithms(vector<Real>& signal, vector<Real>& accumulatedSignal){
         
         _audioSignal = signal;
         _accumulatedAudioSignal = accumulatedSignal;
         
-        for (auto algorithm : algorithms){
-            if (algorithm->getType() == TCToTotal || algorithm->getType() == StrongDecay){
+//        for (auto algorithm : algorithms){
+        int size = algorithms.size();//70
+        for (int i=0; i<algorithms.size(); i++){
+            if (algorithms[i]->getType() == TCToTotal || algorithms[i]->getType() == StrongDecay){
                 if(envelope->outputValues[0] != 0.0){
                     //StrongDecay and TcToTotal are not defined for a zero signal
-                    algorithm->compute();
+                    algorithms[i]->compute();
                 }
             } else {
-                algorithm->compute();
+                
+                algorithms[i]->compute();
+                
             }
         }
         
@@ -698,7 +709,7 @@ namespace ofxaa {
                 return derivativeSFX->getValueAtIndex(0, smooth, normalized);
             case DERIVATIVE_SFX_BEFORE_MAX:
                 return derivativeSFX->getValueAtIndex(1, smooth, normalized);
-            //MARK: PITCH
+            
             case PITCH_YIN_FREQUENCY:
                 return pitchYinFFT->getValueAtIndex(0, smooth, normalized);
             case PITCH_YIN_CONFIDENCE:
@@ -784,8 +795,6 @@ namespace ofxaa {
                 return zeroCrossingRate;
             case LOUDNESS:
                 return loudness;
-            case LOUDNESS_VICKERS:
-                return loudnessVickers;
             case SILENCE_RATE_20dB:
                 return silenceRate;
             case SILENCE_RATE_30dB:

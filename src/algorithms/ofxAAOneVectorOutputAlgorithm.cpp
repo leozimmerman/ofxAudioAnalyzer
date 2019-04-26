@@ -105,7 +105,6 @@ void ofxAAOneVectorOutputAlgorithm::normalizeValues(vector<float>& valuesToNorm,
 }
 //-------------------------------------------
 void ofxAAOneVectorOutputAlgorithm::smoothValues(vector<float>& valuesToSmooth, vector<float>& smoothedValues, float smthAmnt){
-    
     if (smthAmnt == 0) {
         smoothedValues = valuesToSmooth;
         return;
@@ -125,44 +124,5 @@ void ofxAAOneVectorOutputAlgorithm::setMinEstimatedValues(vector<float> values){
     if (values.size() != outputValues.size()){ return ;}
     _minEstimatedValues = values;
 }
-
-//-------------------------------------------
-//int ofxAAOneVectorOutputAlgorithm::getBinsNum(){
-//    return outputValues.size();
-//}
-//-------------------------------------------
-/*
-void ofxAAOneVectorOutputAlgorithm::castValues(vector<Real>& reals, vector<float>& floats){
-    if (floats.size() != reals.size()) { return; }
-    
-    for (int i=0; i<reals.size(); i++){
-        if(getIsActive()){
-            if(hasLogaritmicValues){
-                if(reals[i] == 0.0){
-                    floats[i] = log10(0.000001);//DB_MIN
-                }else{
-                    floats[i] = log10((float) reals[i]);
-                }
-            }else{
-                floats[i] = (float) reals[i];
-            }
-        }else{
-            if(hasLogaritmicValues){
-                floats[i] = log10(0.000001);//DB_MIN
-            }else{
-                floats[i] = 0.0;
-            }
-        }
-    }
-    
-}
-*/
-//-------------------------------------------
-//void ofxAAOneVectorOutputAlgorithm::updateLogRealValues(){
-//    logRealValues.resize(realValues.size());
-//    for (int i=0; i<realValues.size(); ++i)
-//        logRealValues[i] = amp2db(realValues[i]);
-//
-//}
 
 

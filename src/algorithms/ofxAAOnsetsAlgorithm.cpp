@@ -25,6 +25,8 @@
 #include "ofxAAOnsetsAlgorithm.h"
 #include "ofxAAConfigurations.h"
 
+#define ONSETS_DETECTIONS_BUFFER_SIZE 32 //64
+
 ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAOneVectorOutputAlgorithm* windowingAlgorithm, int samplerate, int framesize) : ofxAABaseAlgorithm(ofxaa::Onsets, samplerate, framesize) {
     
     windowing = windowingAlgorithm;
@@ -53,8 +55,8 @@ ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAOneVectorOutputAlgorithm* window
      512 x 64 = 742.4 ms
      */
     
-    //    detecBufferSize = bufferSize;
-    detecBufferSize = 64;
+
+    detecBufferSize = ONSETS_DETECTIONS_BUFFER_SIZE;
     
     detection_sum.assign(detecBufferSize, 0.0);
     detections.assign(3, vector<Real> (detecBufferSize));
@@ -67,10 +69,9 @@ ofxAAOnsetsAlgorithm::ofxAAOnsetsAlgorithm(ofxAAOneVectorOutputAlgorithm* window
     addHfc = addComplex = addFlux = true;
     hfc_max = complex_max = flux_max = 0.0;
     usingTimeThreshold = TRUE;
-    onsetsMode = TIME_BASED;
     bufferCounter = 0;
-    
     _value = false;
+    onsetsMode = TIME_BASED;
     
 }
 void ofxAAOnsetsAlgorithm::connectAlgorithms(){
@@ -106,13 +107,11 @@ void ofxAAOnsetsAlgorithm::compute(){
 }
 //-------------------------------------------
 void ofxAAOnsetsAlgorithm::evaluate(){
-    
     //is current buffer an Onset?
     bool isCurrentBufferOnset = onsetBufferEvaluation(onsetHfc->outputValue, onsetComplex->outputValue, onsetFlux->outputValue);
     
     //if current buffer is onset, check for timeThreshold evaluation
     if (usingTimeThreshold && isCurrentBufferOnset){
-        
         switch (onsetsMode) {
             case TIME_BASED:
                 _value = onsetTimeThresholdEvaluation();
@@ -123,7 +122,6 @@ void ofxAAOnsetsAlgorithm::evaluate(){
             default:
                 break;
         }
-    
     }
     else{
         _value = isCurrentBufferOnset;
@@ -213,7 +211,6 @@ bool ofxAAOnsetsAlgorithm::onsetTimeThresholdEvaluation(){
         onsetTimeEvaluation = true;
         lastOnsetTime = currentTime;
     }
-    
     return onsetTimeEvaluation;
 }
 //----------------------------------------------
@@ -228,10 +225,7 @@ bool ofxAAOnsetsAlgorithm::onsetBufferNumThresholdEvaluation(){
         onsetBufferNumEvaluation = true;
         lastOnsetBufferNum = bufferCounter;
     }
-    
     return onsetBufferNumEvaluation;
-    
-    
 }
 //----------------------------------------------
 void ofxAAOnsetsAlgorithm::reset(){
