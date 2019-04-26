@@ -25,6 +25,7 @@
 #include "ofxAASingleOutputAlgorithm.h"
 
 ofxAASingleOutputAlgorithm::ofxAASingleOutputAlgorithm(ofxaa::AlgorithmType algorithmType, int samplerate, int framesize) : ofxAABaseAlgorithm(algorithmType, samplerate, framesize) {
+    outputValue = 0.0;
     _smoothedValue = 0.0;
     _smoothedNormValue = 0.0;
 }
