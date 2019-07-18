@@ -162,11 +162,10 @@ bool ofSoundPlayerExtended::sfReadFile(const std::filesystem::path& path, vector
 
 #ifdef OF_USING_MPG123
 //------------------------------------------------------------
-bool ofSoundPlayerExtended::mpg123ReadFile(string path,vector<short> & buffer,vector<float> & fftAuxBuffer){
+bool ofSoundPlayerExtended::mpg123ReadFile(const std::filesystem::path& path,std::vector<short> & buffer,std::vector<float> & fftAuxBuffer){ 
     int err = MPG123_OK;
     mpg123_handle * f = mpg123_new(NULL,&err);
     if(mpg123_open(f,path.c_str())!=MPG123_OK){
-        ofLog(OF_LOG_ERROR,"ofSoundPlayerExtended: couldnt read " + path);
         return false;
     }
     
@@ -228,6 +227,8 @@ bool ofSoundPlayerExtended::decoderReadFile(const std::filesystem::path& path,ve
     return true;
     
     #endif
+
+    return false;
 }
 
 //------------------------------------------------------------
@@ -308,8 +309,6 @@ bool ofSoundPlayerExtended::mpg123Stream(const std::filesystem::path& path,vecto
         long int rate;
         mpg123_getformat(mp3streamf,&rate,&channels,&stream_encoding);
         if(stream_encoding!=MPG123_ENC_SIGNED_16){
-            ofLogError("ofSoundPlayerExtended") << "mpg123Stream(): " << getMpg123EncodingString(stream_encoding)
-            << " encoding for \"" << path << "\"" << " unsupported, expecting MPG123_ENC_SIGNED_16";
             return false;
         }
         samplerate = rate;
@@ -737,6 +736,7 @@ float ofSoundPlayerExtended::getPosition() const{
             //alGetSourcef(sources[sources.size()-1],AL_SEC_OFFSET,&pos);
             //return pos / duration;
         }
+    return 0.0;
 }
 
 //------------------------------------------------------------
