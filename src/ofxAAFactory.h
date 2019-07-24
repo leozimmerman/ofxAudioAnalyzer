@@ -30,6 +30,10 @@
 
 #include "essentiamath.h"
 
+#define MELBANDS_NUMBER_BANDS 24
+#define GFCC_NUMBER_BANDS 40
+#define BARKBANDS_NUMBER_BANDS 27
+
 using namespace essentia;
 using namespace standard;
 

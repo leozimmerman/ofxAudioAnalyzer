@@ -25,8 +25,6 @@
 #include "ofxAudioAnalyzerUnit.h"
 #include "ofxAAConfigurations.h"
 
-
-
 #pragma mark - Main funcs
 
 ofxAudioAnalyzerUnit::ofxAudioAnalyzerUnit(int sampleRate, int bufferSize) {
@@ -34,7 +32,7 @@ ofxAudioAnalyzerUnit::ofxAudioAnalyzerUnit(int sampleRate, int bufferSize) {
     framesize = bufferSize;
     
     audioBuffer.resize(bufferSize);
-    accumulatedAudioBuffer.resize(bufferSize * 87, 0.0); //almost a second
+    accumulatedAudioBuffer.resize(bufferSize * ACCUMULATED_SIGNAL_MULTIPLIER, 0.0);
     
     network = new ofxaa::Network(samplerate, framesize);
 }

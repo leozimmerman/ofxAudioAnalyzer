@@ -25,6 +25,7 @@
 
 #include "ofxAANetwork.h"
 #include "ofxAAConfigurations.h"
+#include "ofxAAFactory.h"
 
 #define LOUDNESS_MAX_VALUE 100.0
 #define DYN_COMP_MAX_VALUE 50.0
@@ -53,6 +54,10 @@
 
 #define GFCC_MAX_VALUE 36000
 
+#define HPCP_SIZE 12
+
+//TODO: Remove deprecated mfcc ?
+
 namespace ofxaa {
     
     Network::Network(int sr, int bufferSize){
@@ -60,7 +65,7 @@ namespace ofxaa {
         _samplerate = sr;
         
         _audioSignal.resize(bufferSize);
-        _accumulatedAudioSignal.resize(bufferSize * 87, 0.0); //TODO: Remove duplicated calculation
+        _accumulatedAudioSignal.resize(bufferSize * ACCUMULATED_SIGNAL_MULTIPLIER, 0.0);
         
         createAlgorithms();
         connectAlgorithms();
@@ -132,7 +137,7 @@ namespace ofxaa {
         algorithms.push_back(envelope);
         
         envelope_acummulated = new ofxAAOneVectorOutputAlgorithm(Envelope, sr, fs);
-//        algorithms.push_back(envelope_acummulated);
+        algorithms.push_back(envelope_acummulated);
         
         sfx_decrease = new ofxAASingleOutputAlgorithm(Decrease, sr, fs);
         sfx_decrease->hasLogarithmicValues = true;
@@ -198,12 +203,16 @@ namespace ofxaa {
 //        algorithms.push_back(nsgConstantQ); // HIGH CPU CONSUMING ALGORITHM
       
         //MARK: -MelBands
-        mfcc = new ofxAATwoVectorsOutputAlgorithm(Mfcc, sr, fs, 40, 13);
+        mfcc = new ofxAATwoVectorsOutputAlgorithm(Mfcc, sr, fs, MELBANDS_NUMBER_BANDS, 13);
         mfcc->hasLogarithmicValues = true;
         algorithms.push_back(mfcc);
         
+        melBands = new ofxAAOneVectorOutputAlgorithm(MelBands, sr, fs, MELBANDS_NUMBER_BANDS);
+        melBands->hasLogarithmicValues = true;
+        algorithms.push_back(melBands);
+        
         melBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, sr, fs);
-        ofxaa::configureCentralMoments(melBands_centralMoments->algorithm, "pdf", 40-1);
+        ofxaa::configureCentralMoments(melBands_centralMoments->algorithm, "pdf", MELBANDS_NUMBER_BANDS-1);
         algorithms.push_back(melBands_centralMoments);
         
         melBands_distributionShape = new ofxAADistributionShapeAlgorithm(sr, fs);
@@ -220,13 +229,13 @@ namespace ofxaa {
         algorithms.push_back(melBands_crest);
         
         //MARK: -ERB Bands
-        gfcc = new ofxAATwoVectorsOutputAlgorithm(Gfcc, sr, fs, 40, 13);
+        gfcc = new ofxAATwoVectorsOutputAlgorithm(Gfcc, sr, fs, GFCC_NUMBER_BANDS, 13);
         gfcc->maxEstimatedValue = GFCC_MAX_VALUE ;
         gfcc->hasLogarithmicValues = true;
         algorithms.push_back(gfcc);
         
         erbBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, sr, fs);
-        ofxaa::configureCentralMoments(erbBands_centralMoments->algorithm, "pdf", 40-1);
+        ofxaa::configureCentralMoments(erbBands_centralMoments->algorithm, "pdf", GFCC_NUMBER_BANDS-1);
         algorithms.push_back(erbBands_centralMoments);
         
         erbBands_distributionShape = new ofxAADistributionShapeAlgorithm(sr, fs);
@@ -243,12 +252,12 @@ namespace ofxaa {
         algorithms.push_back(erbBands_crest);
         
         //MARK: -BarkBands
-        barkBands = new ofxAAOneVectorOutputAlgorithm(BarkBands, sr, fs, 27);
+        barkBands = new ofxAAOneVectorOutputAlgorithm(BarkBands, sr, fs, BARKBANDS_NUMBER_BANDS);
         barkBands->hasLogarithmicValues = true;
         algorithms.push_back(barkBands);
         
         barkBands_centralMoments = new ofxAAOneVectorOutputAlgorithm(CentralMoments, sr, fs);
-        ofxaa::configureCentralMoments(barkBands_centralMoments->algorithm, "pdf", 27-1);
+        ofxaa::configureCentralMoments(barkBands_centralMoments->algorithm, "pdf", BARKBANDS_NUMBER_BANDS-1);
         algorithms.push_back(barkBands_centralMoments);
         
         barkBands_distributionShape = new ofxAADistributionShapeAlgorithm(sr, fs);
@@ -373,8 +382,8 @@ namespace ofxaa {
         ofxaa::configureSpectralPeaks(spectralPeaks_hpcp->algorithm, 0.00001, 5000.0, 10000, 40.0, "magnitude");
         algorithms.push_back(spectralPeaks_hpcp);
         
-        hpcp = new ofxAAOneVectorOutputAlgorithm(Hpcp, sr, fs, 36);
-        ofxaa::configureHPCP(hpcp->algorithm, true, 500.0, 8, 5000.0, false, 40.0, true, "unitMax", 440, 36, "cosine", 0.5);
+        hpcp = new ofxAAOneVectorOutputAlgorithm(Hpcp, sr, fs, HPCP_SIZE);
+        ofxaa::configureHPCP(hpcp->algorithm, true, 500.0, 0, 5000.0, false, 40.0, false, "unitMax", 440, HPCP_SIZE, "squaredCosine", 1.0);
         hpcp->isNormalizedByDefault = true;
         algorithms.push_back(hpcp);
         
@@ -456,16 +465,16 @@ namespace ofxaa {
         logAttackTime->algorithm->output("attackStop").set(logAttackTime->outputValues[2]);
         
         //TODO: Should this also be connected to envelop_accumulated?
-        strongDecay->algorithm->input("signal").set(envelope->outputValues);
+        strongDecay->algorithm->input("signal").set(envelope_acummulated->outputValues);
         strongDecay->algorithm->output("strongDecay").set(strongDecay->outputValue);
         
-        flatnessSFX->algorithm->input("envelope").set(envelope->outputValues);
+        flatnessSFX->algorithm->input("envelope").set(envelope_acummulated->outputValues);
         flatnessSFX->algorithm->output("flatness").set(flatnessSFX->outputValue);
         
-        maxToTotal->algorithm->input("envelope").set(envelope->outputValues);
+        maxToTotal->algorithm->input("envelope").set(envelope_acummulated->outputValues);
         maxToTotal->algorithm->output("maxToTotal").set(maxToTotal->outputValue);
         
-        tcToTotal->algorithm->input("envelope").set(envelope->outputValues);
+        tcToTotal->algorithm->input("envelope").set(envelope_acummulated->outputValues);
         tcToTotal->algorithm->output("TCToTotal").set(tcToTotal->outputValue);
         
         derivativeSFX->algorithm->input("envelope").set(envelope_acummulated->outputValues);
@@ -509,7 +518,10 @@ namespace ofxaa {
         mfcc->algorithm->output("bands").set(mfcc->outputValues);
         mfcc->algorithm->output("mfcc").set(mfcc->outputValues_2);
         
-        melBands_centralMoments->algorithm->input("array").set(mfcc->outputValues);
+        melBands->algorithm->input("spectrum").set(spectrum->outputValues);
+        melBands->algorithm->output("bands").set(melBands->outputValues);
+        
+        melBands_centralMoments->algorithm->input("array").set(melBands->outputValues);
         melBands_centralMoments->algorithm->output("centralMoments").set(melBands_centralMoments->outputValues);
         
         melBands_distributionShape->algorithm->input("centralMoments").set(melBands_centralMoments->outputValues);
@@ -517,10 +529,10 @@ namespace ofxaa {
         melBands_distributionShape->algorithm->output("spread").set(melBands_distributionShape->outputValues[1]);
         melBands_distributionShape->algorithm->output("skewness").set(melBands_distributionShape->outputValues[2]);
         
-        melBands_flatnessDb->algorithm->input("array").set(mfcc->outputValues);
+        melBands_flatnessDb->algorithm->input("array").set(melBands->outputValues);
         melBands_flatnessDb->algorithm->output("flatnessDB").set(melBands_flatnessDb->outputValue);
         
-        melBands_crest->algorithm->input("array").set(mfcc->outputValues);
+        melBands_crest->algorithm->input("array").set(melBands->outputValues);
         melBands_crest->algorithm->output("crest").set(melBands_crest->outputValue);
         
         //MARK: -ERB Bands
@@ -927,7 +939,7 @@ namespace ofxaa {
             case SPECTRUM:
                 return spectrum;
             case MFCC_MEL_BANDS:
-                return mfcc;
+                return melBands;
             case GFCC_ERB_BANDS:
                 return gfcc;
             case BARK_BANDS:

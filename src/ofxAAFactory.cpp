@@ -84,7 +84,9 @@ namespace ofxaa {
             case StrongPeak:
                 return factory.create("StrongPeak");
             case MelBands:
-                return factory.create("MelBands", "sampleRate", samplerate, "inputSize", (framesize/2)+1, "highFrequencyBound", samplerate/2);
+                return factory.create("MelBands", "sampleRate", samplerate, "inputSize", (framesize/2)+1, "highFrequencyBound", samplerate/2, "numberBands", MELBANDS_NUMBER_BANDS);
+            case Mfcc:
+                return factory.create("MFCC", "sampleRate", samplerate, "inputSize", (framesize/2)+1, "highFrequencyBound", samplerate/4);
             case Hfc:
                 return factory.create("HFC", "sampleRate", samplerate);
             case RollOff:
@@ -99,18 +101,15 @@ namespace ofxaa {
             case UnaryOperator:
                 return factory.create("UnaryOperator", "type", "square");
             case BarkBands:
-                return factory.create("BarkBands", "sampleRate", samplerate);
+                return factory.create("BarkBands", "sampleRate", samplerate, "numberBands", BARKBANDS_NUMBER_BANDS);
             case EnergyBand:
                 return factory.create("EnergyBand", "sampleRate", samplerate);
             case FlatnessDB:
                 return factory.create("FlatnessDB");
             case Flux:
                 return factory.create("Flux");
-            case Mfcc:
-                return factory.create("MFCC", "sampleRate", samplerate, "inputSize", (framesize/2)+1, "highFrequencyBound", samplerate/4);
             case Gfcc:
-                
-                return factory.create("GFCC", "sampleRate", samplerate, "inputSize", (framesize/2)+1, "highFrequencyBound", samplerate/2);
+                return factory.create("GFCC", "sampleRate", samplerate, "inputSize", (framesize/2)+1, "highFrequencyBound", samplerate/2, "numberBands", GFCC_NUMBER_BANDS);
             case Crest:
                 return factory.create("Crest");
             case Entropy:
@@ -143,7 +142,7 @@ namespace ofxaa {
             case EqualLoudness:
                 return factory.create("EqualLoudness", "sampleRate", samplerate);
             case Hpcp:
-                return factory.create("HPCP", "sampleRate", samplerate, "bandPreset", false, "size", 36);
+                return factory.create("HPCP", "sampleRate", samplerate);
             case ChordsDetection:
                 return factory.create("ChordsDetection", "sampleRate", samplerate);
                 

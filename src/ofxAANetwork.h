@@ -27,6 +27,8 @@
 #include "ofxAudioAnalyzerAlgorithms.h"
 #include "ofxAAValues.h"
 
+#define ACCUMULATED_SIGNAL_MULTIPLIER 20
+
 namespace ofxaa {
     class Network {
     public:
@@ -97,6 +99,8 @@ namespace ofxaa {
         ofxAAOneVectorOutputAlgorithm* spectrum;
         ofxAANSGConstantQAlgorithm* nsgConstantQ;
         ofxAATwoVectorsOutputAlgorithm* mfcc;
+        
+        ofxAAOneVectorOutputAlgorithm* melBands;
         ofxAAOneVectorOutputAlgorithm* melBands_centralMoments;
         ofxAADistributionShapeAlgorithm* melBands_distributionShape;
         ofxAASingleOutputAlgorithm* melBands_flatnessDb;
