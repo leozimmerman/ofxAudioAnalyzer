@@ -895,7 +895,7 @@ vector<float>& ofSoundPlayerExtended::getCurrentBuffer(int _size)
         {
             for(int j = 0; j < _size; ++j)
             {
-                if(pos+j<(int)buffer.size())
+                if((pos+j)*channels+i < (int)buffer.size())
                 {
                     currentBuffer[j] += float(buffer[(pos+j)*channels+i])/65534.0f;
                 }
