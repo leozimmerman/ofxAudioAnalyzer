@@ -606,7 +606,7 @@ bool ofxAudioAnalyzerUnit::getIsActive(ofxAAAlgorithm algorithm){
             ofLogWarning()<<"ofxAudioAnalyzerUnit: wrong algorithm to get if is active.";
             break;
     }
-
+  return true;
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getValue(ofxAAAlgorithm algorithm, float smooth, bool normalized){
@@ -797,6 +797,7 @@ vector<float>& ofxAudioAnalyzerUnit::getValues(ofxAAAlgorithm algorithm, float s
             ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting values.";
             break;
     }
+    return multiPitchKlapuri.getPitches(); //Just trying to avoid werror.
 }
 //----------------------------------------------
 vector<SalienceFunctionPeak>& ofxAudioAnalyzerUnit::getPitchSaliencePeaksRef(float smooth){
@@ -827,7 +828,7 @@ int ofxAudioAnalyzerUnit::getBinsNum(ofxAAAlgorithm algorithm){
             ofLogError()<<"ofxAudioAnalyzerUnit: wrong algorithm for getting bins number.";
             break;
     }
-    
+    return 0;
 }
 //----------------------------------------------
 float ofxAudioAnalyzerUnit::getMaxEstimatedValue(ofxAAAlgorithm algorithm){
